@@ -23,7 +23,7 @@ data BSPTree = Node { nSize :: (Int,Int),
 smallestRoomDimension = 4
 
 smallestBSPNodeSize = 8
-largestBSPNodeSize = 24
+largestBSPNodeSize = 19
 largestBSPNodeOffset = 4
 largeRoomChance = 23 -- percent
 
@@ -159,7 +159,7 @@ spawnChildren mother g = mother {nLeftChild = l,
       (largeRoomRoll, g'') = randomR (0, 100) g :: (Int, StdGen)
       largeRoom = largeRoomRoll < largeRoomChance &&
                   h < largestBSPNodeSize &&
-                  w < largestBSPNodeSize
+                    w < largestBSPNodeSize
 
 
 
@@ -167,8 +167,8 @@ spawnChildren mother g = mother {nLeftChild = l,
       (oX, g''') = randomR (0, largestBSPNodeOffset) g'' :: (Int, StdGen)
       (oY, g'''') = randomR (0, largestBSPNodeOffset) g''' :: (Int, StdGen)
 
-      (x_', y_') = (x+oX, y+oY)
-      (w_', h_') = (w-oX, h-oY)
+      (x', y') = (x+oX, y+oY)
+      (w', h') = (w-oX, h-oY)
 
       (l,r) = generateChildren dir
 
@@ -177,36 +177,36 @@ spawnChildren mother g = mother {nLeftChild = l,
       generateChildren d
           | largeRoom = (Leaf, Leaf) -- Make a Large Room
           | d == Horizontal =
-              if h > 2*smallestBSPNodeSize
-              then let (cutY, cg) = randomR (smallestBSPNodeSize, h - smallestBSPNodeSize) g'''
-                       lm = Node { nSize = (w, cutY),
-                                   nPosition = (x, y),
+              if h' > 2*smallestBSPNodeSize
+              then let (cutY, cg) = randomR (smallestBSPNodeSize, h' - smallestBSPNodeSize) g'''
+                       lm = Node { nSize = (w', cutY),
+                                   nPosition = (x', y'),
                                    nLeftChild = undefined,
                                    nRightChild = undefined
                                  }
-                       rm = lm { nSize = (w, h- cutY),
-                                 nPosition = (x, y +cutY)
+                       rm = lm { nSize = (w', h'- cutY),
+                                 nPosition = (x', y' +cutY)
                                }
                        (gl,gr) = split cg
                    in (spawnChildren lm gl, spawnChildren rm gr) -- Divide room horizontally
 
-              else if w >= largestBSPNodeSize
+              else if w' >= largestBSPNodeSize
                    then generateChildren Vertical -- Divide the other way
                    else (Leaf, Leaf) -- Make a small room (no division possible)
 
           | d == Vertical =
-              if w > 2*smallestBSPNodeSize
-              then let (cutX, cg) = randomR (smallestBSPNodeSize, w - smallestBSPNodeSize) g'''
-                       lm = Node { nSize = (cutX, h),
-                                   nPosition = (x, y),
+              if w' > 2*smallestBSPNodeSize
+              then let (cutX, cg) = randomR (smallestBSPNodeSize, w' - smallestBSPNodeSize) g'''
+                       lm = Node { nSize = (cutX, h'),
+                                   nPosition = (x', y'),
                                    nLeftChild = undefined,
                                    nRightChild = undefined
                                  }
-                       rm = lm { nSize = (w - cutX, h),
-                                 nPosition = (x + cutX, y)
+                       rm = lm { nSize = (w' - cutX, h'),
+                                 nPosition = (x' + cutX, y')
                                }
                        (gl,gr) = split cg
                    in (spawnChildren lm gl, spawnChildren rm gr) -- Divide room vertically
-              else if h >= largestBSPNodeSize
+              else if h' >= largestBSPNodeSize
                    then generateChildren Horizontal -- Divide the other way
                    else (Leaf, Leaf) -- Make a small room (no division possible)
