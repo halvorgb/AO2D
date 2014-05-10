@@ -6,6 +6,6 @@ import Model.Entity
 
 data GameState =
     GameState { gsLevel :: Level,
-                gsEntities :: EntityMap
+                gsEntities :: Entities
               } -- + more
     deriving (Show, Eq)
