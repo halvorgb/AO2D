@@ -8,7 +8,6 @@ import Game.LevelGen.LevelGen
 
 import Model.State
 import Model.State.Game
-import Model.State.Engine
 import Model.State.Input
 
 
@@ -17,8 +16,6 @@ setupGame = do
   level <- generateLevel w h
   inputState  <- newIORef Nothing
   gameState   <- newIORef $ GameState level undefined
-  engineState <- newIORef $ EngineState [] [] 0
-
-  return (gameState, inputState, engineState)
+  return (gameState, inputState)
     where
       (w,h) = (50,50)

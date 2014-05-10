@@ -11,14 +11,12 @@ import Engine.InputHandler
 import Engine.MainLoop
 
 import Model.State
-import Model.State.Engine
 
 
 -- template: https://github.com/alpmestan/glfw-b-quick-example
 
 setupEngine :: Int -> Int -> String -> State -> IO ()
-setupEngine w h winTitle state@(_, inputState, _) = do
-
+setupEngine w h winTitle state@(_, inputState) = do
   GLFW.setErrorCallback (Just errorCallback)
   successfulInit <- GLFW.init
   if not successfulInit
