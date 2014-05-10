@@ -1,4 +1,4 @@
-module Model.GameState where
+module Model.State.Game where
 
 
 import Model.Level

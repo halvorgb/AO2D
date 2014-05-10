@@ -130,8 +130,7 @@ buildRooms (Room (x,y) (w,h)) level clIO=
        mapM_ (\pos -> IOA.writeArray level pos Wall) border_indices
 
        -- change centrelist
-       cl <- readIORef clIO
-       writeIORef clIO ((centre_x, centre_y):cl)
+       modifyIORef clIO (\cl -> (centre_x, centre_y):cl)
 
 
 -- recurse

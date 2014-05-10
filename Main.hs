@@ -4,11 +4,12 @@ module Main(main) where
 
 
 
-import Render.Setup
+import Engine.Setup
 import Game.Setup
 
 main :: IO ()
 main = do
-  gameState <- setupGame
+  state <- setupGame
 
-  setupRenderer
+  -- bit badly named, also starts the game.
+  setupEngine 1920 1080 "Welcome to AO2D" state
