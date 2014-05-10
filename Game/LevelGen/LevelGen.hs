@@ -1,25 +1,27 @@
-module LevelGen.LevelGen(generateLevel, Position, Level) where
+module Game.LevelGen.LevelGen(generateLevel) where
 
 import System.Random
 import qualified Data.Array as A
 import qualified Data.Array.IO as IOA
 import Data.IORef
 
-import LevelGen.Model
-import LevelGen.BSP
+import Game.LevelGen.BSP
+
+import Model.Level
+import Model.Common
+
 
 generateLevel :: Int -> Int -> IO Level
 generateLevel w h = do
   -- setup stuff
-  aIO <- IOA.newArray ((0,0), (w,h)) Void :: IO (IOA.IOArray Position Tile)
+  aIO <- IOA.newArray ((0,0), (w',h')) Void :: IO (IOA.IOArray Position Tile)
 
-  bspGen (w,h) aIO
--- pIO <- newIORef (0,0)
---  randomizeLevel pIO aIO w h
-
+  bspGen (w',h') aIO
 
   -- convert the mutable array to an immutable one, return it.
   IOA.freeze aIO
+    where
+      (w',h') = (w-1, h-1)
 
 
 randomizeLevel :: IORef Position -> IOA.IOArray Position Tile -> Int -> Int -> IO ()

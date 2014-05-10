@@ -1,11 +1,13 @@
-module LevelGen.BSP(bspGen) where
+module Game.LevelGen.BSP(bspGen) where
 
 import Data.IORef
 import qualified Data.Array as A
 import qualified Data.Array.IO as IOA
 import System.Random
 import qualified Data.List as L
-import LevelGen.Model
+
+import Model.Level
+import Model.Common
 
 
 data Direction = Horizontal | Vertical deriving(Eq, Show)
@@ -56,6 +58,8 @@ connectRooms level centres@(c:cs) visitedCentres
                   connectRooms level cs (c:visitedCentres)
     where
       -- find the pair of centres/visitedCentres such that the distance is minimal.
+      -- ATTN: This is a performance bottleneck, n^2 operations.
+
       (c1, c2,_) = L.foldl' (\acc@(c1, c2, d) cp@(c1',c2',d')  -> if d' < d then cp else acc) ((0,0), (0,0), maxBound :: Int)
                    [(c1, c2, dist c1 c2) | c1 <- centres, c2 <- visitedCentres]
 
@@ -88,10 +92,12 @@ connectRooms level centres@(c:cs) visitedCentres
 
             next
                 | x2 > x1 = writeHallway (x1+1, y1) c2
-                | x2 < x1 = writeHallway (x1-1, y1) c2
                 | y2 > y1 = writeHallway (x1, y1+1) c2
                 | y2 < y1 = writeHallway (x1, y1-1) c2
+                | x2 < x1 = writeHallway (x1-1, y1) c2
+
                 | otherwise = error "connectRooms: WAT."
+
 
 
 -- coordinates here include walls, so if w*h = size, then the room-floor cant be of size w*h

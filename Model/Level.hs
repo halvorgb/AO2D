@@ -1,9 +1,10 @@
-module LevelGen.Model where
-
+module Model.Level where
 
 import qualified Data.Array as A
 
-type Position = (Int, Int)
+import Model.Common
+
+
 type Level = A.Array Position Tile
 
 data Tile = Wall | Floor | Void | Liquid | Stairs
