@@ -13,7 +13,7 @@ import Graphics.Rendering.OpenGL
 
 -- updates the game state
 updateGame :: State -> Double -> IO ([Vertex3 GLdouble], [Color3 GLdouble])
-updateGame (gsIO, isIO) delta = do
+updateGame (gsIO, isIO, rsIO) delta = do
   gs <- readIORef gsIO
   is <- readIORef isIO
 

@@ -4,28 +4,29 @@ import Graphics.Rendering.OpenGL
 import qualified Graphics.UI.GLFW as GLFW
 import System.Exit
 import System.IO
-import Data.IORef
-import qualified Data.ByteString as BS
-
-import Control.Monad
-
 import System.FilePath
+import Control.Monad
+import qualified Data.ByteString as BS
+import Data.IORef
 
 import Engine.InputHandler
 import Engine.MainLoop
+import Engine.Shaders
 
 import Model.State
-import Model.Shaders
+import Model.State.Resources
+import Model.ShaderProgram
+
 
 -- template: https://github.com/alpmestan/glfw-b-quick-example
 
-setupEngine :: Int -> Int -> String -> State -> IO ()
-setupEngine w h winTitle state@(_, inputState) = do
+setupEngine :: Int -> Int -> String -> State -> Resources -> IO ()
+setupEngine w h winTitle state@(_, inputState, resourceState) resourcesToLoad = do
   GLFW.setErrorCallback (Just errorCallback)
   successfulInit <- GLFW.init
 
   -- load all shaders
-  loadShaders state
+  loadResources resourcesToLoad resourceState
 
   if not successfulInit
   then exitFailure
@@ -52,54 +53,7 @@ errorCallback :: GLFW.ErrorCallback
 errorCallback err description = hPutStrLn stderr description
 
 
--- det her funka DÅRLIG
-loadShaders :: State -> IO ()
-loadShaders state = do
-    ez <- loadShader ("assets" </> "shaders" </> "ez.frag") FragmentShader
-    print ez
-    frag <- loadShader ("assets" </> "shaders" </> "lol.frag") FragmentShader
-    vert <- loadShader ("assets" </> "shaders" </> "lol.vert") VertexShader
-    print vert
-    print frag
-
-loadShader :: String -> ShaderType -> IO (Shader)
-loadShader filePath shaderType = do
-  source <- BS.readFile filePath
-
-  print source
-  shader <- createShader shaderType
-  shaderSourceBS shader $= source
-  compileShader shader
-  printError
-
-  ok <- get $ compileStatus shader
-  infoLog <- get $ shaderInfoLog shader
-
-  unless (null infoLog)
-             (mapM_ putStrLn
-              ["Shader info log for '" ++ filePath ++ "':", infoLog, ""])
-
-  print ok
-  if not ok
-  then do deleteObjectNames [shader]
-          error ("shader compilation failed on: " ++ filePath)
-  else return shader
-{-
-loadShaderBS :: FilePath -> ShaderType -> BS.ByteString -> IO Shader
-loadShaderBS filePath st src = do
-  shader <- createShader st
-  shaderSourceBS shader $= src
-  compileShader shader
-  printError
-  ok <- get (compileStatus shader)
-  infoLog <- get (shaderInfoLog shader)
-  unless (null infoLog)
-         (mapM_ putStrLn
-                ["Shader info log for '" ++ filePath ++ "':", infoLog, ""])
-  unless ok $ do
-    deleteObjectNames [shader]
-    ioError (userError "shader compilation failed")
-  return shader
--}
-printError :: IO ()
-printError = get errors >>= mapM_ (hPutStrLn stderr . ("GL: "++) . show)
+loadResources :: Resources -> IORef LoadedResources -> IO ()
+loadResources resToLoad resState = do
+  mapM_ (loadShader resState) $ rShaderPrograms resToLoad
+--  mapM_ (loadTexture resState) $ rTextures resToLoad
