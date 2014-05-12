@@ -1,16 +1,18 @@
 module Model.State.Resources where
 
-import Model.ShaderProgram
+import Graphics.Rendering.OpenGL
+
 import Model.Texture
+import Model.ShaderProgram
 
 data Resources =
     Resources {
-      rShaderPrograms :: [ShaderProgram],
-      rTextures       :: [Texture]
+      rShaderPrograms :: [ShaderProgramResource],
+      rTextures       :: [TextureResource]
     }
 
 data LoadedResources =
     LoadedResources {
-      lrLoadedShaderPrograms :: [LoadedShaderProgram],
-      lrLoadedTextures        :: [LoadedTexture]
+      lrShaderPrograms :: [ShaderProgram],
+      lrTextures :: [Texture]
     } deriving (Show)

@@ -2,18 +2,17 @@ module Model.ShaderProgram where
 
 import Graphics.Rendering.OpenGL
 
+import Lib.LoadShaders (ShaderInfo)
+
+data ShaderProgramResource =
+    ShaderProgramResource {
+      sprUniqueName :: String,
+      sprVertShader :: ShaderInfo,
+      sprFragShader :: ShaderInfo
+    }
+
 data ShaderProgram =
     ShaderProgram {
       spUniqueName :: String,
-      spVertFilePath :: FilePath,
-      spFragFilePath :: FilePath
-    } deriving (Show)
-
-
-data LoadedShaderProgram =
-    LoadedShaderProgram {
-      lspShaderProgram :: ShaderProgram,
-      lspProjectionMatrixIndex :: UniformLocation,
-      lspColorIndex :: AttribLocation,
-      lspVertexIndex :: AttribLocation
+      spProgram :: Program
     } deriving (Show)

@@ -11,11 +11,12 @@ import Data.IORef
 
 import Engine.InputHandler
 import Engine.MainLoop
-import Engine.Shaders
 
 import Model.State
 import Model.State.Resources
 import Model.ShaderProgram
+
+import Lib.LoadShaders
 
 
 -- template: https://github.com/alpmestan/glfw-b-quick-example
@@ -55,5 +56,29 @@ errorCallback err description = hPutStrLn stderr description
 
 loadResources :: Resources -> IORef LoadedResources -> IO ()
 loadResources resToLoad resState = do
+-- some debug printing
+  r1 <- readIORef resState
+  print r1
   mapM_ (loadShader resState) $ rShaderPrograms resToLoad
+  r2 <- readIORef resState
+  print r2
+
 --  mapM_ (loadTexture resState) $ rTextures resToLoad
+
+
+loadShader :: IORef LoadedResources -> ShaderProgramResource -> IO ()
+loadShader resState shaderRes  = do
+  program <- loadShaders [vert, frag]
+  let newShaderProgram =
+          ShaderProgram un program
+  modifyIORef resState
+                  (\ldRs -> let loadedProgs = lrShaderPrograms ldRs
+                            in ldRs { lrShaderPrograms =
+                                          newShaderProgram:loadedProgs
+                                    })
+
+  currentProgram $= Just program
+      where
+        un = sprUniqueName shaderRes
+        vert = sprVertShader shaderRes
+        frag = sprFragShader shaderRes
