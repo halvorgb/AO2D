@@ -1,45 +1,44 @@
 module Game.Update(updateGame) where
 
 import Data.IORef
+import Control.Applicative
+import Control.Monad
+
+import Prelude hiding(Left, Right)
+import Graphics.Rendering.OpenGL
+import qualified Linear as L
+
 
 import Model.State
 import Model.State.Input
 import Model.State.Game
+import Model.Entity
 
 
-import Graphics.Rendering.OpenGL
+
 
 
 
 -- updates the game state
-updateGame :: State -> Double -> IO ([Vertex3 GLdouble], [Color3 GLdouble])
-updateGame (gsIO, isIO, rsIO) delta = do
+updateGame :: State -> Double -> IO ()
+updateGame (gsIO, isIO, _) delta = do
   gs <- readIORef gsIO
   is <- readIORef isIO
 
---  print $ 1.0 / delta -- FPS!
+  let translation :: L.V3 GLfloat
+      translation = case is of
+                      Nothing    -> L.V3   0.0   0.0  0.0
+                      Just Up    -> L.V3   0.0   1.0  0.0
+                      Just Down  -> L.V3   0.0 (-1.0) 0.0
+                      Just Left  -> L.V3 (-1.0)  0.0  0.0
+                      Just Right -> L.V3   1.0   0.0  0.0
+      eis = gsEntities gs
+      trans' = fmap (* realToFrac delta) translation
 
-  return $ buildPrimitives gs
-
-
--- converts gameState to openGL primitives.
-buildPrimitives :: GameState -> ([Vertex3 GLdouble], [Color3 GLdouble])
-buildPrimitives gs = (vertices, colors)
-      where
-        colors = [Color3 1 0 0,
-                  Color3 0 1 0,
-                  Color3 0 0 1]
-
-        vertices = [Vertex3 (-0.6) (-0.4) 0,
-                    Vertex3 0.6 (-0.4) 0,
-                    Vertex3 0 0.6 0]
-
-{-
-      renderPrimitive Triangles $ do
-        color  (Color3 1 0 0 :: Color3 GLdouble)
-        vertex (Vertex3 (negate 0.6) (negate 0.4) 0 :: Vertex3 GLdouble)
-        color  (Color3 0 1 0 :: Color3 GLdouble)
-        vertex (Vertex3 0.6 (negate 0.4) 0 :: Vertex3 GLdouble)
-        color  (Color3 0 0 1 :: Color3 GLdouble)
-        vertex (Vertex3 0 0.6 0 :: Vertex3 GLdouble)
--}
+  unless (null eis) $
+         do let ei = head eis
+                p  = eiPosition ei
+                p' = liftA2 (+) p trans'
+                ei' = ei {eiPosition = p'}
+            unless (is == Nothing) $
+                   writeIORef gsIO gs { gsEntities = ei':(tail eis) }

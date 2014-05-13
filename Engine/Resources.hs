@@ -18,6 +18,7 @@ loadResources resState resToLoad = do
 
   mapM_ (loadShader resState) $ rShaderPrograms resToLoad
   mapM_ (loadObject resState) $ rObjects resToLoad
+
 --  mapM_ (loadTexture resState) $ rTextures resToLoad
 
 

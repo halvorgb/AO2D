@@ -1,17 +1,18 @@
 module Model.Entity where
 
+import Graphics.Rendering.OpenGL
 
 import qualified Linear as L
 
 data Entity =
     Entity { eName :: String,
-             eScale :: Double,
+             eScale :: GLfloat,
              eShaderName :: String,
              eObjectName :: String
            } -- ++ more, texture??
 
 data EntityInstance =
-    EntityInstance { eiPosition :: L.V3 Double,
+    EntityInstance { eiPosition :: L.V3 GLfloat,
                      eiEntity :: Entity,
-                     eiScaleOverride :: Maybe Double
+                     eiScaleOverride :: Maybe GLfloat
                    } -- ++ more

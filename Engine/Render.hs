@@ -10,6 +10,7 @@ import System.Random -- TODO: remove
 import qualified Data.Map as M
 import Data.IORef
 
+
 import Model.Object
 import Model.State
 import Model.State.Resources
@@ -24,7 +25,6 @@ renderObjects state@(gameState, _, _) w =
       -- Handle resizing!
       (width, height) <- GLFW.getFramebufferSize w
       let ratio = fromIntegral width / fromIntegral height
-
 
       viewport $= (Position 0 0, Size (fromIntegral width) (fromIntegral height))
       clear [ColorBuffer, DepthBuffer]
@@ -51,21 +51,38 @@ drawEntityInstance camera (_, _, resState) w ei = do
 
 
   currentProgram $= (Just $ GLUtil.program program)
-  GLUtil.enableAttrib program "coord3d"
-  GLUtil.enableAttrib program "v_color"
 
+
+
+  GLUtil.enableAttrib program "coord3d"
   bindBuffer ArrayBuffer $= Just verts
   GLUtil.setAttrib program "coord3d"
-        ToFloat $ VertexArrayDescriptor 3 Float 0 GLUtil.offset0
+            ToFloat $ VertexArrayDescriptor 4 Float 0 GLUtil.offset0
 
+  GLUtil.enableAttrib program "v_color"
   bindBuffer ArrayBuffer $= Just colrs
   GLUtil.setAttrib program "v_color"
-        ToFloat $ VertexArrayDescriptor 3 Float 0 GLUtil.offset0
+            ToFloat $ VertexArrayDescriptor 4 Float 0 GLUtil.offset0
 
 
-  GLUtil.asUniform camera $ GLUtil.getUniform program "mvp"
+  let
+      model :: L.M44 GLfloat
+      model = L.mkTransformationMat scale pos
+{-              (L.V4 0.1 0.0 0.0 (L._x pos) :: L.V4 GLfloat)
+              (L.V4 0.0 0.1 0.0 (L._y pos) :: L.V4 GLfloat)
+              (L.V4 0.0 0.0 0.1 (L._z pos) :: L.V4 GLfloat)
+              (L.V4 0.0 0.0 0.0 1.0        :: L.V4 GLfloat) -}
+
+      wut = camera L.!*! model L.!*! anim
+
+
+
+  GLUtil.asUniform (wut) $ GLUtil.getUniform program "mvp"
+
 
   bindBuffer ElementArrayBuffer $= Just elems
+
+
   GLUtil.drawIndexedTris (fromIntegral nofTris)
 
 
@@ -75,10 +92,13 @@ drawEntityInstance camera (_, _, resState) w ei = do
   vertexAttribArray (GLUtil.getAttrib program "v_color") $= Disabled
 
 
-  checkError "drawEI"
-  print name
 
     where
+      scale :: L.M33 GLfloat
+      scale = case eiScaleOverride ei of
+                Nothing -> let sc = eScale e
+                           in sc L.*!! L.eye3
+                Just sc -> sc L.*!! L.eye3
       pos = eiPosition ei
       e = eiEntity ei
       name = eName e
@@ -86,15 +106,35 @@ drawEntityInstance camera (_, _, resState) w ei = do
       objectName = eObjectName e
 
 
-
-
 transformM :: Int -> Int -> Double -> L.M44 GLfloat
-transformM width height t = projection L.!*! view L.!*! model L.!*! anim
+transformM width height t = projection L.!*! view L.!*! trans
     where
-  angle      = realToFrac t * pi/4
-  anim       = L.mkTransformation (L.axisAngle (L.V3 0 1 0) angle) L.zero
-  model      = L.mkTransformationMat L.eye3 $ L.V3 0 0 (-4)
-  view       = GLUtilC.camMatrix cam
-  cam        = GLUtilC.tilt (-30) . GLUtilC.dolly (L.V3 0 2 0) $ GLUtilC.fpsCamera
-  projection = GLUtilC.projectionMatrix (pi/4) aspect 0.1 10
-  aspect     = fromIntegral width / fromIntegral height
+      trans      = L.mkTransformationMat L.eye3 (L.V3 0 0 (-4))
+      view       = GLUtilC.camMatrix cam
+      cam        = GLUtilC.tilt (-30) . GLUtilC.dolly (L.V3 0 2 0) $ GLUtilC.fpsCamera
+      projection = GLUtilC.projectionMatrix (pi/4) aspect 0.1 10
+      aspect     = fromIntegral width / fromIntegral height
+
+anim :: L.M44 GLfloat
+anim = L.mkTransformation (L.axisAngle (L.V3 0 1 0) angle) L.zero
+    where
+      angle = 0
+
+
+setAttrib :: GLUtil.ShaderProgram -> String ->
+             IntegerHandling -> VertexArrayDescriptor a -> IO ()
+setAttrib sp name ih vad = case M.lookup name $ GLUtil.attribs sp of
+                             Nothing -> do
+                               putStrLn "This does not happen."
+                               return ()
+                             Just (attribLocation, _) -> let vap = vertexAttribPointer attribLocation
+                                                         in do vapVal <- get vap
+                                                               print (ih,vad) -- what I want to change vap to.
+                                                               print vapVal
+
+                                                               checkError "no errors before this point"
+                                                               vap $=! (ih, vad)
+                                                               checkError "^ that statement yields an error."
+
+                                                               newVapVal <- get vap
+                                                               print newVapVal

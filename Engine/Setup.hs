@@ -26,8 +26,8 @@ import Game.Update
 
 -- template: https://github.com/alpmestan/glfw-b-quick-example
 
-setupEngine :: Int -> Int -> String -> State -> Resources -> (Double -> IO ([Vertex3 GLdouble], [Color3 GLdouble])) -> IO ()
-setupEngine w h winTitle state@(_, inputState, resourceState) resourcesToLoad updateFunc = do
+setupEngine :: Int -> Int -> String -> State -> Resources -> IO ()
+setupEngine w h winTitle state@(_, inputState, resourceState) resourcesToLoad = do
   GLFW.setErrorCallback (Just errorCallback)
 
   successfulInit <- GLFW.init
@@ -45,7 +45,9 @@ setupEngine w h winTitle state@(_, inputState, resourceState) resourcesToLoad up
   else do
     mw <- GLFW.createWindow w h winTitle Nothing Nothing
     case mw of
-      Nothing -> GLFW.terminate >> exitFailure
+      Nothing -> do
+              GLFW.terminate
+              exitFailure
       Just window -> do
               -- window creation successful, setup callbacks
               GLFW.makeContextCurrent mw
@@ -57,7 +59,6 @@ setupEngine w h winTitle state@(_, inputState, resourceState) resourcesToLoad up
               cullFace   $= Nothing
               depthFunc  $= Just Less
 
-
               clearColor $= Color4 0.1 0.1 0.1 1
 
               -- load all shaders
@@ -65,13 +66,12 @@ setupEngine w h winTitle state@(_, inputState, resourceState) resourcesToLoad up
 
               checkError "initializing..."
               -- mainLoop
-              mainLoop state window updateFunc
+              mainLoop state window
 
               -- mainLoop complete, exit.
               GLFW.destroyWindow window
               GLFW.terminate
               exitSuccess
-
 -- type ErrorCallback = Error -> String -> IO ()
 errorCallback :: GLFW.ErrorCallback
 errorCallback err = hPutStrLn stderr

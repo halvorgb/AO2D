@@ -22,22 +22,21 @@ import Model.Entity
 import qualified Linear as L
 
 
-import Lib.LoadShaders (ShaderInfo(..), ShaderSource(..))
 
-
-setupGame :: IO (State, Resources, (Double -> IO ([Vertex3 GLdouble], [Color3 GLdouble])))
+setupGame :: IO (State, Resources)
 setupGame = do
   level <- generateLevel w h
   inputState    <- newIORef Nothing
   gameState     <- newIORef $
-                   GameState level [EntityInstance (L.V3 0 0 0) ent Nothing]
+                   GameState level [EntityInstance (L.V3 0 0.1 0) ent $ Just 0.1,
+                                    EntityInstance (L.V3 1 0 0) ent $ Just 0.1]
   resourceState <- newIORef $ LoadedResources M.empty [] M.empty
 
 
   let state = (gameState, inputState, resourceState)
       updateFunc = updateGame state
 
-  return (state, resourcesToLoad, updateFunc)
+  return (state, resourcesToLoad)
     where
       (w,h) = (50,50)
 
@@ -64,10 +63,18 @@ setupGame = do
 
 
 
-vertices :: [L.V3 Float]
-vertices = L.V3 <$> [1, -1] <*> [1, -1] <*> [1, -1]
+vertices :: [L.V4 Float]
+vertices = [L.V4 1.0      1.0    1.0  1.0,
+            L.V4 1.0      1.0  (-1.0) 1.0,
+            L.V4 1.0    (-1.0)   1.0  1.0,
+            L.V4 1.0    (-1.0) (-1.0) 1.0,
+            L.V4 (-1.0)   1.0    1.0  1.0,
+            L.V4 (-1.0)   1.0  (-1.0) 1.0,
+            L.V4 (-1.0) (-1.0)   1.0  1.0,
+            L.V4 (-1.0) (-1.0) (-1.0) 1.0
+           ]
 
-colors :: [L.V3 Float]
+colors :: [L.V4 Float]
 colors = vertices -- color space visualization
 
 -- Vertices for each triangle in CCW order
