@@ -1,10 +1,13 @@
 module Model.State.Resources where
 
-import Graphics.Rendering.OpenGL()
+import Graphics.Rendering.OpenGL
 
 import Model.Texture
 import Model.ShaderProgram
 import Model.Object
+
+import Graphics.GLUtil
+import qualified Data.Map as M
 
 data Resources =
     Resources {
@@ -15,7 +18,7 @@ data Resources =
 
 data LoadedResources =
     LoadedResources {
-      lrShaderPrograms :: [ShaderProgram],
-      lrTextures :: [Texture],
-      lrObjects  :: [Object]
-    } deriving (Show)
+      lrShaderPrograms :: M.Map String ShaderProgram,
+      lrTextures :: [Texture], -- should be maps aswell
+      lrObjects  :: M.Map String Object
+    }

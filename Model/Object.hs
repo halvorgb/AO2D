@@ -4,20 +4,21 @@ import Foreign.Storable
 import Foreign.Ptr
 
 import Graphics.Rendering.OpenGL
+import qualified Linear as L
 
 data ObjectResource = ObjectModel { orUniqueName :: String,
                                     orFilePath :: FilePath
                                   }
                     | ObjectGeometry { orUniqueName :: String,
-                                       orVertices :: [Vertex3 GLdouble]}
+                                       orVertices :: [L.V3 Float],
+                                       orElements :: [L.V3 GLuint],
+                                       orColors   :: [L.V3 Float]}
 
-data Object = Object {
-      oUniqueName :: String,
-      oBufferObject :: BufferObject
-    } deriving (Show)
-
-
-
+data Object =
+    Object { oVertices :: BufferObject,
+             oColors   :: BufferObject,
+             oElements :: BufferObject,
+             oNOFTris  :: Int}
 
 data Descriptor = Descriptor VertexArrayObject ArrayIndex NumArrayIndices
 

@@ -9,7 +9,7 @@ import Game.Setup
 
 main :: IO ()
 main = do
-  (state, resourcesToLoad) <- setupGame
+  (state, resourcesToLoad, updateFunc) <- setupGame
 
   -- bit badly named, also starts the game.
-  setupEngine 1920 1080 "Welcome to AO2D" state resourcesToLoad
+  setupEngine 1920 1080 "Welcome to AO2D" state resourcesToLoad updateFunc

@@ -13,21 +13,19 @@ import Game.Update
 import Engine.Render
 import Engine.Errors
 
-mainLoop :: State -> Descriptor -> GLFW.Window -> IO ()
-mainLoop s d w = do
+mainLoop :: State -> GLFW.Window -> (Double -> IO ([Vertex3 GLdouble], [Color3 GLdouble])) -> IO ()
+mainLoop s w updateFunc = do
   close <- GLFW.windowShouldClose w
   unless close $ do
     -- update the game!
     Just delta <- GLFW.getTime
-    (vs, cs) <- updateGame s delta
+    (vs, cs) <- updateFunc delta
     GLFW.setTime 0
 
     -- draw Everything!
     --    renderEngineState vs cs w
-    renderObjects d w
-
-
+    renderObjects s w
 
     GLFW.swapBuffers w
     GLFW.pollEvents
-    mainLoop s d w
+    mainLoop s w updateFunc
