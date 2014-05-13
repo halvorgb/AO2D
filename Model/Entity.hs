@@ -1,7 +1,7 @@
 module Model.Entity where
 
 
-import Graphics.Rendering.OpenGL
+import Graphics.Rendering.OpenGL()
 
 import Model.Common as C
 type Entities = [EntityInstance]

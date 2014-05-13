@@ -79,6 +79,7 @@ loadCompileAttach program (ShaderInfo shType source : infos) =
       attachShader program shader
       loadCompileAttach program infos
 
+
 compileAndCheck :: Shader -> IO ()
 compileAndCheck = checked compileShader compileStatus shaderInfoLog "compile"
 

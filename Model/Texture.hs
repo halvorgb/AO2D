@@ -4,14 +4,14 @@ module Model.Texture where
 
 data TextureResource =
     TextureResource {
-      tUniqueName :: String,
-      tFilePath :: FilePath
+      trUniqueName :: String,
+      trFilePath :: FilePath
     } deriving (Show)
 
 data Texture =
     Texture {
-      ltTexture :: TextureResource,
-      ltSize :: (Int, Int),
-      ltPixels :: [Double]
+      tUniqueName :: String,
+      tSize :: (Int, Int),
+      tPixels :: [Double]
     -- ++ more
     } deriving (Show)

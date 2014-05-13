@@ -17,7 +17,7 @@ updateGame (gsIO, isIO, rsIO) delta = do
   gs <- readIORef gsIO
   is <- readIORef isIO
 
-  print delta
+--  print $ 1.0 / delta -- FPS!
 
   return $ buildPrimitives gs
 

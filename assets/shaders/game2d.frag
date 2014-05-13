@@ -1,6 +1,6 @@
 #version 150
 uniform sampler2D tex;
-in vec2 texCoordFrag;
+in vec3 texCoordFrag;
 out vec4 fragColor;
 
 void main() {

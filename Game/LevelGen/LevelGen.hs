@@ -4,6 +4,7 @@ import System.Random
 import qualified Data.Array as A
 import qualified Data.Array.IO as IOA
 import Data.IORef
+import Control.Monad
 
 import Game.LevelGen.BSP
 
@@ -33,19 +34,15 @@ randomizeLevel pIO aIO w h =
       then do
         writeIORef pIO (0, y+1)
         randomizeLevel pIO aIO w h
-      else if y > h
-           then return ()
-           else do
-             writeIORef pIO (x+1, y)
+      else unless (y > h) $ do
+        writeIORef pIO (x+1, y)
 
-             -- randomize tile
-             n <- randomRIO(0, 10) :: IO Int
-             let t = if n > 5
-                     then Floor
-                     else if n > 2
-                          then Wall
-                          else Void
+        -- randomize tile
+        n <- randomRIO(0, 10) :: IO Int
+        let t | n > 5 = Floor
+              | n > 2 =  Wall
+              | otherwise = Void
 
-             IOA.writeArray aIO p t
+        IOA.writeArray aIO p t
 
-             randomizeLevel pIO aIO w h
+        randomizeLevel pIO aIO w h

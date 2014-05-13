@@ -10,9 +10,10 @@ import Game.LevelGen.LevelGen
 
 import Model.State
 import Model.State.Game
-import Model.State.Input
+import Model.State.Input()
 import Model.State.Resources
 import Model.ShaderProgram
+import Model.Object
 
 
 import Lib.LoadShaders (ShaderInfo(..), ShaderSource(..))
@@ -23,7 +24,7 @@ setupGame = do
   level <- generateLevel w h
   inputState    <- newIORef Nothing
   gameState     <- newIORef $ GameState level undefined
-  resourceState <- newIORef $ LoadedResources [] []
+  resourceState <- newIORef $ LoadedResources [] [] []
 
   return ((gameState, inputState,resourceState), resourcesToLoad)
     where
@@ -35,22 +36,13 @@ setupGame = do
               rShaderPrograms =
                   [ShaderProgramResource {
                      sprUniqueName =
-                         "game2d",
+                         "helloWorld",
                      sprVertShader =
-                         ShaderInfo VertexShader $ FileSource ("assets" </> "shaders" </> "game2d.vert"),
+                         ShaderInfo VertexShader $ FileSource ("assets" </> "shaders" </> "helloWorld.vert"),
                      sprFragShader =
-                         ShaderInfo FragmentShader $ FileSource ("assets" </> "shaders" </> "game2d.frag")
-                   },
-
-                   ShaderProgramResource {
-                     sprUniqueName =
-                         "lol",
-                     sprVertShader =
-                         ShaderInfo VertexShader $ FileSource ("assets" </> "shaders" </> "lol.vert"),
-                     sprFragShader =
-                         ShaderInfo FragmentShader $ FileSource ("assets" </> "shaders" </> "lol.frag")
+                         ShaderInfo FragmentShader $ FileSource ("assets" </> "shaders" </> "helloWorld.frag")
                    }
-
                   ],
-              rTextures = []
+              rTextures = [],
+              rObjects  = [ObjectGeometry "what" []]
             }

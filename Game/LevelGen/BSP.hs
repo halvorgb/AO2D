@@ -5,6 +5,7 @@ import qualified Data.Array as A
 import qualified Data.Array.IO as IOA
 import System.Random
 import qualified Data.List as L
+import Control.Monad
 
 import Model.Level
 import Model.Common
@@ -86,9 +87,7 @@ connectRooms level centres@(c:cs) visitedCentres
           where
             replaceVoid :: (Int, Int) -> IO ()
             replaceVoid pos = do t <- IOA.readArray level pos
-                                 if t == Void
-                                 then IOA.writeArray level pos Wall
-                                 else return ()
+                                 when (t == Void) $ IOA.writeArray level pos Wall
 
             next
                 | x2 > x1 = writeHallway (x1+1, y1) c2
