@@ -48,17 +48,18 @@ drawEntityInstance  projViewMat (_, _, resState) w ei = do
   currentProgram $= (Just $ GLUtil.program program)
 
 
+  bindBuffer ArrayBuffer $= Just verts
+  bindBuffer ArrayBuffer $= Just colrs
 
   GLUtil.enableAttrib program "coord3d"
-
-  bindBuffer ArrayBuffer $= Just verts
-  setAttrib program "coord3d"
+  GLUtil.setAttrib program "coord3d"
             ToFloat $ VertexArrayDescriptor 4 Float 0 GLUtil.offset0
 
   GLUtil.enableAttrib program "v_color"
-  bindBuffer ArrayBuffer $= Just colrs
   GLUtil.setAttrib program "v_color"
             ToFloat $ VertexArrayDescriptor 4 Float 0 GLUtil.offset0
+
+
 
 
   let
@@ -72,15 +73,13 @@ drawEntityInstance  projViewMat (_, _, resState) w ei = do
 
   bindBuffer ElementArrayBuffer $= Just elems
 
-  print "yep"
   GLUtil.drawIndexedTris (fromIntegral nofTris)
-  print "yep"
 
   -- disable attributes again
 
   vertexAttribArray (GLUtil.getAttrib program "coord3d") $= Disabled
   vertexAttribArray (GLUtil.getAttrib program "v_color") $= Disabled
-
+  checkError "rendering"
 
 
     where
@@ -113,6 +112,8 @@ anim = L.mkTransformation (L.axisAngle (L.V3 0 1 0) angle) L.zero
       angle = 0
 
 -}
+
+-- used for debugging.
 setAttrib :: GLUtil.ShaderProgram -> String ->
              IntegerHandling -> VertexArrayDescriptor a -> IO ()
 setAttrib sp name ih vad = case M.lookup name $ GLUtil.attribs sp of
@@ -123,6 +124,8 @@ setAttrib sp name ih vad = case M.lookup name $ GLUtil.attribs sp of
                                                          in do vapVal <- get vap
                                                                print (ih,vad) -- what I want to change vap to.
                                                                print vapVal
+
+                                                               print attribLocation
 
                                                                checkError "no errors before this point"
                                                                vap $=! (ih, vad)

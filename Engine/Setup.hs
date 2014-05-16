@@ -35,8 +35,8 @@ setupEngine w h winTitle state@(_, inputState, resourceState) resourcesToLoad = 
 
   mapM_ GLFW.windowHint
             [ GLFW.WindowHint'ContextVersionMajor  3,
-              GLFW.WindowHint'ContextVersionMinor  3,
-              GLFW.WindowHint'OpenGLProfile GLFW.OpenGLProfile'Core,
+              GLFW.WindowHint'ContextVersionMinor  0,
+--              GLFW.WindowHint'OpenGLProfile GLFW.OpenGLProfile'Core,
               GLFW.WindowHint'OpenGLDebugContext True,
               GLFW.WindowHint'DepthBits 24 ]
   checkError "windowHint"
@@ -56,6 +56,8 @@ setupEngine w h winTitle state@(_, inputState, resourceState) resourcesToLoad = 
               GLFW.setKeyCallback window (Just $ keyCallback inputState)
               GLFW.setWindowSizeCallback window (Just resizeCallback)
 
+
+              dumpInfo
 
               blend $= Enabled
               blendFunc $= (SrcAlpha, OneMinusSrcAlpha)
@@ -84,3 +86,13 @@ resizeCallback w width height = do
       let ratio = fromIntegral width / fromIntegral height
 
       viewport $= (Position 0 0, Size (fromIntegral width) (fromIntegral height))
+
+
+dumpInfo :: IO ()
+dumpInfo = do
+   let dump message var = putStrLn . ((message ++ ": ") ++) =<< get var
+   dump "Vendor" vendor
+   dump "Renderer" renderer
+   dump "Version" glVersion
+   dump "GLSL" shadingLanguageVersion
+   checkError "dumpInfo"
