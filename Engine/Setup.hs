@@ -17,6 +17,7 @@ import Engine.MainLoop
 import Engine.Errors
 import Engine.Resources
 
+
 import Model.State
 import Model.State.Resources
 
@@ -34,7 +35,8 @@ setupEngine w h winTitle state@(_, inputState, resourceState) resourcesToLoad = 
 
   mapM_ GLFW.windowHint
             [ GLFW.WindowHint'ContextVersionMajor  3,
-              GLFW.WindowHint'ContextVersionMinor  0,
+              GLFW.WindowHint'ContextVersionMinor  3,
+              GLFW.WindowHint'OpenGLProfile GLFW.OpenGLProfile'Core,
               GLFW.WindowHint'OpenGLDebugContext True,
               GLFW.WindowHint'DepthBits 24 ]
   checkError "windowHint"
@@ -52,6 +54,7 @@ setupEngine w h winTitle state@(_, inputState, resourceState) resourcesToLoad = 
               -- window creation successful, setup callbacks
               GLFW.makeContextCurrent mw
               GLFW.setKeyCallback window (Just $ keyCallback inputState)
+              GLFW.setWindowSizeCallback window (Just resizeCallback)
 
 
               blend $= Enabled
@@ -75,3 +78,9 @@ setupEngine w h winTitle state@(_, inputState, resourceState) resourcesToLoad = 
 -- type ErrorCallback = Error -> String -> IO ()
 errorCallback :: GLFW.ErrorCallback
 errorCallback err = hPutStrLn stderr
+
+resizeCallback :: GLFW.WindowSizeCallback
+resizeCallback w width height = do
+      let ratio = fromIntegral width / fromIntegral height
+
+      viewport $= (Position 0 0, Size (fromIntegral width) (fromIntegral height))

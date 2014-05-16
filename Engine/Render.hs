@@ -6,7 +6,6 @@ import Graphics.Rendering.OpenGL
 import qualified Graphics.UI.GLFW as GLFW
 import qualified Linear as L
 
-import System.Random -- TODO: remove
 import qualified Data.Map as M
 import Data.IORef
 
@@ -19,27 +18,23 @@ import Model.Entity
 
 import Engine.Errors
 
+
 renderObjects :: State -> GLFW.Window -> IO ()
 renderObjects state@(gameState, _, _) w =
     do
-      -- Handle resizing!
-      (width, height) <- GLFW.getFramebufferSize w
-      let ratio = fromIntegral width / fromIntegral height
-
-      viewport $= (Position 0 0, Size (fromIntegral width) (fromIntegral height))
       clear [ColorBuffer, DepthBuffer]
 
       gs <- readIORef gameState
 
-      -- camera:
-      let camera = transformM width height 0
-      -- ultra naive bullshit: draw every entity.
-      mapM_ (drawEntityInstance camera state w) $ gsEntities gs
+      (width, height) <- GLFW.getFramebufferSize w
 
+      let projViewMat = mkProjViewMat width height
+      -- ultra naive bullshit: draw every entity.
+      mapM_ (drawEntityInstance projViewMat state w) $ gsEntities gs
 
 
 drawEntityInstance :: L.M44 GLfloat -> State -> GLFW.Window -> EntityInstance -> IO ()
-drawEntityInstance camera (_, _, resState) w ei = do
+drawEntityInstance  projViewMat (_, _, resState) w ei = do
   lr <- readIORef resState
   let Just program = M.lookup shaderName $ lrShaderPrograms lr
       Just object  = M.lookup objectName $ lrObjects lr
@@ -55,8 +50,9 @@ drawEntityInstance camera (_, _, resState) w ei = do
 
 
   GLUtil.enableAttrib program "coord3d"
+
   bindBuffer ArrayBuffer $= Just verts
-  GLUtil.setAttrib program "coord3d"
+  setAttrib program "coord3d"
             ToFloat $ VertexArrayDescriptor 4 Float 0 GLUtil.offset0
 
   GLUtil.enableAttrib program "v_color"
@@ -66,25 +62,19 @@ drawEntityInstance camera (_, _, resState) w ei = do
 
 
   let
-      model :: L.M44 GLfloat
-      model = L.mkTransformationMat scale pos
-{-              (L.V4 0.1 0.0 0.0 (L._x pos) :: L.V4 GLfloat)
-              (L.V4 0.0 0.1 0.0 (L._y pos) :: L.V4 GLfloat)
-              (L.V4 0.0 0.0 0.1 (L._z pos) :: L.V4 GLfloat)
-              (L.V4 0.0 0.0 0.0 1.0        :: L.V4 GLfloat) -}
-
-      wut = camera L.!*! model L.!*! anim
+      modelMat :: L.M44 GLfloat
+      modelMat = L.mkTransformationMat scale pos
+      mvp :: L.M44 GLfloat
+      mvp = projViewMat L.!*! modelMat
 
 
-
-  GLUtil.asUniform (wut) $ GLUtil.getUniform program "mvp"
-
+  GLUtil.asUniform mvp $ GLUtil.getUniform program "mvp"
 
   bindBuffer ElementArrayBuffer $= Just elems
 
-
+  print "yep"
   GLUtil.drawIndexedTris (fromIntegral nofTris)
-
+  print "yep"
 
   -- disable attributes again
 
@@ -105,22 +95,24 @@ drawEntityInstance camera (_, _, resState) w ei = do
       shaderName = eShaderName e
       objectName = eObjectName e
 
-
-transformM :: Int -> Int -> Double -> L.M44 GLfloat
-transformM width height t = projection L.!*! view L.!*! trans
+mkProjViewMat :: Int -> Int  -> L.M44 GLfloat
+mkProjViewMat width height  = projMat L.!*! viewMat L.!*! trans
     where
       trans      = L.mkTransformationMat L.eye3 (L.V3 0 0 (-4))
-      view       = GLUtilC.camMatrix cam
+      viewMat    = GLUtilC.camMatrix cam
       cam        = GLUtilC.tilt (-30) . GLUtilC.dolly (L.V3 0 2 0) $ GLUtilC.fpsCamera
-      projection = GLUtilC.projectionMatrix (pi/4) aspect 0.1 10
+      projMat    = GLUtilC.projectionMatrix (pi/4) aspect 0.1 10
       aspect     = fromIntegral width / fromIntegral height
+
+
+{-
 
 anim :: L.M44 GLfloat
 anim = L.mkTransformation (L.axisAngle (L.V3 0 1 0) angle) L.zero
     where
       angle = 0
 
-
+-}
 setAttrib :: GLUtil.ShaderProgram -> String ->
              IntegerHandling -> VertexArrayDescriptor a -> IO ()
 setAttrib sp name ih vad = case M.lookup name $ GLUtil.attribs sp of
