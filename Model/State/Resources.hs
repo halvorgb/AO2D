@@ -20,5 +20,6 @@ data LoadedResources =
     LoadedResources {
       lrShaderPrograms :: M.Map String ShaderProgram,
       lrTextures :: [Texture], -- should be maps aswell
-      lrObjects  :: M.Map String Object
+      lrObjects  :: M.Map String Object,
+      lrVAO :: VertexArrayObject
     }

@@ -6,6 +6,8 @@ import Graphics.Rendering.OpenGL
 import Data.IORef
 import qualified Data.Map as M
 
+import Engine.Errors
+
 import Model.ShaderProgram
 import Model.Object
 import Model.State.Resources
@@ -16,9 +18,16 @@ import Model.State.Resources
 loadResources :: IORef LoadedResources -> Resources -> IO ()
 loadResources resState resToLoad = do
 
+  -- Generate VAO
   mapM_ (loadShader resState) $ rShaderPrograms resToLoad
+
+  [vao] <- genObjectNames 1
+  bindVertexArrayObject $= Just vao
   mapM_ (loadObject resState) $ rObjects resToLoad
 
+  -- add VAO to state
+  modifyIORef resState (\ldRs -> ldRs {lrVAO = vao})
+  bindVertexArrayObject $= Nothing
 --  mapM_ (loadTexture resState) $ rTextures resToLoad
 
 

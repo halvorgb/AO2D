@@ -49,19 +49,28 @@ drawEntityInstance  projViewMat (_, _, resState) w ei = do
 
       nofTris = oNOFTris object
 
+      vao = lrVAO lr
+
 
   currentProgram $= (Just $ GLUtil.program program)
+
+
+  -- enable VAO:
+  bindVertexArrayObject $= Just vao
 
   GLUtil.asUniform mvp $ GLUtil.getUniform program "mvp"
 
   let vPosition = GLUtil.getAttrib program "coord3d"
       vColor    = GLUtil.getAttrib program "v_color"
 
+      glFalse   = (0 :: GLboolean)
+
 
 
   vertexAttribArray vPosition   $= Enabled
   bindBuffer ArrayBuffer $= Just verts
-  vertexAttribPointer vPosition $= (ToFloat, VertexArrayDescriptor 4 Float 0 GLUtil.offset0)
+  --  vertexAttribPointer vPosition $= (ToFloat, VertexArrayDescriptor 3 Float 0 GLUtil.offset0)
+  GLRaw.glVertexAttribPointer 0 4 GLRaw.gl_FLOAT glFalse 0 GLUtil.offset0
   checkError "Activate Attrib vPosition"
 
   vertexAttribArray vColor      $= Enabled
@@ -78,6 +87,8 @@ drawEntityInstance  projViewMat (_, _, resState) w ei = do
   -- disable attributes again
   vertexAttribArray vColor $= Disabled
   vertexAttribArray vPosition $= Disabled
+
+  bindVertexArrayObject $= Nothing
     where
       modelMat :: L.M44 GLfloat
       modelMat = L.mkTransformationMat scale pos

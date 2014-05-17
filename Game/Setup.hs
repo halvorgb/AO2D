@@ -30,11 +30,10 @@ setupGame = do
   gameState     <- newIORef $
                    GameState level [EntityInstance (L.V3 0 0 (-4)) ent $ Just 0.1,
                                     EntityInstance (L.V3 0 0 1) ent $ Just 1]
-  resourceState <- newIORef $ LoadedResources M.empty [] M.empty
+  resourceState <- newIORef $ LoadedResources M.empty [] M.empty undefined
 
 
   let state = (gameState, inputState, resourceState)
-      updateFunc = updateGame state
 
   return (state, resourcesToLoad)
     where
