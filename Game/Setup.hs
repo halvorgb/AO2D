@@ -28,8 +28,8 @@ setupGame = do
   level <- generateLevel w h
   inputState    <- newIORef Nothing
   gameState     <- newIORef $
-                   GameState level [EntityInstance (L.V3 0 0.1 0) ent $ Just 0.1,
-                                    EntityInstance (L.V3 1 0 0) ent $ Just 0.1]
+                   GameState level [EntityInstance (L.V3 0 0 (-4)) ent $ Just 0.1,
+                                    EntityInstance (L.V3 0 0 1) ent $ Just 1]
   resourceState <- newIORef $ LoadedResources M.empty [] M.empty
 
 
@@ -63,32 +63,32 @@ setupGame = do
 
 
 
-vertices :: [L.V4 Float]
-vertices = [L.V4 1.0      1.0    1.0  1.0,
-            L.V4 1.0      1.0  (-1.0) 1.0,
-            L.V4 1.0    (-1.0)   1.0  1.0,
-            L.V4 1.0    (-1.0) (-1.0) 1.0,
-            L.V4 (-1.0)   1.0    1.0  1.0,
-            L.V4 (-1.0)   1.0  (-1.0) 1.0,
-            L.V4 (-1.0) (-1.0)   1.0  1.0,
-            L.V4 (-1.0) (-1.0) (-1.0) 1.0
+vertices :: [Vertex4 GLfloat]
+vertices = [Vertex4 1.0      1.0    1.0  1.0,
+            Vertex4 1.0      1.0  (-1.0) 1.0,
+            Vertex4 1.0    (-1.0)   1.0  1.0,
+            Vertex4 1.0    (-1.0) (-1.0) 1.0,
+            Vertex4 (-1.0)   1.0    1.0  1.0,
+            Vertex4 (-1.0)   1.0  (-1.0) 1.0,
+            Vertex4 (-1.0) (-1.0)   1.0  1.0,
+            Vertex4 (-1.0) (-1.0) (-1.0) 1.0
            ]
 
-colors :: [L.V4 Float]
+colors :: [Vertex4 GLfloat]
 colors = vertices -- color space visualization
 
 -- Vertices for each triangle in CCW order
-elements :: [L.V3 GLuint]
-elements = [ L.V3 2 1 0 -- right
-           , L.V3 1 2 3
-           , L.V3 0 1 4 -- top
-           , L.V3 4 1 5
-           , L.V3 4 5 6 -- left
-           , L.V3 7 6 5
-           , L.V3 2 6 3 -- bottom
-           , L.V3 6 3 7
-           , L.V3 0 4 2 -- front
-           , L.V3 2 4 6
-           , L.V3 5 1 7 -- back
-           , L.V3 7 1 3
+elements :: [Vertex3 GLuint]
+elements = [ Vertex3 2 1 0 -- right
+           , Vertex3 1 2 3
+           , Vertex3 0 1 4 -- top
+           , Vertex3 4 1 5
+           , Vertex3 4 5 6 -- left
+           , Vertex3 7 6 5
+           , Vertex3 2 6 3 -- bottom
+           , Vertex3 6 3 7
+           , Vertex3 0 4 2 -- front
+           , Vertex3 2 4 6
+           , Vertex3 5 1 7 -- back
+           , Vertex3 7 1 3
            ]

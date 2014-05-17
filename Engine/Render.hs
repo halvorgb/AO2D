@@ -3,8 +3,13 @@ module Engine.Render(renderObjects) where
 import qualified Graphics.GLUtil as GLUtil
 import qualified Graphics.GLUtil.Camera3D as GLUtilC
 import Graphics.Rendering.OpenGL
+import qualified Graphics.Rendering.OpenGL.Raw as GLRaw
 import qualified Graphics.UI.GLFW as GLFW
 import qualified Linear as L
+
+import Foreign.Marshal.Array
+import Foreign.Ptr
+import Foreign.Storable
 
 import qualified Data.Map as M
 import Data.IORef
@@ -47,42 +52,38 @@ drawEntityInstance  projViewMat (_, _, resState) w ei = do
 
   currentProgram $= (Just $ GLUtil.program program)
 
+  GLUtil.asUniform mvp $ GLUtil.getUniform program "mvp"
 
+  let vPosition = GLUtil.getAttrib program "coord3d"
+      vColor    = GLUtil.getAttrib program "v_color"
+
+
+
+  vertexAttribArray vPosition   $= Enabled
   bindBuffer ArrayBuffer $= Just verts
+  vertexAttribPointer vPosition $= (ToFloat, VertexArrayDescriptor 4 Float 0 GLUtil.offset0)
+  checkError "Activate Attrib vPosition"
+
+  vertexAttribArray vColor      $= Enabled
   bindBuffer ArrayBuffer $= Just colrs
-
-  GLUtil.enableAttrib program "coord3d"
-  GLUtil.setAttrib program "coord3d"
-            ToFloat $ VertexArrayDescriptor 4 Float 0 GLUtil.offset0
-
-  GLUtil.enableAttrib program "v_color"
-  GLUtil.setAttrib program "v_color"
-            ToFloat $ VertexArrayDescriptor 4 Float 0 GLUtil.offset0
+  vertexAttribPointer vColor    $= (ToFloat, VertexArrayDescriptor 4 Float 0 GLUtil.offset0)
+  checkError "Activate Attrib vColor"
 
 
 
+--  bindBuffer ElementArrayBuffer $= Just elems
 
-  let
+  GLUtil.drawIndexedTris (fromIntegral nofTris)
+
+  -- disable attributes again
+  vertexAttribArray vColor $= Disabled
+  vertexAttribArray vPosition $= Disabled
+    where
       modelMat :: L.M44 GLfloat
       modelMat = L.mkTransformationMat scale pos
       mvp :: L.M44 GLfloat
       mvp = projViewMat L.!*! modelMat
 
-
-  GLUtil.asUniform mvp $ GLUtil.getUniform program "mvp"
-
-  bindBuffer ElementArrayBuffer $= Just elems
-
-  GLUtil.drawIndexedTris (fromIntegral nofTris)
-
-  -- disable attributes again
-
-  vertexAttribArray (GLUtil.getAttrib program "coord3d") $= Disabled
-  vertexAttribArray (GLUtil.getAttrib program "v_color") $= Disabled
-  checkError "rendering"
-
-
-    where
       scale :: L.M33 GLfloat
       scale = case eiScaleOverride ei of
                 Nothing -> let sc = eScale e
@@ -104,15 +105,6 @@ mkProjViewMat width height  = projMat L.!*! viewMat L.!*! trans
       aspect     = fromIntegral width / fromIntegral height
 
 
-{-
-
-anim :: L.M44 GLfloat
-anim = L.mkTransformation (L.axisAngle (L.V3 0 1 0) angle) L.zero
-    where
-      angle = 0
-
--}
-
 -- used for debugging.
 setAttrib :: GLUtil.ShaderProgram -> String ->
              IntegerHandling -> VertexArrayDescriptor a -> IO ()
@@ -133,3 +125,22 @@ setAttrib sp name ih vad = case M.lookup name $ GLUtil.attribs sp of
 
                                                                newVapVal <- get vap
                                                                print newVapVal
+
+
+
+bufferOffset :: Integral a => a -> Ptr b
+bufferOffset = plusPtr nullPtr . fromIntegral
+
+
+
+vertex4Size = sizeOf $ (Vector4 1.0 1.0 1.0 1.0 :: Vector4 GLfloat)
+
+
+
+-- used for debugging.
+activateAttrib :: GLUtil.ShaderProgram -> String -> IO ()
+activateAttrib sp name = case M.lookup name $ GLUtil.attribs sp of
+                             Nothing -> error "couldn't find shader attribute"
+                             Just (vPosition, _) -> do print vPosition
+                                                       vertexAttribPointer vPosition $=
+                                                                           (ToFloat, VertexArrayDescriptor 4 Float 0 (bufferOffset (0)))

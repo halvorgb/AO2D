@@ -36,6 +36,7 @@ setupEngine w h winTitle state@(_, inputState, resourceState) resourcesToLoad = 
   mapM_ GLFW.windowHint
             [ GLFW.WindowHint'ContextVersionMajor  3,
               GLFW.WindowHint'ContextVersionMinor  0,
+--              GLFW.WindowHint'ContextVersionMinor  3,
 --              GLFW.WindowHint'OpenGLProfile GLFW.OpenGLProfile'Core,
               GLFW.WindowHint'OpenGLDebugContext True,
               GLFW.WindowHint'DepthBits 24 ]

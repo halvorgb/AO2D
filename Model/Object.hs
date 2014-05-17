@@ -10,9 +10,9 @@ data ObjectResource = ObjectModel { orUniqueName :: String,
                                     orFilePath :: FilePath
                                   }
                     | ObjectGeometry { orUniqueName :: String,
-                                       orVertices :: [L.V4 Float],
-                                       orElements :: [L.V3 GLuint],
-                                       orColors   :: [L.V4 Float]}
+                                       orVertices :: [Vertex4 GLfloat],
+                                       orElements :: [Vertex3 GLuint],
+                                       orColors   :: [Vertex4 GLfloat]}
 
 data Object =
     Object { oVertices :: BufferObject,
