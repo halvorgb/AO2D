@@ -1,5 +1,5 @@
 all: Main.hs
-	ghc --make Main.hs -o out
+	ghc --make Main.hs -o out -Wall -fwarn-unused-imports
 
 .PHONY: clean
 
