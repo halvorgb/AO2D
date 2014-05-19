@@ -31,7 +31,7 @@ setupGame = do
                    GameState level [EntityInstance (L.V3 0 0 0) tetra_ent $ Just 0.5,
                                     EntityInstance (L.V3 0 0 (-4)) cube_ent $ Just 0.1,
                                     EntityInstance (L.V3 0 0 1) cube_ent $ Just 1]
-  resourceState <- newIORef $ LoadedResources M.empty [] M.empty
+  resourceState <- newIORef $ LoadedResources M.empty M.empty M.empty
 
 
   let state = (gameState, inputState, resourceState)
@@ -58,7 +58,7 @@ setupGame = do
                          "assets" </> "shaders" </> "cube.f.glsl"
                    }
                   ],
-              rTextures = [],
+              rMaterials = [],
               rObjects  = [ObjectGeometry "tetraGeometry" tetra_vertices tetra_elements tetra_colors,
                            ObjectGeometry "cubeGeometry" cube_vertices cube_elements cube_colors]
             }
