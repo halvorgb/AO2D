@@ -18,16 +18,12 @@ import Model.State.Resources
 loadResources :: IORef LoadedResources -> Resources -> IO ()
 loadResources resState resToLoad = do
 
-  -- Generate VAO
+
   mapM_ (loadShader resState) $ rShaderPrograms resToLoad
 
-  [vao] <- genObjectNames 1
-  bindVertexArrayObject $= Just vao
   mapM_ (loadObject resState) $ rObjects resToLoad
 
-  -- add VAO to state
-  modifyIORef resState (\ldRs -> ldRs {lrVAO = vao})
-  bindVertexArrayObject $= Nothing
+
 --  mapM_ (loadTexture resState) $ rTextures resToLoad
 
 
@@ -48,6 +44,9 @@ loadShader resState shaderRes = do
 
 loadObject :: IORef LoadedResources -> ObjectResource -> IO ()
 loadObject resState objRes = do
+  -- Generate VAO
+  [vao] <- genObjectNames 1
+  bindVertexArrayObject $= Just vao
   verts <- GLUtil.fromSource ArrayBuffer         vs
   colrs <- GLUtil.fromSource ArrayBuffer         cs
   elems <- GLUtil.fromSource ElementArrayBuffer  es
@@ -56,8 +55,9 @@ loadObject resState objRes = do
   modifyIORef resState
               (\ldRs -> let m = lrObjects ldRs
                         in ldRs {lrObjects =
-                                     M.insert un (Object verts colrs elems nofTris) m}
+                                     M.insert un (Object verts colrs elems nofTris vao) m}
               )
+  bindVertexArrayObject $= Nothing
     where
       un = orUniqueName objRes
       vs = orVertices   objRes

@@ -48,7 +48,7 @@ drawEntityInstance  projViewMat (_, _, resState) w ei = do
 
       nofTris = oNOFTris object
 
-      vao = lrVAO lr
+      vao = oVAO object
 
 
   currentProgram $= (Just $ GLUtil.program program)

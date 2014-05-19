@@ -1,5 +1,6 @@
 TODO:
-	Set up proper VAO indexing to support multiple shapes.
 	Enable texturing.
+	Enable lighting
+	Enable Model importing (simple)
 
 	Enable Normal maps. (far future)

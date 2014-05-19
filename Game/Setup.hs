@@ -28,9 +28,10 @@ setupGame = do
   level <- generateLevel w h
   inputState    <- newIORef []
   gameState     <- newIORef $
-                   GameState level [EntityInstance (L.V3 0 0 (-4)) ent $ Just 0.1,
-                                    EntityInstance (L.V3 0 0 1) ent $ Just 1]
-  resourceState <- newIORef $ LoadedResources M.empty [] M.empty undefined
+                   GameState level [EntityInstance (L.V3 0 0 0) tetra_ent $ Just 0.5,
+                                    EntityInstance (L.V3 0 0 (-4)) cube_ent $ Just 0.1,
+                                    EntityInstance (L.V3 0 0 1) cube_ent $ Just 1]
+  resourceState <- newIORef $ LoadedResources M.empty [] M.empty
 
 
   let state = (gameState, inputState, resourceState)
@@ -39,9 +40,10 @@ setupGame = do
     where
       (w,h) = (50,50)
 
-      ent =
+      cube_ent =
           Entity "cube" 1.0 "cubeShader" "cubeGeometry"
-
+      tetra_ent =
+          Entity "tetra" 1.0 "cubeShader" "tetraGeometry"
 
       -- ugly that this is here...
       resourcesToLoad =
@@ -57,37 +59,54 @@ setupGame = do
                    }
                   ],
               rTextures = [],
-              rObjects  = [ObjectGeometry "cubeGeometry" vertices elements colors]
+              rObjects  = [ObjectGeometry "tetraGeometry" tetra_vertices tetra_elements tetra_colors,
+                           ObjectGeometry "cubeGeometry" cube_vertices cube_elements cube_colors]
             }
 
 
 
-vertices :: [Vertex4 GLfloat]
-vertices = [Vertex4 1.0      1.0    1.0  1.0,
-            Vertex4 1.0      1.0  (-1.0) 1.0,
-            Vertex4 1.0    (-1.0)   1.0  1.0,
-            Vertex4 1.0    (-1.0) (-1.0) 1.0,
-            Vertex4 (-1.0)   1.0    1.0  1.0,
-            Vertex4 (-1.0)   1.0  (-1.0) 1.0,
-            Vertex4 (-1.0) (-1.0)   1.0  1.0,
-            Vertex4 (-1.0) (-1.0) (-1.0) 1.0
+cube_vertices :: [Vertex4 GLfloat]
+cube_vertices = [Vertex4 1.0      1.0    1.0  1.0,
+                 Vertex4 1.0      1.0  (-1.0) 1.0,
+                 Vertex4 1.0    (-1.0)   1.0  1.0,
+                 Vertex4 1.0    (-1.0) (-1.0) 1.0,
+                 Vertex4 (-1.0)   1.0    1.0  1.0,
+                 Vertex4 (-1.0)   1.0  (-1.0) 1.0,
+                 Vertex4 (-1.0) (-1.0)   1.0  1.0,
+                 Vertex4 (-1.0) (-1.0) (-1.0) 1.0
            ]
 
-colors :: [Vertex4 GLfloat]
-colors = vertices -- color space visualization
+cube_colors :: [Vertex4 GLfloat]
+cube_colors = cube_vertices -- color space visualization
 
 -- Vertices for each triangle in CCW order
-elements :: [Vertex3 GLuint]
-elements = [ Vertex3 2 1 0 -- right
-           , Vertex3 1 2 3
-           , Vertex3 0 1 4 -- top
-           , Vertex3 4 1 5
-           , Vertex3 4 5 6 -- left
-           , Vertex3 7 6 5
-           , Vertex3 2 6 3 -- bottom
-           , Vertex3 6 3 7
-           , Vertex3 0 4 2 -- front
-           , Vertex3 2 4 6
-           , Vertex3 5 1 7 -- back
-           , Vertex3 7 1 3
+cube_elements :: [Vertex3 GLuint]
+cube_elements = [ Vertex3 2 1 0 -- right
+                , Vertex3 1 2 3
+                , Vertex3 0 1 4 -- top
+                , Vertex3 4 1 5
+                , Vertex3 4 5 6 -- left
+                , Vertex3 7 6 5
+                , Vertex3 2 6 3 -- bottom
+                , Vertex3 6 3 7
+                , Vertex3 0 4 2 -- front
+                , Vertex3 2 4 6
+                , Vertex3 5 1 7 -- back
+                , Vertex3 7 1 3
            ]
+
+
+tetra_vertices :: [Vertex4 GLfloat]
+tetra_vertices =[Vertex4 1.0      1.0    1.0  1.0,
+                 Vertex4 1.0    (-1.0) (-1.0) 1.0,
+                 Vertex4 (-1.0)   1.0  (-1.0) 1.0,
+                 Vertex4 (-1.0) (-1.0)   1.0  1.0]
+
+tetra_colors :: [Vertex4 GLfloat]
+tetra_colors = tetra_vertices
+
+tetra_elements :: [Vertex3 GLuint]
+tetra_elements = [Vertex3 0 1 2,
+                  Vertex3 1 2 3,
+                  Vertex3 0 1 3,
+                  Vertex3 0 3 2]
