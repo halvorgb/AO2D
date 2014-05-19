@@ -48,9 +48,9 @@ loadShader resState shaderRes = do
 
 loadObject :: IORef LoadedResources -> ObjectResource -> IO ()
 loadObject resState objRes = do
-  verts <- GLUtil.fromSource ArrayBuffer        $ vs
-  colrs <- GLUtil.fromSource ArrayBuffer        $ cs
-  elems <- GLUtil.fromSource ElementArrayBuffer $ es
+  verts <- GLUtil.fromSource ArrayBuffer         vs
+  colrs <- GLUtil.fromSource ArrayBuffer         cs
+  elems <- GLUtil.fromSource ElementArrayBuffer  es
   let nofTris = length es
 
   modifyIORef resState

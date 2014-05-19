@@ -3,7 +3,6 @@ module Engine.Render(renderObjects) where
 import qualified Graphics.GLUtil as GLUtil
 import qualified Graphics.GLUtil.Camera3D as GLUtilC
 import Graphics.Rendering.OpenGL
-import qualified Graphics.Rendering.OpenGL.Raw as GLRaw
 import qualified Graphics.UI.GLFW as GLFW
 import qualified Linear as L
 
@@ -63,14 +62,10 @@ drawEntityInstance  projViewMat (_, _, resState) w ei = do
   let vPosition = GLUtil.getAttrib program "coord3d"
       vColor    = GLUtil.getAttrib program "v_color"
 
-      glFalse   = (0 :: GLboolean)
-
-
 
   vertexAttribArray vPosition   $= Enabled
   bindBuffer ArrayBuffer $= Just verts
-  --  vertexAttribPointer vPosition $= (ToFloat, VertexArrayDescriptor 3 Float 0 GLUtil.offset0)
-  GLRaw.glVertexAttribPointer 0 4 GLRaw.gl_FLOAT glFalse 0 GLUtil.offset0
+  vertexAttribPointer vPosition $= (ToFloat, VertexArrayDescriptor 4 Float 0 GLUtil.offset0)
   checkError "Activate Attrib vPosition"
 
   vertexAttribArray vColor      $= Enabled
@@ -136,22 +131,3 @@ setAttrib sp name ih vad = case M.lookup name $ GLUtil.attribs sp of
 
                                                                newVapVal <- get vap
                                                                print newVapVal
-
-
-
-bufferOffset :: Integral a => a -> Ptr b
-bufferOffset = plusPtr nullPtr . fromIntegral
-
-
-
-vertex4Size = sizeOf $ (Vector4 1.0 1.0 1.0 1.0 :: Vector4 GLfloat)
-
-
-
--- used for debugging.
-activateAttrib :: GLUtil.ShaderProgram -> String -> IO ()
-activateAttrib sp name = case M.lookup name $ GLUtil.attribs sp of
-                             Nothing -> error "couldn't find shader attribute"
-                             Just (vPosition, _) -> do print vPosition
-                                                       vertexAttribPointer vPosition $=
-                                                                           (ToFloat, VertexArrayDescriptor 4 Float 0 (bufferOffset (0)))

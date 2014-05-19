@@ -26,7 +26,7 @@ import qualified Linear as L
 setupGame :: IO (State, Resources)
 setupGame = do
   level <- generateLevel w h
-  inputState    <- newIORef Nothing
+  inputState    <- newIORef []
   gameState     <- newIORef $
                    GameState level [EntityInstance (L.V3 0 0 (-4)) ent $ Just 0.1,
                                     EntityInstance (L.V3 0 0 1) ent $ Just 1]
@@ -51,9 +51,9 @@ setupGame = do
                      sprUniqueName =
                          "cubeShader",
                      sprVertShader =
-                         ("assets" </> "shaders" </> "cube.v.glsl"),
+                         "assets" </> "shaders" </> "cube.v.glsl",
                      sprFragShader =
-                         ("assets" </> "shaders" </> "cube.f.glsl")
+                         "assets" </> "shaders" </> "cube.f.glsl"
                    }
                   ],
               rTextures = [],

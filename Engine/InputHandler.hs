@@ -5,6 +5,7 @@ import Prelude hiding (Left, Right)
 import qualified Graphics.UI.GLFW as GLFW
 import Data.IORef
 import qualified Data.Map as M
+import qualified Data.List as L
 import qualified Data.Maybe as Mb
 import Model.State.Input
 
@@ -12,38 +13,46 @@ import Model.State.Input
 
 keyMap :: M.Map Input GLFW.Key
 keyMap = M.fromList [(Up, GLFW.Key'W),
-                     (Left, GLFW.Key'A),
+                     (Down, GLFW.Key'S),
                      (Right, GLFW.Key'D),
-                     (Down, GLFW.Key'S)]
+                     (Left, GLFW.Key'A),
+                     (Forward, GLFW.Key'Q),
+                     (Backward, GLFW.Key'Z)]
+
+
 
 
 -- the order here matters, the keycheck will short circuit on success.
 keyCallback :: IORef InputState ->  GLFW.KeyCallback
 keyCallback inputStateIO window key scancode action mods
     | keyPressed key action GLFW.Key'Escape
-        = do
-        GLFW.setWindowShouldClose window True
-        writeIORef inputStateIO Nothing
-
-    | keyPressed key action GLFW.Key'W
-       = writeIORef inputStateIO $ Just Up
-
-    | keyPressed key action GLFW.Key'A
-       = writeIORef inputStateIO $ Just Left
-
-    | keyPressed key action GLFW.Key'S
-       = writeIORef inputStateIO $ Just Down
-
-    | keyPressed key action GLFW.Key'D
-       = writeIORef inputStateIO $ Just Right
-
+        = GLFW.setWindowShouldClose window True
     | otherwise
         = do is <- readIORef inputStateIO
-             maybe (return ()) -- no key was pressed.
-                   (\state -> if keyReleased key action (Mb.fromJust $ M.lookup state keyMap) -- if the key that was pressed still is
-                              then writeIORef inputStateIO Nothing -- released, clear variable
-                              else writeIORef inputStateIO $ Just state) -- still pressed, rewrite to stop the variable from clearing
-                   is
+             let is' = setInput is key action
+                 is'' = (stillPressed key action) is'
+             writeIORef inputStateIO is''
+
+
+
+setInput :: [Input] -> GLFW.Key -> GLFW.KeyState -> [Input]
+setInput input key action
+    | keyPressed key action GLFW.Key'W
+       = addInput Up input
+    | keyPressed key action GLFW.Key'S
+       = addInput Down input
+
+    | keyPressed key action GLFW.Key'D
+       = addInput Right input
+    | keyPressed key action GLFW.Key'A
+       = addInput Left input
+
+    | keyPressed key action GLFW.Key'Q
+       = addInput Forward input
+
+    | keyPressed key action GLFW.Key'Z
+       = addInput Backward input
+    | otherwise = input
 
 
 -- saves some bloat.
@@ -56,3 +65,11 @@ keyReleased :: GLFW.Key -> GLFW.KeyState -> GLFW.Key -> Bool
 keyReleased key keyState target =
     key == target &&
     keyState == GLFW.KeyState'Released
+
+
+
+addInput :: Input -> [Input] -> [Input]
+addInput i is = (i:is)
+
+stillPressed :: GLFW.Key -> GLFW.KeyState -> [Input] -> [Input]
+stillPressed key action = L.filter (\i -> not $ keyReleased key action (Mb.fromJust $ M.lookup i keyMap))

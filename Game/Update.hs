@@ -15,8 +15,13 @@ import Model.State.Game
 import Model.Entity
 
 
-
-
+inputToTranslationVector :: Input -> L.V3 GLfloat
+inputToTranslationVector Up       = L.V3   0.0   1.0   0.0
+inputToTranslationVector Down     = L.V3   0.0 (-1.0)  0.0
+inputToTranslationVector Right    = L.V3   1.0   0.0   0.0
+inputToTranslationVector Left     = L.V3 (-1.0)  0.0   0.0
+inputToTranslationVector Forward  = L.V3   0.0   0.0   1.0
+inputToTranslationVector Backward = L.V3   0.0   0.0 (-1.0)
 
 
 -- updates the game state
@@ -26,19 +31,13 @@ updateGame (gsIO, isIO, _) delta = do
   is <- readIORef isIO
 
   let translation :: L.V3 GLfloat
-      translation = case is of
-                      Nothing    -> L.V3   0.0   0.0  0.0
-                      Just Up    -> L.V3   0.0   1.0  0.0
-                      Just Down  -> L.V3   0.0 (-1.0) 0.0
-                      Just Left  -> L.V3 (-1.0)  0.0  0.0
-                      Just Right -> L.V3   1.0   0.0  0.0
+      translation = foldl (\acc i -> acc L.^+^ (inputToTranslationVector i)) (L.V3 0 0 0) is
       eis = gsEntities gs
       trans' = fmap (* realToFrac delta) translation
-
   unless (null eis) $
          do let ei = head eis
                 p  = eiPosition ei
                 p' = liftA2 (+) p trans'
                 ei' = ei {eiPosition = p'}
-            unless (is == Nothing) $
-                   writeIORef gsIO gs { gsEntities = ei':(tail eis) }
+            unless (null is) $
+                   writeIORef gsIO gs { gsEntities = ei':tail eis }

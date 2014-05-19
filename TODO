@@ -1,3 +1,5 @@
-SETUP A VAO (VERTEX ARRAY OBJECT). SEE GLUtil example?
+TODO:
+	Set up proper VAO indexing to support multiple shapes.
+	Enable texturing.
 
-http://www.arcadianvisions.com/images/vinyl-gl-comparison.pdf
+	Enable Normal maps. (far future)
