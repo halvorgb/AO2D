@@ -9,11 +9,12 @@ import Graphics.Rendering.OpenGL
 
 import Model.State
 import Model.State.Game
-import Model.State.Input()
+import Model.State.Input
 import Model.State.Resources
 import Model.ShaderProgram
 import Model.Object
 import Model.Entity
+import Model.Camera
 
 import qualified Linear as L
 
@@ -21,11 +22,17 @@ import qualified Linear as L
 
 setupGame :: IO (State, Resources)
 setupGame = do
-  inputState    <- newIORef []
+  inputState    <- newIORef $
+                   InputState [] (MouseInput 0 0)
+
   gameState     <- newIORef $
-                   GameState undefined [EntityInstance (L.V3 0 0 0) tetra_ent $ Just 0.5,
-                                        EntityInstance (L.V3 0 0 (-4)) cube_ent $ Just 0.1,
-                                        EntityInstance (L.V3 0 0.2 0.1) cube_ent $ Just 0.25]
+                   GameState {
+                    gsEntities =
+                        [EntityInstance (L.V3 0 0 0) tetra_ent $ Just 0.5,
+                         EntityInstance (L.V3 0 0 (-4)) cube_ent $ Just 0.1,
+                         EntityInstance (L.V3 0 0.2 0.1) cube_ent $ Just 0.25],
+                    gsCamera =
+                        Camera (L.V3 0 0 0) 0 0 100 }
   resourceState <- newIORef $ LoadedResources M.empty [] M.empty
 
 

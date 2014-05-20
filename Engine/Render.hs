@@ -14,6 +14,7 @@ import Model.State
 import Model.State.Resources
 import Model.State.Game
 import Model.Entity
+import Model.Camera
 
 import Engine.Errors
 
@@ -27,7 +28,10 @@ renderObjects state@(gameState, _, _) w =
 
       (width, height) <- GLFW.getFramebufferSize w
 
-      let projViewMat = mkProjViewMat width height
+      let cam = gsCamera gs
+          projViewMat = mkProjViewMat width height cam
+
+
       -- ultra naive bullshit: draw every entity.
       mapM_ (drawEntityInstance projViewMat state ) $ gsEntities gs
 
@@ -97,14 +101,19 @@ drawEntityInstance  projViewMat (_, _, resState) ei = do
       objectName = eObjectName e
 
 
-mkProjViewMat :: Int -> Int -> L.M44 GLfloat
-mkProjViewMat width height  = projMat L.!*! viewMat
+mkProjViewMat :: Int -> Int -> Camera -> L.M44 GLfloat
+mkProjViewMat width height camera  = projMat L.!*! viewMat
     where
       viewMat    = GLUtilC.camMatrix cam
-      cam        = GLUtilC.tilt (-30) . GLUtilC.dolly (L.V3 0 2 2) $ GLUtilC.fpsCamera
+      cam        = GLUtilC.pan pan . GLUtilC.tilt tilt . GLUtilC.dolly pos $ GLUtilC.fpsCamera
+
+
+      tilt       = cTilt camera
+      pan        = cPan camera
+      pos        = cPosition camera
 
       projMat    = GLUtilC.projectionMatrix fov aspect nearClip farClip
       aspect     = fromIntegral width / fromIntegral height
-      fov        = GLUtilC.deg2rad 100
+      fov        = cFov camera
       nearClip   = 0.5
       farClip    = 20

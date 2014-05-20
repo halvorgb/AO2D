@@ -24,7 +24,6 @@ setupEngine w h winTitle state@(_, inputState, resourceState) resourcesToLoad = 
 
   mapM_ GLFW.windowHint
             [ GLFW.WindowHint'ContextVersionMajor  3,
---              GLFW.WindowHint'ContextVersionMinor  0,
               GLFW.WindowHint'ContextVersionMinor  3,
               GLFW.WindowHint'OpenGLProfile GLFW.OpenGLProfile'Core,
               GLFW.WindowHint'OpenGLDebugContext True,
@@ -43,8 +42,15 @@ setupEngine w h winTitle state@(_, inputState, resourceState) resourcesToLoad = 
       Just window -> do
               -- window creation successful, setup callbacks
               GLFW.makeContextCurrent mw
-              GLFW.setKeyCallback window (Just $ keyCallback inputState)
-              GLFW.setWindowSizeCallback window (Just resizeCallback)
+              GLFW.setKeyCallback
+                  window $ Just $ keyCallback inputState
+              GLFW.setWindowSizeCallback
+                  window $ Just resizeCallback
+              GLFW.setCursorPosCallback
+                  window $ Just $ cursorCallback inputState
+              GLFW.setMouseButtonCallback
+                  window $ Just mouseButtonCallback
+
 
 
               dumpInfo

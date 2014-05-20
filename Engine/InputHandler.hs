@@ -1,45 +1,76 @@
-module Engine.InputHandler(keyCallback) where
+module Engine.InputHandler(keyCallback, cursorCallback, mouseButtonCallback) where
 
 import Prelude hiding (Left, Right)
 
 import qualified Graphics.UI.GLFW as GLFW
 import Data.IORef
-import qualified Data.Map as M
-import qualified Data.List as L
-import qualified Data.Maybe as Mb
 import Model.State.Input
 
 
 
-keyMap :: M.Map Input GLFW.Key
-keyMap = M.fromList [(Up, GLFW.Key'W),
-                     (Down, GLFW.Key'S),
-                     (Right, GLFW.Key'D),
-                     (Left, GLFW.Key'A),
-                     (Forward, GLFW.Key'Q),
-                     (Backward, GLFW.Key'Z)]
+mouseButtonCallback :: GLFW.MouseButtonCallback
+mouseButtonCallback window button action _
+    | button == GLFW.MouseButton'1 &&
+      action == GLFW.MouseButtonState'Pressed
+          = GLFW.setCursorInputMode window GLFW.CursorInputMode'Normal
+
+    | button == GLFW.MouseButton'2 &&
+      action == GLFW.MouseButtonState'Pressed
+          = GLFW.setCursorInputMode window GLFW.CursorInputMode'Hidden
+
+    | otherwise = return ()
+
+cursorCallback :: IORef InputState -> GLFW.CursorPosCallback
+cursorCallback inputStateIO window x y =
+    do
+
+
+      (w,h) <- GLFW.getFramebufferSize window
+      let (mid_x, mid_y) = (fromIntegral w / 2, fromIntegral h / 2)
+
+          (delta_x, delta_y) = (x - mid_x, y - mid_y)
+
+      GLFW.setCursorPos window mid_x mid_y -- reset cursorPos
+
+      is <- readIORef inputStateIO
+      let m = isMouseInput is
+          mx = miX m
+          my = miY m
+
+          m' = MouseInput { miX = mx + delta_x,
+                            miY = my + delta_y
+                          }
+          is' = is {isMouseInput = m'}
+      writeIORef inputStateIO is' -- write updated mouse input!
 
 
 
 
--- the order here matters, the keycheck will short circuit on success.
+
 keyCallback :: IORef InputState ->  GLFW.KeyCallback
 keyCallback inputStateIO window key _ action _
     | keyPressed key action GLFW.Key'Escape
         = GLFW.setWindowShouldClose window True
     | otherwise
         = do is <- readIORef inputStateIO
-             let is' = setInput is key action
-                 is'' = (stillPressed key action) is'
-             writeIORef inputStateIO is''
+             let kb = setKeyInput (isKeyboardInput is) key action
+                 kb' = (stillPressed key action) kb
+                 is' = is { isKeyboardInput = kb'}
+             writeIORef inputStateIO is'
 
+key2glfwKey :: KeyboardInput -> GLFW.Key
+key2glfwKey Up = GLFW.Key'Q
+key2glfwKey Down = GLFW.Key'Z
+key2glfwKey Right = GLFW.Key'D
+key2glfwKey Left = GLFW.Key'A
+key2glfwKey Forward = GLFW.Key'W
+key2glfwKey Backward = GLFW.Key'S
 
-
-setInput :: [Input] -> GLFW.Key -> GLFW.KeyState -> [Input]
-setInput input key action
-    | keyPressed key action GLFW.Key'W
+setKeyInput :: [KeyboardInput] -> GLFW.Key -> GLFW.KeyState -> [KeyboardInput]
+setKeyInput input key action
+    | keyPressed key action GLFW.Key'Q
        = addInput Up input
-    | keyPressed key action GLFW.Key'S
+    | keyPressed key action GLFW.Key'Z
        = addInput Down input
 
     | keyPressed key action GLFW.Key'D
@@ -47,12 +78,13 @@ setInput input key action
     | keyPressed key action GLFW.Key'A
        = addInput Left input
 
-    | keyPressed key action GLFW.Key'Q
+    | keyPressed key action GLFW.Key'W
        = addInput Forward input
 
-    | keyPressed key action GLFW.Key'Z
+    | keyPressed key action GLFW.Key'S
        = addInput Backward input
     | otherwise = input
+
 
 
 -- saves some bloat.
@@ -68,8 +100,8 @@ keyReleased key keyState target =
 
 
 
-addInput :: Input -> [Input] -> [Input]
+addInput :: KeyboardInput -> [KeyboardInput] -> [KeyboardInput]
 addInput i is = (i:is)
 
-stillPressed :: GLFW.Key -> GLFW.KeyState -> [Input] -> [Input]
-stillPressed key action = L.filter (\i -> not $ keyReleased key action (Mb.fromJust $ M.lookup i keyMap))
+stillPressed :: GLFW.Key -> GLFW.KeyState -> [KeyboardInput] -> [KeyboardInput]
+stillPressed key action = filter (\i -> not $ keyReleased key action $ key2glfwKey i)

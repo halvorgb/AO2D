@@ -1,6 +1,15 @@
 module Model.State.Input where
 
-data Input = Up | Down | Left | Right | Forward | Backward -- ++ more
-             deriving (Eq, Show, Ord)
+data KeyboardInput = Up | Down | Left | Right | Forward | Backward -- ++ more
+                     deriving (Eq, Show, Ord)
 
-type InputState = [Input]
+data MouseInput =
+    MouseInput { miX :: Double,
+                 miY :: Double }
+
+
+
+data InputState =
+    InputState { isKeyboardInput :: [KeyboardInput],
+                 isMouseInput :: MouseInput
+               }
