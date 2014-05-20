@@ -1,16 +1,16 @@
-* todo
-** Testing
+TODO:
+* Testing
    Camera Control
-** Features
-*** Lighting
+* Features
+** Lighting
     Implement lighting (simple)
     Implement Ambient Occlusion
     Implement Specularity
-*** Asset Loading
-**** Textures
+** Asset Loading
+*** Textures
 	Difusemaps (simple)
 	NormalMaps
 	Specular maps
-**** Models
+*** Models
      OBJ files
      COLLADA files
