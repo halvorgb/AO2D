@@ -1,6 +1,14 @@
 TODO:
-	Enable texturing.
-	Enable lighting
-	Enable Model importing (simple)
+	Control Camera (Not objects)
+	Implement lighting (simple)
+	Implement texturing (simple)
+	Implement Normal Maps
+	Implement Ambient Occlusion
 
-	Enable Normal maps. (far future)
+	Implement Specularity
+
+
+
+
+
+	Implement Model importing (simple)
