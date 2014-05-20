@@ -1,6 +1,8 @@
 module Model.State.Resources where
 
-import Model.Texture
+
+import Model.Material
+
 import Model.ShaderProgram
 import Model.Object
 
@@ -10,13 +12,13 @@ import qualified Data.Map as M
 data Resources =
     Resources {
       rShaderPrograms :: [ShaderProgramResource],
-      rTextures       :: [TextureResource],
+      rMaterials       :: [MaterialResource],
       rObjects        :: [ObjectResource]
     }
 
 data LoadedResources =
     LoadedResources {
       lrShaderPrograms :: M.Map String ShaderProgram,
-      lrTextures :: [Texture], -- should be maps aswell
+      lrMaterials :: M.Map String Material,
       lrObjects  :: M.Map String Object
     }
