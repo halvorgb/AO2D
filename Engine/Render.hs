@@ -115,5 +115,5 @@ mkProjViewMat width height camera  = projMat L.!*! viewMat
       projMat    = GLUtilC.projectionMatrix fov aspect nearClip farClip
       aspect     = fromIntegral width / fromIntegral height
       fov        = cFov camera
-      nearClip   = 0.5
+      nearClip   = 0.05
       farClip    = 20

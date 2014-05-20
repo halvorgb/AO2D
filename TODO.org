@@ -1,6 +1,6 @@
 TODO:
 * Testing
-   Camera Control
+  -
 * Features
 ** Lighting
     Implement lighting (simple)

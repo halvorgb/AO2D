@@ -10,6 +10,9 @@ data Camera =
              cFov :: GLfloat -- radians
            }
 
+instance Show Camera where
+    show c = "Pos: " ++ show (cPosition c) ++ ", pan: " ++ show (cPan c) ++ ", tilt: " ++ show (cTilt c) ++ ", fov: " ++ show (cFov c)
+
 -- the moveBy argument is relative to the direction the camera is facing.
 -- does the necessary rotations.
 
@@ -33,7 +36,6 @@ rotateCamera add_tilt add_pan cam = cam {cTilt = tilt', cPan = pan'}
           | p > pi2      = p - pi2
           | p < (-pi2)   = p + pi2
           | otherwise    = p
-
           where p = pan + add_pan
 
 
@@ -56,7 +58,7 @@ moveCamera moveBy cam = cam {cPosition = pos'}
       increaseDim (L.V3 x y z) = L.V4 x y z 0
 
       rotationMatrix :: L.M44 GLfloat
-      rotationMatrix = L.mkTransformationMat (tiltRotationMatrix L.!*! panRotationMatrix) (L.V3 0 0 0)
+      rotationMatrix = L.mkTransformationMat (panRotationMatrix L.!*! tiltRotationMatrix) (L.V3 0 0 0)
 
       tiltRotationMatrix :: L.M33 GLfloat
       tiltRotationMatrix = L.V3
