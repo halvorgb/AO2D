@@ -19,23 +19,28 @@ rotateCamera add_tilt add_pan cam = cam {cTilt = tilt', cPan = pan'}
     where
       tilt = cTilt cam
       pan = cPan cam
+      pi2 = 2*pi
 
-      tilt' -- avoid tilting over 90 degrees or pi/2
-          | t > maxTilt = maxTilt
+      tilt'
+          | add_tilt == 0  = tilt
+          | t > maxTilt    = maxTilt
           | t < (-maxTilt) = (-maxTilt)
-          | otherwise = t
-          where
-            t = tilt + add_tilt
-            maxTilt = pi/2
-
+          | otherwise = t -- change
+          where t = tilt + add_tilt
+                maxTilt = pi/2
       pan' -- avoid pan' growing over 360 degrees or 2pi
-          | p > 2*pi = 2 - 2*pi
-          | otherwise = p
+          | add_pan == 0 = pan
+          | p > pi2      = p - pi2
+          | p < (-pi2)   = p + pi2
+          | otherwise    = p
+
           where p = pan + add_pan
 
 
 
+
 moveCamera :: L.V3 GLfloat -> Camera -> Camera
+moveCamera (L.V3 0 0 0) cam = cam
 moveCamera moveBy cam = cam {cPosition = pos'}
     where
       -- finally translate position by moveBy'
@@ -52,6 +57,7 @@ moveCamera moveBy cam = cam {cPosition = pos'}
 
       rotationMatrix :: L.M44 GLfloat
       rotationMatrix = L.mkTransformationMat (tiltRotationMatrix L.!*! panRotationMatrix) (L.V3 0 0 0)
+
       tiltRotationMatrix :: L.M33 GLfloat
       tiltRotationMatrix = L.V3
                            (L.V3 1 0 0)

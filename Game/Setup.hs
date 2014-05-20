@@ -28,11 +28,11 @@ setupGame = do
   gameState     <- newIORef $
                    GameState {
                     gsEntities =
-                        [EntityInstance (L.V3 0 0 0) tetra_ent $ Just 0.5,
+                        [EntityInstance (L.V3 0 0 1) tetra_ent $ Just 0.5,
                          EntityInstance (L.V3 0 0 (-4)) cube_ent $ Just 0.1,
                          EntityInstance (L.V3 0 0.2 0.1) cube_ent $ Just 0.25],
                     gsCamera =
-                        Camera (L.V3 0 0 0) 0 0 100 }
+                        Camera (L.V3 0 0 0) 0 0 90 }
   resourceState <- newIORef $ LoadedResources M.empty [] M.empty
 
 

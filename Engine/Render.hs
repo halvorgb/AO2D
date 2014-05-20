@@ -105,7 +105,7 @@ mkProjViewMat :: Int -> Int -> Camera -> L.M44 GLfloat
 mkProjViewMat width height camera  = projMat L.!*! viewMat
     where
       viewMat    = GLUtilC.camMatrix cam
-      cam        = GLUtilC.pan pan . GLUtilC.tilt tilt . GLUtilC.dolly pos $ GLUtilC.fpsCamera
+      cam        = GLUtilC.panRad pan . GLUtilC.tiltRad tilt . GLUtilC.dolly pos $ GLUtilC.fpsCamera
 
 
       tilt       = cTilt camera
