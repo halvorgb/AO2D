@@ -1,7 +1,5 @@
 module Model.State.Resources where
 
-import Graphics.Rendering.OpenGL
-
 import Model.Texture
 import Model.ShaderProgram
 import Model.Object

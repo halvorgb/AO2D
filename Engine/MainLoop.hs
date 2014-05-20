@@ -1,17 +1,13 @@
 module Engine.MainLoop(mainLoop) where
 
-import Data.IORef
 import qualified Graphics.UI.GLFW as GLFW
-import Graphics.Rendering.OpenGL
 import Control.Monad
 
 import Model.State
-import Model.Object
 
 import Game.Update
 
 import Engine.Render
-import Engine.Errors
 
 mainLoop :: State -> GLFW.Window  -> IO ()
 mainLoop s w = do

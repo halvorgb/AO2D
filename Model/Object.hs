@@ -1,10 +1,7 @@
 module Model.Object where
 
-import Foreign.Storable
-import Foreign.Ptr
-
 import Graphics.Rendering.OpenGL
-import qualified Linear as L
+
 
 data ObjectResource = ObjectModel { orUniqueName :: String,
                                     orFilePath :: FilePath

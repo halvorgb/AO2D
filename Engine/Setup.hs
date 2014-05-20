@@ -2,15 +2,9 @@ module Engine.Setup(setupEngine) where
 
 import Graphics.Rendering.OpenGL
 import qualified Graphics.UI.GLFW as GLFW
-import qualified Graphics.GLUtil as GLUtil
 
 import System.Exit
 import System.IO
-import System.FilePath
-import Control.Monad
-import qualified Data.ByteString as BS
-import Data.IORef
-import qualified Data.Map as M
 
 import Engine.InputHandler
 import Engine.MainLoop
@@ -21,12 +15,7 @@ import Engine.Resources
 import Model.State
 import Model.State.Resources
 
-
-
-import Game.Update
-
 -- template: https://github.com/alpmestan/glfw-b-quick-example
-
 setupEngine :: Int -> Int -> String -> State -> Resources -> IO ()
 setupEngine w h winTitle state@(_, inputState, resourceState) resourcesToLoad = do
   GLFW.setErrorCallback (Just errorCallback)
@@ -80,13 +69,10 @@ setupEngine w h winTitle state@(_, inputState, resourceState) resourcesToLoad = 
               exitSuccess
 -- type ErrorCallback = Error -> String -> IO ()
 errorCallback :: GLFW.ErrorCallback
-errorCallback err = hPutStrLn stderr
+errorCallback _ = hPutStrLn stderr
 
 resizeCallback :: GLFW.WindowSizeCallback
-resizeCallback w width height = do
-      let ratio = fromIntegral width / fromIntegral height
-
-      viewport $= (Position 0 0, Size (fromIntegral width) (fromIntegral height))
+resizeCallback _ width height = viewport $= (Position 0 0, Size (fromIntegral width) (fromIntegral height))
 
 
 dumpInfo :: IO ()

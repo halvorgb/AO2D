@@ -24,7 +24,7 @@ keyMap = M.fromList [(Up, GLFW.Key'W),
 
 -- the order here matters, the keycheck will short circuit on success.
 keyCallback :: IORef InputState ->  GLFW.KeyCallback
-keyCallback inputStateIO window key scancode action mods
+keyCallback inputStateIO window key _ action _
     | keyPressed key action GLFW.Key'Escape
         = GLFW.setWindowShouldClose window True
     | otherwise

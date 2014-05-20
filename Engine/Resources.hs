@@ -20,9 +20,9 @@ loadResources resState resToLoad = do
 
 
   mapM_ (loadShader resState) $ rShaderPrograms resToLoad
-
+  checkError "loadShaders"
   mapM_ (loadObject resState) $ rObjects resToLoad
-
+  checkError "loadObjects"
 
 --  mapM_ (loadTexture resState) $ rTextures resToLoad
 

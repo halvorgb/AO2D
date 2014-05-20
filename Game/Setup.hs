@@ -1,15 +1,11 @@
 module Game.Setup(setupGame) where
 
 
-import Control.Applicative
 import System.FilePath
 import Data.IORef
 import qualified Data.Map as M
 
 import Graphics.Rendering.OpenGL
-
-import Game.LevelGen.LevelGen
-import Game.Update
 
 import Model.State
 import Model.State.Game
@@ -25,12 +21,11 @@ import qualified Linear as L
 
 setupGame :: IO (State, Resources)
 setupGame = do
-  level <- generateLevel w h
   inputState    <- newIORef []
   gameState     <- newIORef $
-                   GameState level [EntityInstance (L.V3 0 0 0) tetra_ent $ Just 0.5,
-                                    EntityInstance (L.V3 0 0 (-4)) cube_ent $ Just 0.1,
-                                    EntityInstance (L.V3 0 0 1) cube_ent $ Just 1]
+                   GameState undefined [EntityInstance (L.V3 0 0 0) tetra_ent $ Just 0.5,
+                                        EntityInstance (L.V3 0 0 (-4)) cube_ent $ Just 0.1,
+                                        EntityInstance (L.V3 0 0 1) cube_ent $ Just 1]
   resourceState <- newIORef $ LoadedResources M.empty [] M.empty
 
 
@@ -38,8 +33,6 @@ setupGame = do
 
   return (state, resourcesToLoad)
     where
-      (w,h) = (50,50)
-
       cube_ent =
           Entity "cube" 1.0 "cubeShader" "cubeGeometry"
       tetra_ent =

@@ -6,10 +6,6 @@ import Graphics.Rendering.OpenGL
 import qualified Graphics.UI.GLFW as GLFW
 import qualified Linear as L
 
-import Foreign.Marshal.Array
-import Foreign.Ptr
-import Foreign.Storable
-
 import qualified Data.Map as M
 import Data.IORef
 
@@ -34,17 +30,17 @@ renderObjects state@(gameState, _, _) w =
 
       let projViewMat = mkProjViewMat width height
       -- ultra naive bullshit: draw every entity.
-      mapM_ (drawEntityInstance projViewMat state w) $ gsEntities gs
+      mapM_ (drawEntityInstance projViewMat state ) $ gsEntities gs
 
 
-drawEntityInstance :: L.M44 GLfloat -> State -> GLFW.Window -> EntityInstance -> IO ()
-drawEntityInstance  projViewMat (_, _, resState) w ei = do
+drawEntityInstance :: L.M44 GLfloat -> State  -> EntityInstance -> IO ()
+drawEntityInstance  projViewMat (_, _, resState) ei = do
   lr <- readIORef resState
   let Just program = M.lookup shaderName $ lrShaderPrograms lr
       Just object  = M.lookup objectName $ lrObjects lr
       verts = oVertices object
       colrs = oColors   object
-      elems = oElements object
+--      elems = oElements object -- never used?
 
       nofTris = oNOFTris object
 
@@ -86,20 +82,21 @@ drawEntityInstance  projViewMat (_, _, resState) w ei = do
   bindVertexArrayObject $= Nothing
     where
       modelMat :: L.M44 GLfloat
-      modelMat = L.mkTransformationMat scale pos
+      modelMat = L.mkTransformationMat modelScale modelTrans
+
       mvp :: L.M44 GLfloat
       mvp = projViewMat L.!*! modelMat
 
-      scale :: L.M33 GLfloat
-      scale = case eiScaleOverride ei of
-                Nothing -> let sc = eScale e
-                           in sc L.*!! L.eye3
-                Just sc -> sc L.*!! L.eye3
-      pos = eiPosition ei
+      modelScale :: L.M33 GLfloat
+      modelScale = case eiScaleOverride ei of
+                     Nothing -> let sc = eScale e
+                                in sc L.*!! L.eye3
+                     Just sc -> sc L.*!! L.eye3
+      modelTrans = eiPosition ei
       e = eiEntity ei
-      name = eName e
       shaderName = eShaderName e
       objectName = eObjectName e
+
 
 mkProjViewMat :: Int -> Int  -> L.M44 GLfloat
 mkProjViewMat width height  = projMat L.!*! viewMat L.!*! trans
@@ -109,25 +106,3 @@ mkProjViewMat width height  = projMat L.!*! viewMat L.!*! trans
       cam        = GLUtilC.tilt (-30) . GLUtilC.dolly (L.V3 0 2 0) $ GLUtilC.fpsCamera
       projMat    = GLUtilC.projectionMatrix (pi/4) aspect 0.1 10
       aspect     = fromIntegral width / fromIntegral height
-
-
--- used for debugging.
-setAttrib :: GLUtil.ShaderProgram -> String ->
-             IntegerHandling -> VertexArrayDescriptor a -> IO ()
-setAttrib sp name ih vad = case M.lookup name $ GLUtil.attribs sp of
-                             Nothing -> do
-                               putStrLn "This does not happen."
-                               return ()
-                             Just (attribLocation, _) -> let vap = vertexAttribPointer attribLocation
-                                                         in do vapVal <- get vap
-                                                               print (ih,vad) -- what I want to change vap to.
-                                                               print vapVal
-
-                                                               print attribLocation
-
-                                                               checkError "no errors before this point"
-                                                               vap $=! (ih, vad)
-                                                               checkError "^ that statement yields an error."
-
-                                                               newVapVal <- get vap
-                                                               print newVapVal
