@@ -9,7 +9,6 @@ import qualified Linear as L
 import qualified Data.Map as M
 import Data.IORef
 
-
 import Model.Object
 import Model.State
 import Model.State.Resources
@@ -98,11 +97,14 @@ drawEntityInstance  projViewMat (_, _, resState) ei = do
       objectName = eObjectName e
 
 
-mkProjViewMat :: Int -> Int  -> L.M44 GLfloat
-mkProjViewMat width height  = projMat L.!*! viewMat L.!*! trans
+mkProjViewMat :: Int -> Int -> L.M44 GLfloat
+mkProjViewMat width height  = projMat L.!*! viewMat
     where
-      trans      = L.mkTransformationMat L.eye3 (L.V3 0 0 (-4))
       viewMat    = GLUtilC.camMatrix cam
-      cam        = GLUtilC.tilt (-30) . GLUtilC.dolly (L.V3 0 2 0) $ GLUtilC.fpsCamera
-      projMat    = GLUtilC.projectionMatrix (pi/4) aspect 0.1 10
+      cam        = GLUtilC.tilt (-30) . GLUtilC.dolly (L.V3 0 2 2) $ GLUtilC.fpsCamera
+
+      projMat    = GLUtilC.projectionMatrix fov aspect nearClip farClip
       aspect     = fromIntegral width / fromIntegral height
+      fov        = GLUtilC.deg2rad 100
+      nearClip   = 0.5
+      farClip    = 20

@@ -25,7 +25,7 @@ setupGame = do
   gameState     <- newIORef $
                    GameState undefined [EntityInstance (L.V3 0 0 0) tetra_ent $ Just 0.5,
                                         EntityInstance (L.V3 0 0 (-4)) cube_ent $ Just 0.1,
-                                        EntityInstance (L.V3 0 0 1) cube_ent $ Just 1]
+                                        EntityInstance (L.V3 0 0.2 0.1) cube_ent $ Just 0.25]
   resourceState <- newIORef $ LoadedResources M.empty [] M.empty
 
 
