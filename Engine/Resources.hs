@@ -70,9 +70,6 @@ loadObject resState objRes = do
 
 loadMaterial :: IORef LoadedResources -> MaterialResource -> IO ()
 loadMaterial resState matRes = do
---  [texObject] <- genObjectNames 1
---  textureBinding Texture2D $= Just texObject
-
   -- load diffuse Image:
   diff_img <- loadImage diffuseFilePath
 
@@ -81,28 +78,6 @@ loadMaterial resState matRes = do
       dd = PNG.imageData diff_img
       texInfo = GLUtil.TexInfo wd hd GLUtil.TexRGBA dd
 
-
-  --http://stackoverflow.com/questions/10468845/juicypixels-texture-loading-in-haskell-opengl
- {-
-  unsafeWith dd $ (\ ptr ->
-                   -- Generate the texture
-                   texImage2D
-                   -- Simple Texture2D w/o cube map
-                   Texture2D
-                   -- No proxy
-                   NoProxy
-                   -- No mipmaps
-                   0
-                   -- Internal storage format: use R8G8B8A8 as internal storage
-                   RGBA8
-                   -- Size of the image
-                   (TextureSize2D wd hd)
-                   -- No borders
-                   0
-                   -- The pixel data: the vector contains Bytes, in RGBA order
-                   (PixelData RGBA UnsignedByte ptr)
-                  )
-  -}
 
   texObject' <- GLUtil.loadTexture texInfo
 
