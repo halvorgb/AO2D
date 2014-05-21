@@ -51,13 +51,11 @@ setupEngine w h winTitle state@(_, inputState, resourceState) resourcesToLoad = 
               GLFW.setMouseButtonCallback
                   window $ Just mouseButtonCallback
 
-
-
               dumpInfo
 
               blend $= Enabled
               blendFunc $= (SrcAlpha, OneMinusSrcAlpha)
-              cullFace   $= Nothing
+              cullFace   $= Just Back
               depthFunc  $= Just Less
 
               clearColor $= Color4 0.1 0.1 0.1 1

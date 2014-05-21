@@ -5,8 +5,6 @@ import Graphics.Rendering.OpenGL
 import Data.IORef
 import qualified Data.Map as M
 
-import Data.Vector.Storable(unsafeWith)
-
 import qualified Codec.Picture as PNG
 
 import Engine.Errors
@@ -95,7 +93,10 @@ loadMaterial resState matRes = do
 
 
 
-  textureFilter Texture2D $= ((Nearest, Nothing), Nearest)
+  textureFilter Texture2D $= ((Linear',Just Linear'), Linear')
+  textureWrapMode Texture2D S $= (Repeated, Repeat)
+  textureWrapMode Texture2D T $= (Repeated, Repeat)
+  generateMipmap' Texture2D
   textureBinding Texture2D $= Nothing
   checkError "loadTexture"
     where

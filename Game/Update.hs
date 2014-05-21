@@ -14,12 +14,12 @@ import Model.State.Game
 import Model.Camera
 
 inputToTranslationVector :: KeyboardInput -> L.V3 GLfloat
-inputToTranslationVector Up       = L.V3   0.0   0.1   0.0
-inputToTranslationVector Down     = L.V3   0.0 (-0.1)  0.0
-inputToTranslationVector Right    = L.V3   0.1   0.0   0.0
-inputToTranslationVector Left     = L.V3 (-0.1)  0.0   0.0
-inputToTranslationVector Forward  = L.V3   0.0   0.0 (-0.1)
-inputToTranslationVector Backward = L.V3   0.0   0.0   0.1
+inputToTranslationVector Up       = L.V3   0.00   0.01   0.00
+inputToTranslationVector Down     = L.V3   0.00 (-0.01)  0.00
+inputToTranslationVector Right    = L.V3   0.01   0.00   0.00
+inputToTranslationVector Left     = L.V3 (-0.01)  0.00   0.00
+inputToTranslationVector Forward  = L.V3   0.00   0.00 (-0.01)
+inputToTranslationVector Backward = L.V3   0.00   0.00   0.01
 
 sensitivity :: Double
 sensitivity = 2
