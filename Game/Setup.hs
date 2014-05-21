@@ -13,6 +13,8 @@ import Model.State.Input
 import Model.State.Resources
 import Model.ShaderProgram
 import Model.Object
+import Model.Material
+
 import Model.Entity
 import Model.Camera
 
@@ -40,9 +42,9 @@ setupGame = do
   return (state, resourcesToLoad)
     where
       cube_ent =
-          Entity "cube" 1.0 "cubeShader" "cubeGeometry"
+          Entity "cube" 1.0 "testTexShader" "cubeGeometry" "testTexMaterial"
       tetra_ent =
-          Entity "tetra" 1.0 "cubeShader" "tetraGeometry"
+          Entity "tetra" 1.0 "testTexShader" "tetraGeometry" "testTexMaterial"
 
       -- ugly that this is here...
       resourcesToLoad =
@@ -50,16 +52,16 @@ setupGame = do
               rShaderPrograms =
                   [ShaderProgramResource {
                      sprUniqueName =
-                         "cubeShader",
+                         "testTexShader",
                      sprVertShader =
-                         "assets" </> "shaders" </> "cube.v.glsl",
+                         "assets" </> "shaders" </> "testTex.vert",
                      sprFragShader =
-                         "assets" </> "shaders" </> "cube.f.glsl"
+                         "assets" </> "shaders" </> "testTex.frag"
                    }
                   ],
-              rMaterials = [],
-              rObjects  = [ObjectGeometry "tetraGeometry" tetra_vertices tetra_elements tetra_colors,
-                           ObjectGeometry "cubeGeometry" cube_vertices cube_elements cube_colors]
+              rMaterials = [MaterialResource "testTexMaterial" ("assets" </> "materials" </> "testTex" </> "diffuse.png")],
+              rObjects  = [ObjectGeometry "tetraGeometry" tetra_vertices tetra_elements tetra_uv,
+                           ObjectGeometry "cubeGeometry" cube_vertices cube_elements cube_uv]
             }
 
 
@@ -73,10 +75,18 @@ cube_vertices = [Vertex4 1.0      1.0    1.0  1.0,
                  Vertex4 (-1.0)   1.0  (-1.0) 1.0,
                  Vertex4 (-1.0) (-1.0)   1.0  1.0,
                  Vertex4 (-1.0) (-1.0) (-1.0) 1.0
-           ]
+                ]
 
-cube_colors :: [Vertex4 GLfloat]
-cube_colors = cube_vertices -- color space visualization
+cube_uv :: [Vertex2 GLfloat]
+cube_uv = [Vertex2 1.0 1.0,
+           Vertex2 1.0 0.0,
+           Vertex2 0.0 1.0,
+           Vertex2 0.0 0.0,
+           Vertex2 1.0 1.0,
+           Vertex2 1.0 0.0,
+           Vertex2 0.0 1.0,
+           Vertex2 0.0 0.0
+          ]
 
 -- Vertices for each triangle in CCW order
 cube_elements :: [Vertex3 GLuint]
@@ -101,8 +111,14 @@ tetra_vertices =[Vertex4 1.0      1.0    1.0  1.0,
                  Vertex4 (-1.0)   1.0  (-1.0) 1.0,
                  Vertex4 (-1.0) (-1.0)   1.0  1.0]
 
-tetra_colors :: [Vertex4 GLfloat]
-tetra_colors = tetra_vertices
+tetra_uv :: [Vertex2 GLfloat]
+tetra_uv = [Vertex2 1.0 1.0,
+            Vertex2 1.0 0.0,
+            Vertex2 0.0 1.0,
+            Vertex2 0.0 0.0
+           ]
+
+
 
 tetra_elements :: [Vertex3 GLuint]
 tetra_elements = [Vertex3 0 1 2,

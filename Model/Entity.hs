@@ -8,7 +8,8 @@ data Entity =
     Entity { eName :: String,
              eScale :: GLfloat,
              eShaderName :: String,
-             eObjectName :: String
+             eObjectName :: String,
+             eMaterialName :: String
            } -- ++ more, texture??
 
 data EntityInstance =

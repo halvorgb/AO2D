@@ -27,7 +27,7 @@ loadResources resState resToLoad = do
   checkError "loadObjects"
 
   mapM_ (loadMaterial resState) $ rMaterials resToLoad
-
+  checkError "loadMaterial"
 
 loadShader :: IORef LoadedResources -> ShaderProgramResource -> IO ()
 loadShader resState shaderRes = do
@@ -50,39 +50,40 @@ loadObject resState objRes = do
   [vao] <- genObjectNames 1
   bindVertexArrayObject $= Just vao
   verts <- GLUtil.fromSource ArrayBuffer         vs
-  colrs <- GLUtil.fromSource ArrayBuffer         cs
+  uvs   <- GLUtil.fromSource ArrayBuffer         us
   elems <- GLUtil.fromSource ElementArrayBuffer  es
   let nofTris = length es
 
   modifyIORef resState
               (\ldRs -> let m = lrObjects ldRs
                         in ldRs {lrObjects =
-                                     M.insert un (Object verts colrs elems nofTris vao) m}
+                                     M.insert un (Object verts uvs elems nofTris vao) m}
               )
   bindVertexArrayObject $= Nothing
     where
       un = orUniqueName objRes
       vs = orVertices   objRes
       es = orElements   objRes
-      cs = orColors     objRes
+      us = orUV         objRes
 
 
 
 loadMaterial :: IORef LoadedResources -> MaterialResource -> IO ()
 loadMaterial resState matRes = do
-  [texObject] <- genObjectNames 1
-  textureBinding Texture2D $= Just texObject
+--  [texObject] <- genObjectNames 1
+--  textureBinding Texture2D $= Just texObject
 
   -- load diffuse Image:
-  diffuse <- loadImage diffuseFilePath
+  diff_img <- loadImage diffuseFilePath
 
-  let wd = fromIntegral $ PNG.imageWidth diffuse
-      hd = fromIntegral $ PNG.imageHeight diffuse
-      dd = PNG.imageData diffuse
+  let wd = fromIntegral $ PNG.imageWidth diff_img
+      hd = fromIntegral $ PNG.imageHeight diff_img
+      dd = PNG.imageData diff_img
+      texInfo = GLUtil.TexInfo wd hd GLUtil.TexRGBA dd
 
 
   --http://stackoverflow.com/questions/10468845/juicypixels-texture-loading-in-haskell-opengl
-
+ {-
   unsafeWith dd $ (\ ptr ->
                    -- Generate the texture
                    texImage2D
@@ -101,15 +102,27 @@ loadMaterial resState matRes = do
                    -- The pixel data: the vector contains Bytes, in RGBA order
                    (PixelData RGBA UnsignedByte ptr)
                   )
+  -}
 
-  print "lol"
+  texObject' <- GLUtil.loadTexture texInfo
+
+  textureBinding Texture2D $= Just texObject'
   let newMat =
           Material {mUniqueName = un,
                     mSize = (fromIntegral wd, fromIntegral hd),
-                    mTextureObject = texObject}
+                    mTextureObject = texObject'}
 
-  print "done"
+  modifyIORef resState
+                  (\ldRs -> let m = lrMaterials ldRs
+                            in ldRs {lrMaterials =
+                                     M.insert un newMat m}
+                  )
 
+
+
+  textureFilter Texture2D $= ((Nearest, Nothing), Nearest)
+  textureBinding Texture2D $= Nothing
+  checkError "loadTexture"
     where
       un = mrUniqueName matRes
       diffuseFilePath = mrDiffuseFilePath matRes

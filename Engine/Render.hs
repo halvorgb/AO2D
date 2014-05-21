@@ -9,6 +9,7 @@ import qualified Linear as L
 import qualified Data.Map as M
 import Data.IORef
 
+import Model.Material
 import Model.Object
 import Model.State
 import Model.State.Resources
@@ -39,10 +40,11 @@ renderObjects state@(gameState, _, _) w =
 drawEntityInstance :: L.M44 GLfloat -> State  -> EntityInstance -> IO ()
 drawEntityInstance  projViewMat (_, _, resState) ei = do
   lr <- readIORef resState
-  let Just program = M.lookup shaderName $ lrShaderPrograms lr
-      Just object  = M.lookup objectName $ lrObjects lr
+  let Just program  = M.lookup shaderName $ lrShaderPrograms lr
+      Just object   = M.lookup objectName $ lrObjects lr
+      Just material = M.lookup materialName $ lrMaterials lr
       verts = oVertices object
-      colrs = oColors   object
+      uvs   = oUV   object
 --      elems = oElements object -- never used?
 
       nofTris = oNOFTris object
@@ -50,27 +52,31 @@ drawEntityInstance  projViewMat (_, _, resState) ei = do
       vao = oVAO object
 
 
-  currentProgram $= (Just $ GLUtil.program program)
+      material_diffuse = mTextureObject material
 
+
+  currentProgram $= (Just $ GLUtil.program program)
+  textureBinding Texture2D $= (Just material_diffuse)
 
   -- enable VAO:
   bindVertexArrayObject $= Just vao
 
-  GLUtil.asUniform mvp $ GLUtil.getUniform program "mvp"
+  GLUtil.asUniform mvp $ GLUtil.getUniform program "MVP"
+--  GLUtil.asUniform $ GLUtil.getUniform program "UV"
 
-  let vPosition = GLUtil.getAttrib program "coord3d"
-      vColor    = GLUtil.getAttrib program "v_color"
+  let vPosition = GLUtil.getAttrib program "v_position"
+      vUV       = GLUtil.getAttrib program "v_UV"
 
 
   vertexAttribArray vPosition   $= Enabled
   bindBuffer ArrayBuffer $= Just verts
   vertexAttribPointer vPosition $= (ToFloat, VertexArrayDescriptor 4 Float 0 GLUtil.offset0)
-  checkError "Activate Attrib vPosition"
+  checkError "Activate Attrib v_position"
 
-  vertexAttribArray vColor      $= Enabled
-  bindBuffer ArrayBuffer $= Just colrs
-  vertexAttribPointer vColor    $= (ToFloat, VertexArrayDescriptor 4 Float 0 GLUtil.offset0)
-  checkError "Activate Attrib vColor"
+  vertexAttribArray vUV      $= Enabled
+  bindBuffer ArrayBuffer $= Just uvs
+  vertexAttribPointer vUV    $= (ToFloat, VertexArrayDescriptor 4 Float 0 GLUtil.offset0)
+  checkError "Activate Attrib v_UV"
 
 
 
@@ -79,7 +85,7 @@ drawEntityInstance  projViewMat (_, _, resState) ei = do
   GLUtil.drawIndexedTris (fromIntegral nofTris)
 
   -- disable attributes again
-  vertexAttribArray vColor $= Disabled
+  vertexAttribArray vUV $= Disabled
   vertexAttribArray vPosition $= Disabled
 
   bindVertexArrayObject $= Nothing
@@ -99,6 +105,7 @@ drawEntityInstance  projViewMat (_, _, resState) ei = do
       e = eiEntity ei
       shaderName = eShaderName e
       objectName = eObjectName e
+      materialName = eMaterialName e
 
 
 mkProjViewMat :: Int -> Int -> Camera -> L.M44 GLfloat

@@ -9,11 +9,11 @@ data ObjectResource = ObjectModel { orUniqueName :: String,
                     | ObjectGeometry { orUniqueName :: String,
                                        orVertices :: [Vertex4 GLfloat],
                                        orElements :: [Vertex3 GLuint],
-                                       orColors   :: [Vertex4 GLfloat]}
+                                       orUV       :: [Vertex2 GLfloat]}
 
 data Object =
     Object { oVertices :: BufferObject,
-             oColors   :: BufferObject,
+             oUV       :: BufferObject,
              oElements :: BufferObject,
              oNOFTris  :: Int,
              oVAO :: VertexArrayObject}
