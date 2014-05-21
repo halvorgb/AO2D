@@ -5,8 +5,6 @@ import System.FilePath
 import Data.IORef
 import qualified Data.Map as M
 
-import Graphics.Rendering.OpenGL
-
 import Model.State
 import Model.State.Game
 import Model.State.Input
@@ -42,9 +40,9 @@ setupGame = do
   return (state, resourcesToLoad)
     where
       cube_ent =
-          Entity "cube" 1.0 "testTexShader" "cubeGeometry" "testTexMaterial"
+          Entity "cube" 1.0 "testTexShader" "theBoxObject" "theBoxMaterial"
       tetra_ent =
-          Entity "tetra" 1.0 "testTexShader" "tetraGeometry" "testTexMaterial"
+          Entity "tetra" 1.0 "testTexShader" "theBoxObject" "theBoxMaterial"
 
       -- ugly that this is here...
       resourcesToLoad =
@@ -59,69 +57,9 @@ setupGame = do
                          "assets" </> "shaders" </> "testTex.frag"
                    }
                   ],
-              rMaterials = [MaterialResource "testTexMaterial" ("assets" </> "materials" </> "testTex" </> "diffuse.png")],
-              rObjects  = [ObjectGeometry "tetraGeometry" tetra_vertices tetra_elements tetra_uv,
-                           ObjectGeometry "cubeGeometry" cube_vertices cube_elements cube_uv]
+              rMaterials = [MaterialResource "theBoxMaterial" ("assets" </> "materials" </> "thebox" </> "diffuse.png")],
+              rObjects  = [ObjectResource
+                           "theBoxObject"
+                           ("assets" </> "models" </> "thebox.obj")
+                           ModelFormat'OBJ]
             }
-
-
-
-cube_vertices :: [Vertex4 GLfloat]
-cube_vertices = [Vertex4 1.0      1.0    1.0  1.0,
-                 Vertex4 1.0      1.0  (-1.0) 1.0,
-                 Vertex4 1.0    (-1.0)   1.0  1.0,
-                 Vertex4 1.0    (-1.0) (-1.0) 1.0,
-                 Vertex4 (-1.0)   1.0    1.0  1.0,
-                 Vertex4 (-1.0)   1.0  (-1.0) 1.0,
-                 Vertex4 (-1.0) (-1.0)   1.0  1.0,
-                 Vertex4 (-1.0) (-1.0) (-1.0) 1.0
-                ]
-
-cube_uv :: [Vertex2 GLfloat]
-cube_uv = [Vertex2 1.0 1.0,
-           Vertex2 1.0 0.0,
-           Vertex2 0.0 1.0,
-           Vertex2 0.0 0.0,
-           Vertex2 1.0 1.0,
-           Vertex2 1.0 0.0,
-           Vertex2 0.0 1.0,
-           Vertex2 0.0 0.0
-          ]
-
--- Vertices for each triangle in CCW order
-cube_elements :: [Vertex3 GLuint]
-cube_elements = [ Vertex3 2 1 0 -- right
-                , Vertex3 1 2 3
-                , Vertex3 0 1 4 -- top
-                , Vertex3 4 1 5
-                , Vertex3 4 5 6 -- left
-                , Vertex3 7 6 5
-                , Vertex3 2 6 3 -- bottom
-                , Vertex3 6 3 7
-                , Vertex3 0 4 2 -- front
-                , Vertex3 2 4 6
-                , Vertex3 5 1 7 -- back
-                , Vertex3 7 1 3
-           ]
-
-
-tetra_vertices :: [Vertex4 GLfloat]
-tetra_vertices =[Vertex4 1.0      1.0    1.0  1.0,
-                 Vertex4 1.0    (-1.0) (-1.0) 1.0,
-                 Vertex4 (-1.0)   1.0  (-1.0) 1.0,
-                 Vertex4 (-1.0) (-1.0)   1.0  1.0]
-
-tetra_uv :: [Vertex2 GLfloat]
-tetra_uv = [Vertex2 1.0 1.0,
-            Vertex2 1.0 0.0,
-            Vertex2 0.0 1.0,
-            Vertex2 0.0 0.0
-           ]
-
-
-
-tetra_elements :: [Vertex3 GLuint]
-tetra_elements = [Vertex3 0 1 2,
-                  Vertex3 1 2 3,
-                  Vertex3 0 1 3,
-                  Vertex3 0 3 2]

@@ -13,16 +13,19 @@ import Model.State.Game
 
 import Model.Camera
 
-inputToTranslationVector :: KeyboardInput -> L.V3 GLfloat
-inputToTranslationVector Up       = L.V3   0.00   0.01   0.00
-inputToTranslationVector Down     = L.V3   0.00 (-0.01)  0.00
-inputToTranslationVector Right    = L.V3   0.01   0.00   0.00
-inputToTranslationVector Left     = L.V3 (-0.01)  0.00   0.00
-inputToTranslationVector Forward  = L.V3   0.00   0.00 (-0.01)
-inputToTranslationVector Backward = L.V3   0.00   0.00   0.01
+inputToTranslationVector :: KeyboardInput -> L.V3 Double
+inputToTranslationVector Up       = L.V3   0   1   0
+inputToTranslationVector Down     = L.V3   0 (-1)  0
+inputToTranslationVector Right    = L.V3   1   0   0
+inputToTranslationVector Left     = L.V3 (-1)  0   0
+inputToTranslationVector Forward  = L.V3   0   0 (-1)
+inputToTranslationVector Backward = L.V3   0   0   1
 
 sensitivity :: Double
 sensitivity = 2
+
+move_speed :: Double
+move_speed = 3
 
 
 -- updates the game state
@@ -34,7 +37,7 @@ updateGame (gsIO, isIO, _) delta = do
   let kb = isKeyboardInput is -- handle keyboard changes
 
       translation :: L.V3 GLfloat
-      translation = foldl (\acc i -> acc L.^+^ (inputToTranslationVector i)) (L.V3 0 0 0) kb
+      translation = fmap realToFrac $ (move_speed * delta) L.*^ (L.normalize $ foldl (\acc i -> acc L.^+^ (inputToTranslationVector i)) (L.V3 0 0 0) kb)
 
       m = isMouseInput is  -- handle mouse changes
       tilt = realToFrac $ miY m * (-delta) * (sensitivity / 10)

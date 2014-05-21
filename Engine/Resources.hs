@@ -9,11 +9,13 @@ import qualified Codec.Picture as PNG
 
 import Engine.Errors
 import Engine.ImageLoader
+import Engine.ModelLoader
 
 import Model.ShaderProgram
 import Model.Object
 import Model.Material
 import Model.State.Resources
+
 
 loadResources :: IORef LoadedResources -> Resources -> IO ()
 loadResources resState resToLoad = do
@@ -26,6 +28,7 @@ loadResources resState resToLoad = do
 
   mapM_ (loadMaterial resState) $ rMaterials resToLoad
   checkError "loadMaterial"
+
 
 loadShader :: IORef LoadedResources -> ShaderProgramResource -> IO ()
 loadShader resState shaderRes = do
@@ -43,27 +46,25 @@ loadShader resState shaderRes = do
 
 
 loadObject :: IORef LoadedResources -> ObjectResource -> IO ()
-loadObject resState objRes = do
+loadObject resState oR@(ObjectResource un _ _) = do
+  (vertexCoordinates, vertexUVCoordinates, vertexNormals, faceElements)
+      <- loadModel oR
+
   -- Generate VAO
   [vao] <- genObjectNames 1
   bindVertexArrayObject $= Just vao
-  verts <- GLUtil.fromSource ArrayBuffer         vs
-  uvs   <- GLUtil.fromSource ArrayBuffer         us
-  elems <- GLUtil.fromSource ElementArrayBuffer  es
-  let nofTris = length es
+  verts <- GLUtil.fromSource ArrayBuffer         vertexCoordinates
+  uvs   <- GLUtil.fromSource ArrayBuffer         vertexUVCoordinates
+  elems <- GLUtil.fromSource ElementArrayBuffer  faceElements
+  let nofTris = length faceElements
+      obj     = Object verts uvs elems nofTris vao
 
   modifyIORef resState
               (\ldRs -> let m = lrObjects ldRs
                         in ldRs {lrObjects =
-                                     M.insert un (Object verts uvs elems nofTris vao) m}
+                                     M.insert un obj m}
               )
   bindVertexArrayObject $= Nothing
-    where
-      un = orUniqueName objRes
-      vs = orVertices   objRes
-      es = orElements   objRes
-      us = orUV         objRes
-
 
 
 loadMaterial :: IORef LoadedResources -> MaterialResource -> IO ()

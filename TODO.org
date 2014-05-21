@@ -11,5 +11,5 @@ TODO:
 	NormalMaps
 	Specular maps
 *** Models
-     OBJ files
-     COLLADA files
+     OBJ files !
+     (COLLADA files)
