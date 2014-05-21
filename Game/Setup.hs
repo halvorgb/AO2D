@@ -40,9 +40,9 @@ setupGame = do
   return (state, resourcesToLoad)
     where
       cube_ent =
-          Entity "cube" 1.0 "testTexShader" "theBoxObject" "theBoxMaterial"
+          Entity "cube" 1.0 "testTexShader" "boxObject" "boxMaterial"
       tetra_ent =
-          Entity "tetra" 1.0 "testTexShader" "theBoxObject" "theBoxMaterial"
+          Entity "tetra" 1.0 "testTexShader" "boxObject" "boxMaterial"
 
       -- ugly that this is here...
       resourcesToLoad =
@@ -57,9 +57,9 @@ setupGame = do
                          "assets" </> "shaders" </> "testTex.frag"
                    }
                   ],
-              rMaterials = [MaterialResource "theBoxMaterial" ("assets" </> "materials" </> "thebox" </> "diffuse.png")],
+              rMaterials = [MaterialResource "boxMaterial" ("assets" </> "materials" </> "ball" </> "diffuse.png")],
               rObjects  = [ObjectResource
-                           "theBoxObject"
-                           ("assets" </> "models" </> "thebox.obj")
+                           "boxObject"
+                           ("assets" </> "models" </> "ball.obj")
                            ModelFormat'OBJ]
             }

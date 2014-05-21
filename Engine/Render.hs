@@ -45,7 +45,7 @@ drawEntityInstance  projViewMat (_, _, resState) ei = do
       Just material = M.lookup materialName $ lrMaterials lr
       verts = oVertices object
       uvs   = oUV   object
---      elems = oElements object -- never used?
+      elems = oElements object -- never used?
 
       nofTris = oNOFTris object
 
@@ -54,12 +54,13 @@ drawEntityInstance  projViewMat (_, _, resState) ei = do
 
       material_diffuse = mTextureObject material
 
+ -- enable VAO:
+  bindVertexArrayObject $= Just vao
 
   currentProgram $= (Just $ GLUtil.program program)
   textureBinding Texture2D $= (Just material_diffuse)
 
-  -- enable VAO:
-  bindVertexArrayObject $= Just vao
+
 
   GLUtil.asUniform mvp $ GLUtil.getUniform program "MVP"
 --  GLUtil.asUniform $ GLUtil.getUniform program "UV"
@@ -75,20 +76,19 @@ drawEntityInstance  projViewMat (_, _, resState) ei = do
 
   vertexAttribArray vUV      $= Enabled
   bindBuffer ArrayBuffer $= Just uvs
-  vertexAttribPointer vUV    $= (ToFloat, VertexArrayDescriptor 4 Float 0 GLUtil.offset0)
+  vertexAttribPointer vUV    $= (ToFloat, VertexArrayDescriptor 2 Float 0 GLUtil.offset0)
   checkError "Activate Attrib v_UV"
 
+  bindBuffer ElementArrayBuffer $= Just elems
 
-
---  bindBuffer ElementArrayBuffer $= Just elems
-
-  GLUtil.drawIndexedTris (fromIntegral nofTris)
+--  GLUtil.drawIndexedTris (fromIntegral nofTris)
+  drawArrays Triangles 0 $ fromIntegral nofTris
+--  drawElements Triangles (fromIntegral nofTris) Float GLUtil.offset0
 
   -- disable attributes again
   vertexAttribArray vUV $= Disabled
   vertexAttribArray vPosition $= Disabled
 
-  bindVertexArrayObject $= Nothing
     where
       modelMat :: L.M44 GLfloat
       modelMat = L.mkTransformationMat modelScale modelTrans

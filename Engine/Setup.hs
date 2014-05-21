@@ -55,7 +55,7 @@ setupEngine w h winTitle state@(_, inputState, resourceState) resourcesToLoad = 
 
               blend $= Enabled
               blendFunc $= (SrcAlpha, OneMinusSrcAlpha)
-              cullFace   $= Nothing -- Just Back
+              cullFace   $= Just Back
               depthFunc  $= Just Less
 
               clearColor $= Color4 0.1 0.1 0.1 1
