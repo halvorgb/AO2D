@@ -12,5 +12,5 @@ uniform sampler2D diffuse;
 void main(){
 
     // Output color = color of the texture at the specified UV
-  color = texture(diffuse, f_UV);
+  color = texture(diffuse, f_UV) + vec4(0.2, 0.2, 0.2, 0.0);
 }

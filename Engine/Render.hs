@@ -60,10 +60,7 @@ drawEntityInstance  projViewMat (_, _, resState) ei = do
   currentProgram $= (Just $ GLUtil.program program)
   textureBinding Texture2D $= (Just material_diffuse)
 
-
-
   GLUtil.asUniform mvp $ GLUtil.getUniform program "MVP"
---  GLUtil.asUniform $ GLUtil.getUniform program "UV"
 
   let vPosition = GLUtil.getAttrib program "v_position"
       vUV       = GLUtil.getAttrib program "v_UV"
@@ -81,9 +78,7 @@ drawEntityInstance  projViewMat (_, _, resState) ei = do
 
   bindBuffer ElementArrayBuffer $= Just elems
 
---  GLUtil.drawIndexedTris (fromIntegral nofTris)
-  drawArrays Triangles 0 $ fromIntegral nofTris
---  drawElements Triangles (fromIntegral nofTris) Float GLUtil.offset0
+  GLUtil.drawIndexedTris (fromIntegral nofTris)
 
   -- disable attributes again
   vertexAttribArray vUV $= Disabled

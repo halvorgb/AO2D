@@ -10,6 +10,8 @@ import Text.ParserCombinators.Parsec
 import Model.Object
 
 
+type VectorIndex        = GLuint
+
 type VertexCoordinate   = L.V4 GLfloat
 type VertexUVCoordinate = L.V2 GLfloat
 type VertexNormal       = L.V3 GLfloat
@@ -43,9 +45,12 @@ objData =
 
        _     <- manyTill anyChar $ try $ string "\nf " -- s is shader? i dunno
 
-       fEs   <- manyTill faceElements $ try nlEOF
+       is    <- manyTill faceElements $ try nlEOF
 
-       return (vCs, vUVcs, vNs, concat fEs)
+
+       let (vert_indices, uv_indices, norm_indices) = unzip3 is
+           (vs, uvs, ns, is') = rectifyOBJFaceIndexing is
+       return (vCs, vUVcs, vNs, vert_indices)
 
     where
       nlEOF =
@@ -96,25 +101,29 @@ objData =
 
       nonFaceElement = skipMany $ noneOf "/1234567890"
 
-      faceElements :: GenParser Char st [FaceElement]
+
+      faceElements :: GenParser Char st (FaceElement, FaceElement, FaceElement)
       faceElements =
           do nonFaceElement
-             a <- faceElement
+             (v1, u1, n1) <- faceElement
              skipSpace
-             b <- faceElement
+             (v2, u2, n2) <- faceElement
              skipSpace
-             c <- faceElement
-             return [a, b,c]
+             (v3, u3, n3) <- faceElement
+             return $ (L.V3 v1 v2 v3, L.V3 u1 u2 u3, L.V3 n1 n2 n3)
 
-      faceElement :: GenParser Char st FaceElement
+      faceElement :: GenParser Char st (VectorIndex, VectorIndex, VectorIndex)
       faceElement =
-          do a <- many digit
+          do vertexIndex <- many digit
              skipMany1 $ char '/'
-             b <- many digit
+             uvIndex <- many digit
              skipMany1 $ char '/'
-             c <- many digit
-             let ra = read a
-                 rb = read b
-                 rc = read c
+             normalIndex <- many digit
+             let r_vec  = (read vertexIndex) - 1 -- OBJ files are 1 indexed.
+                 r_uv   = (read uvIndex) - 1
+                 r_norm = (read normalIndex) - 1
 
-             return $ L.V3 ra rb rc
+             return (r_vec, r_uv, r_norm)
+
+
+rectifyOBJFaceIndexing ::

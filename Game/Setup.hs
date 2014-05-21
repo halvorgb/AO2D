@@ -42,7 +42,7 @@ setupGame = do
       cube_ent =
           Entity "cube" 1.0 "testTexShader" "boxObject" "boxMaterial"
       tetra_ent =
-          Entity "tetra" 1.0 "testTexShader" "boxObject" "boxMaterial"
+          Entity "tetra" 1.0 "testTexShader" "ballObject" "ballMaterial"
 
       -- ugly that this is here...
       resourcesToLoad =
@@ -57,9 +57,10 @@ setupGame = do
                          "assets" </> "shaders" </> "testTex.frag"
                    }
                   ],
-              rMaterials = [MaterialResource "boxMaterial" ("assets" </> "materials" </> "ball" </> "diffuse.png")],
-              rObjects  = [ObjectResource
-                           "boxObject"
-                           ("assets" </> "models" </> "ball.obj")
-                           ModelFormat'OBJ]
+              rMaterials = [MaterialResource "boxMaterial" ("assets" </> "materials" </> "box" </> "diffuse.png"),
+                            MaterialResource "ballMaterial" ("assets" </> "materials" </> "ball" </> "diffuse.png")],
+
+              rObjects  = [ObjectResource "boxObject" ("assets" </> "models" </> "box.obj") ModelFormat'OBJ,
+                           ObjectResource "ballObject" ("assets" </> "models" </> "ball.obj") ModelFormat'OBJ
+                          ]
             }
