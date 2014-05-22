@@ -50,6 +50,9 @@ loadObject resState oR@(ObjectResource un _ _) = do
   (vertexCoordinates, vertexUVCoordinates, vertexNormals, faceElements)
       <- loadModel oR
 
+--  print vertexCoordinates
+--  print faceElements
+--  error "done"
   -- Generate VAO
   [vao] <- genObjectNames 1
   bindVertexArrayObject $= Just vao

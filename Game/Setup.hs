@@ -28,9 +28,10 @@ setupGame = do
   gameState     <- newIORef $
                    GameState {
                     gsEntities =
-                        [EntityInstance (L.V3 0 0 1) tetra_ent $ Just 0.5,
-                         EntityInstance (L.V3 0 0 (-4)) cube_ent $ Just 0.1,
-                         EntityInstance (L.V3 0 0.2 0.1) cube_ent $ Just 0.25],
+                        [
+                         EntityInstance (L.V3 0 0 1) box2_ent $ Just 0.5,
+                         EntityInstance (L.V3 0 0 (-4)) box2_ent $ Just 0.1,
+                         EntityInstance (L.V3 0 0.2 0.1) box2_ent $ Just 0.25],
                     gsCamera =
                         Camera (L.V3 0 0 0) 0 0 90 }
   resourceState <- newIORef $ LoadedResources M.empty M.empty M.empty
@@ -39,10 +40,13 @@ setupGame = do
 
   return (state, resourcesToLoad)
     where
-      cube_ent =
-          Entity "cube" 1.0 "testTexShader" "boxObject" "boxMaterial"
-      tetra_ent =
-          Entity "tetra" 1.0 "testTexShader" "ballObject" "ballMaterial"
+      box_ent =
+          Entity "box" 1.0 "testTexShader" "boxObject" "boxMaterial"
+      box2_ent =
+          Entity "box2" 1.0 "testTexShader" "box2Object" "box2Material"
+
+      ball_ent =
+          Entity "ball" 1.0 "testTexShader" "ballObject" "ballMaterial"
 
       -- ugly that this is here...
       resourcesToLoad =
@@ -57,10 +61,13 @@ setupGame = do
                          "assets" </> "shaders" </> "testTex.frag"
                    }
                   ],
-              rMaterials = [MaterialResource "boxMaterial" ("assets" </> "materials" </> "box2" </> "diffuse.png"),
-                            MaterialResource "ballMaterial" ("assets" </> "materials" </> "ball" </> "diffuse.png")],
+              rMaterials = [MaterialResource "boxMaterial"  ("assets" </> "materials" </> "box" </> "diffuse.png"),
+                            MaterialResource "box2Material" ("assets" </> "materials" </> "box2" </> "diffuse.png"),
+                            MaterialResource "ballMaterial" ("assets" </> "materials" </> "ball" </> "diffuse.png")
+                           ],
 
-              rObjects  = [ObjectResource "boxObject" ("assets" </> "models" </> "box2.obj") ModelFormat'OBJ,
+              rObjects  = [ObjectResource "boxObject" ("assets" </> "models" </> "box.obj") ModelFormat'OBJ,
+                           ObjectResource "box2Object" ("assets" </> "models" </> "box2.obj") ModelFormat'OBJ,
                            ObjectResource "ballObject" ("assets" </> "models" </> "ball.obj") ModelFormat'OBJ
                           ]
             }

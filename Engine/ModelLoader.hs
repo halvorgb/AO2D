@@ -4,14 +4,12 @@ import Graphics.Rendering.OpenGL
 
 import qualified Linear as L
 import Text.ParserCombinators.Parsec
-import qualified Data.List as List
 import qualified Data.Map as Map
 import qualified Data.Set as Set
+import qualified Data.List as List
 
 
 import Model.Object
-
-type Index              = GLuint -- "polymorphic"
 
 type VertexIndex        = GLuint
 type UVIndex            = GLuint
@@ -53,20 +51,19 @@ objData =
        is    <- manyTill faceElements $ try nlEOF
 
 
-       let nofFaces = length is
-           (vert_indices, uv_indices, norm_indices) = unzip3 is
+       let (vert_indices, uv_indices, norm_indices) = unzip3 is
            vert_indices' = concat vert_indices
            uv_indices'   = concat uv_indices
            norm_indices' = concat norm_indices
-           elems = indicesToElemVectors vert_indices'
+           (vert_indices'', vData)  = expandVertexData vert_indices' vCs
+           (uv_indices''  , uvData) = expandVertexData uv_indices'   vUVcs
 
-           vData = expandVertexData vert_indices' vCs
+           uvData' = reorderCoordinates vert_indices'' uv_indices'' uvData
 
-       error $ show vData ++ "............................... " ++ show vCs
---           vUVcs' = reorderUVCoordinates vert_indices' uv_indices' vUVcs
---       error $ show vUVcs'
-       return (vCs, vUVcs, vNs, elems)
---       return (vertexCoordinates, uvCoordinates, normalVectors, elems)
+           elems = indicesToElemVectors vert_indices''
+
+--       error $ show uv_indices'' ++ ": " ++ show uvData
+       return (vData, uvData', undefined, elems) -- normals not done
 
 
     where
@@ -142,62 +139,26 @@ objData =
 
              return (r_vec, r_uv, r_norm)
 
-{-
-reorder :: [VertexIndex] -> [VertexCoordinate] ->
-           [UVIndex]     -> [VertexUVCoordinate] ->
-           [NormalIndex] -> [VertexNormal] ->
-           ([VertexCoordinate], [VertexUVCoordinate], [VertexNormal], [VertexIndex])
-reorder v_i v uv_i uv n_i n = (rVCs, rUVCs, rVNs, v_i)
-    where
-      rVCs   = map (reorder' v) v_i
-      rUVCs = map (reorder' uv) uv_i
-      rVNs   = map (reorder' n) n_i
-      reorder' l i = l !! (fromIntegral i)
--}
+
 indicesToElemVectors :: [VertexIndex]-> [ElementIndex]
 indicesToElemVectors [] = []
 indicesToElemVectors (i1:i2:i3:r) =
     (L.V3 i1 i2 i3):indicesToElemVectors r
 indicesToElemVectors _ = error "indices not divisible by 3..."
 
-
-reorderUVCoordinates :: [VertexIndex] -> [UVIndex] -> [VertexUVCoordinate] -> [VertexUVCoordinate]
-reorderUVCoordinates vert_indices uv_indices vUVcs =
-    buildUVCoordinateList uvCoordinateOrder uvMap
-    where
-      uv_indices' = List.nub uv_indices
-
-      uvMap = Map.fromList $ zip uv_indices' vUVcs
-
-      uvCoordinateOrder = map snd $ onlyFirstKey $ List.sort $ zip vert_indices uv_indices
-
-      buildUVCoordinateList :: [UVIndex] -> Map.Map UVIndex VertexUVCoordinate -> [VertexUVCoordinate]
-      buildUVCoordinateList [] _ = []
-      buildUVCoordinateList (uvi:uvis) m = case Map.lookup uvi m of
-                                      Just uvCoord -> uvCoord:buildUVCoordinateList uvis m
-                                      Nothing -> error "error in reorderUVCoordinates, possible parse trouble."
-
-onlyFirstKey :: [(VertexIndex, UVIndex)] -> [(VertexIndex, UVIndex)]
-onlyFirstKey [] = []
-onlyFirstKey ((vi, uvi):is) = (vi,uvi):onlyFirstKey' vi is
-    where onlyFirstKey' :: VertexIndex -> [(VertexIndex, UVIndex)] -> [(VertexIndex, UVIndex)]
-          onlyFirstKey' _ [] = []
-          onlyFirstKey' prev ((vi', uvi'):is')
-              | vi' == prev = onlyFirstKey' prev is'
-              | otherwise  = (vi', uvi'):onlyFirstKey' vi' is'
-
-
-
-expandVertexData :: [VertexIndex] -> [VertexCoordinate] -> ([VertexIndex], [VertexCoordinate])
+--expandVertexData :: [Index] -> [VertexCoordinate] -> ([Index], [VertexCoordinate])
+expandVertexData :: Integral a => [a] -> [b] -> ([a],[b])
 expandVertexData vis vcs = expandVertexData' vis m Set.empty []
     where
-      m :: Map.Map VertexIndex VertexCoordinate
+--      m :: Map.Map Index VertexCoordinate
       m = Map.fromList $ map (\vi -> (vi, vcs !! fromIntegral vi)) vis
 
 
 
-expandVertexData' :: [VertexIndex] -> Map.Map VertexIndex VertexCoordinate -> Set.Set VertexIndex -> [VertexIndex] -> ([VertexIndex], [VertexCoordinate])
-expandVertexData' []       m _ ordered_vis = (reverse ordered_vis, reverse $ Map.fold (\vc vcs -> vc:vcs) [] m)
+
+--expandVertexData :: [Index] -> Map.Map Index VertexCoordinate -> Set.Set Index -> [Index] -> ([Index], [VertexCoordinate])
+expandVertexData' :: (Ord a, Num a) => [a] -> Map.Map a b -> Set.Set a -> [a] -> ([a], [b])
+expandVertexData' []       m _ ordered_vis = (reverse ordered_vis, Map.fold (\vc vcs -> vc:vcs) [] m)
 expandVertexData' (vi:vis) m s ordered_vis
     | Set.member vi s = let (maxK, _) = Map.findMax m
                             vi' = maxK + 1
@@ -217,3 +178,15 @@ fromMapToJust :: Ord a => Map.Map a b -> a -> String -> b
 fromMapToJust m k err = case Map.lookup k m of
                       Just v -> v
                       Nothing -> error $ "Error in fromMapToJust, called by: " ++ err
+
+
+reorderCoordinates :: [VertexIndex] -> [UVIndex] -> [VertexUVCoordinate] -> [VertexUVCoordinate]
+reorderCoordinates vis uvis cds = reorderCoordinates' vis uvis m
+    where m = Map.fromList $ map (\i -> (i, cds !! (fromIntegral i))) uvis
+
+reorderCoordinates' :: [VertexIndex] -> [UVIndex] -> Map.Map UVIndex VertexUVCoordinate -> [VertexUVCoordinate]
+reorderCoordinates' vis uvis uvi2uvmap = map snd $ Map.toList vi2uvimap
+    where vi2uvimap = List.foldl' (addToTempMap) Map.empty $ zip vis uvis
+
+          addToTempMap :: Map.Map VertexIndex VertexUVCoordinate -> (VertexIndex, UVIndex) -> Map.Map VertexIndex VertexUVCoordinate
+          addToTempMap m' (vi, uvi) = Map.insert vi (fromMapToJust uvi2uvmap uvi "addToTempMap") m'
