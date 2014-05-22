@@ -57,10 +57,10 @@ setupGame = do
                          "assets" </> "shaders" </> "testTex.frag"
                    }
                   ],
-              rMaterials = [MaterialResource "boxMaterial" ("assets" </> "materials" </> "box" </> "diffuse.png"),
+              rMaterials = [MaterialResource "boxMaterial" ("assets" </> "materials" </> "box2" </> "diffuse.png"),
                             MaterialResource "ballMaterial" ("assets" </> "materials" </> "ball" </> "diffuse.png")],
 
-              rObjects  = [ObjectResource "boxObject" ("assets" </> "models" </> "box.obj") ModelFormat'OBJ,
+              rObjects  = [ObjectResource "boxObject" ("assets" </> "models" </> "box2.obj") ModelFormat'OBJ,
                            ObjectResource "ballObject" ("assets" </> "models" </> "ball.obj") ModelFormat'OBJ
                           ]
             }
