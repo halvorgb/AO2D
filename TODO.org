@@ -2,6 +2,9 @@ TODO:
 * Testing
   -
 * Features
+** Usability
+   Config Reader
+   Better Model Loading/Unloading handler. Should be dynamic.
 ** Lighting
     Implement lighting (simple)
     Implement Ambient Occlusion

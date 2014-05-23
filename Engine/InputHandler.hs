@@ -1,7 +1,7 @@
 module Engine.InputHandler(keyCallback, cursorCallback, mouseButtonCallback) where
 
 import Prelude hiding (Left, Right)
-
+import Control.Monad
 import qualified Graphics.UI.GLFW as GLFW
 import Data.IORef
 import Model.State.Input
@@ -10,11 +10,11 @@ import Model.State.Input
 
 mouseButtonCallback :: GLFW.MouseButtonCallback
 mouseButtonCallback window button action _
-    | button == GLFW.MouseButton'1 &&
+    | button == GLFW.MouseButton'2 &&
       action == GLFW.MouseButtonState'Pressed
           = GLFW.setCursorInputMode window GLFW.CursorInputMode'Normal
 
-    | button == GLFW.MouseButton'2 &&
+    | button == GLFW.MouseButton'1 &&
       action == GLFW.MouseButtonState'Pressed
           = GLFW.setCursorInputMode window GLFW.CursorInputMode'Hidden
 
@@ -23,25 +23,26 @@ mouseButtonCallback window button action _
 cursorCallback :: IORef InputState -> GLFW.CursorPosCallback
 cursorCallback inputStateIO window x y =
     do
+      cursorState <- GLFW.getCursorInputMode window
+      unless (cursorState == GLFW.CursorInputMode'Normal) $
+             do
 
+               (w,h) <- GLFW.getFramebufferSize window
+               let (mid_x, mid_y) = (fromIntegral w / 2, fromIntegral h / 2)
+                   (delta_x, delta_y) = (x - mid_x, y - mid_y)
 
-      (w,h) <- GLFW.getFramebufferSize window
-      let (mid_x, mid_y) = (fromIntegral w / 2, fromIntegral h / 2)
+               GLFW.setCursorPos window mid_x mid_y -- reset cursorPos
 
-          (delta_x, delta_y) = (x - mid_x, y - mid_y)
+               is <- readIORef inputStateIO
+               let m = isMouseInput is
+                   mx = miX m
+                   my = miY m
 
-      GLFW.setCursorPos window mid_x mid_y -- reset cursorPos
-
-      is <- readIORef inputStateIO
-      let m = isMouseInput is
-          mx = miX m
-          my = miY m
-
-          m' = MouseInput { miX = mx + delta_x,
-                            miY = my + delta_y
-                          }
-          is' = is {isMouseInput = m'}
-      writeIORef inputStateIO is' -- write updated mouse input!
+                   m' = MouseInput { miX = mx + delta_x,
+                                     miY = my + delta_y
+                                   }
+                   is' = is {isMouseInput = m'}
+               writeIORef inputStateIO is' -- write updated mouse input!
 
 
 
@@ -54,7 +55,7 @@ keyCallback inputStateIO window key _ action _
     | otherwise
         = do is <- readIORef inputStateIO
              let kb = setKeyInput (isKeyboardInput is) key action
-                 kb' = (stillPressed key action) kb
+                 kb' = stillPressed key action kb
                  is' = is { isKeyboardInput = kb'}
              writeIORef inputStateIO is'
 
@@ -101,7 +102,7 @@ keyReleased key keyState target =
 
 
 addInput :: KeyboardInput -> [KeyboardInput] -> [KeyboardInput]
-addInput i is = (i:is)
+addInput i is = i:is
 
 stillPressed :: GLFW.Key -> GLFW.KeyState -> [KeyboardInput] -> [KeyboardInput]
-stillPressed key action = filter (\i -> not $ keyReleased key action $ key2glfwKey i)
+stillPressed key action = filter (not . keyReleased key action .key2glfwKey)

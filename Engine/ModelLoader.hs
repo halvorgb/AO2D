@@ -5,6 +5,7 @@ import Graphics.Rendering.OpenGL
 import qualified Linear as L
 import Text.ParserCombinators.Parsec
 import qualified Data.Map as Map
+import qualified Data.Maybe as Maybe
 import qualified Data.Set as Set
 import qualified Data.List as List
 
@@ -44,6 +45,8 @@ objData =
     do _     <- manyTill anyChar $ try $ string "\nv "
        vCs   <- manyTill vertexCoordinate $ try $ string "\nvt "
        vUVcs <- manyTill vertexUVCoordinate $ try $ string "\nvn "
+
+
        vNs   <- manyTill vertexNormal $ try $ string "\ns "
 
        _     <- manyTill anyChar $ try $ string "\nf " -- s is shader? i dunno
@@ -61,7 +64,6 @@ objData =
            uvData' = reorderCoordinates vert_indices'' uv_indices'' uvData
 
            elems = indicesToElemVectors vert_indices''
-
 --       error $ show uv_indices'' ++ ": " ++ show uvData
        return (vData, uvData', undefined, elems) -- normals not done
 
@@ -124,7 +126,7 @@ objData =
              (v2, u2, n2) <- faceElement
              skipSpace
              (v3, u3, n3) <- faceElement
-             return $ ([v1, v2, v3], [u1, u2, u3], [n1, n2, n3])
+             return ([v1, v2, v3], [u1, u2, u3], [n1, n2, n3])
 
       faceElement :: GenParser Char st (VertexIndex, UVIndex, NormalIndex)
       faceElement =
@@ -133,9 +135,9 @@ objData =
              uvIndex <- many digit
              skipMany1 $ char '/'
              normalIndex <- many digit
-             let r_vec  = (read vertexIndex) - 1 -- OBJ files are 1 indexed.
-                 r_uv   = (read uvIndex) - 1
-                 r_norm = (read normalIndex) - 1
+             let r_vec  = read vertexIndex - 1 -- OBJ files are 1 indexed.
+                 r_uv   = read uvIndex - 1
+                 r_norm = read normalIndex - 1
 
              return (r_vec, r_uv, r_norm)
 
@@ -143,7 +145,7 @@ objData =
 indicesToElemVectors :: [VertexIndex]-> [ElementIndex]
 indicesToElemVectors [] = []
 indicesToElemVectors (i1:i2:i3:r) =
-    (L.V3 i1 i2 i3):indicesToElemVectors r
+    L.V3 i1 i2 i3:indicesToElemVectors r
 indicesToElemVectors _ = error "indices not divisible by 3..."
 
 --expandVertexData :: [Index] -> [VertexCoordinate] -> ([Index], [VertexCoordinate])
@@ -158,7 +160,7 @@ expandVertexData vis vcs = expandVertexData' vis m Set.empty []
 
 --expandVertexData :: [Index] -> Map.Map Index VertexCoordinate -> Set.Set Index -> [Index] -> ([Index], [VertexCoordinate])
 expandVertexData' :: (Ord a, Num a) => [a] -> Map.Map a b -> Set.Set a -> [a] -> ([a], [b])
-expandVertexData' []       m _ ordered_vis = (reverse ordered_vis, Map.fold (\vc vcs -> vc:vcs) [] m)
+expandVertexData' []       m _ ordered_vis = (reverse ordered_vis, Map.fold (:) [] m)
 expandVertexData' (vi:vis) m s ordered_vis
     | Set.member vi s = let (maxK, _) = Map.findMax m
                             vi' = maxK + 1
@@ -175,18 +177,19 @@ expandVertexData' (vi:vis) m s ordered_vis
 
 
 fromMapToJust :: Ord a => Map.Map a b -> a -> String -> b
-fromMapToJust m k err = case Map.lookup k m of
-                      Just v -> v
-                      Nothing -> error $ "Error in fromMapToJust, called by: " ++ err
+fromMapToJust m k err =
+    Maybe.fromMaybe
+    (error $ "Error in fromMapToJust, called by: " ++ err)
+    (Map.lookup k m)
 
 
 reorderCoordinates :: [VertexIndex] -> [UVIndex] -> [VertexUVCoordinate] -> [VertexUVCoordinate]
 reorderCoordinates vis uvis cds = reorderCoordinates' vis uvis m
-    where m = Map.fromList $ map (\i -> (i, cds !! (fromIntegral i))) uvis
+    where m = Map.fromList $ map (\i -> (i, cds !! fromIntegral i)) uvis
 
 reorderCoordinates' :: [VertexIndex] -> [UVIndex] -> Map.Map UVIndex VertexUVCoordinate -> [VertexUVCoordinate]
 reorderCoordinates' vis uvis uvi2uvmap = map snd $ Map.toList vi2uvimap
-    where vi2uvimap = List.foldl' (addToTempMap) Map.empty $ zip vis uvis
+    where vi2uvimap = List.foldl' addToTempMap Map.empty $ zip vis uvis
 
           addToTempMap :: Map.Map VertexIndex VertexUVCoordinate -> (VertexIndex, UVIndex) -> Map.Map VertexIndex VertexUVCoordinate
           addToTempMap m' (vi, uvi) = Map.insert vi (fromMapToJust uvi2uvmap uvi "addToTempMap") m'

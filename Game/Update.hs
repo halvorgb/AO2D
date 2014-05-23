@@ -37,7 +37,7 @@ updateGame (gsIO, isIO, _) delta = do
   let kb = isKeyboardInput is -- handle keyboard changes
 
       translation :: L.V3 GLfloat
-      translation = fmap realToFrac $ (move_speed * delta) L.*^ (L.normalize $ foldl (\acc i -> acc L.^+^ (inputToTranslationVector i)) (L.V3 0 0 0) kb)
+      translation = fmap realToFrac $ (move_speed * delta) L.*^ L.normalize (foldl (\acc i -> acc L.^+^ inputToTranslationVector i) (L.V3 0 0 0) kb)
 
       m = isMouseInput is  -- handle mouse changes
       tilt = realToFrac $ miY m * (-delta) * (sensitivity / 10)

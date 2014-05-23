@@ -4,7 +4,6 @@ import qualified Graphics.GLUtil as GLUtil
 import Graphics.Rendering.OpenGL
 import Data.IORef
 import qualified Data.Map as M
-
 import qualified Codec.Picture as PNG
 
 import Engine.Errors
@@ -54,13 +53,15 @@ loadObject resState oR@(ObjectResource un _ _) = do
 --  print faceElements
 --  error "done"
   -- Generate VAO
+  let nofTris = length faceElements
+
   [vao] <- genObjectNames 1
   bindVertexArrayObject $= Just vao
   verts <- GLUtil.fromSource ArrayBuffer         vertexCoordinates
   uvs   <- GLUtil.fromSource ArrayBuffer         vertexUVCoordinates
   elems <- GLUtil.fromSource ElementArrayBuffer  faceElements
-  let nofTris = length faceElements
-      obj     = Object verts uvs elems nofTris vao
+
+  let obj = Object verts uvs elems nofTris vao
 
   modifyIORef resState
               (\ldRs -> let m = lrObjects ldRs

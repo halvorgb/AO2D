@@ -21,4 +21,4 @@ convertImg (ImageRGBA8 img)  = img
 convertImg (ImageY8 img)     = promoteImage img
 convertImg (ImageYA8 img)    = promoteImage img
 convertImg (ImageRGB8 img)   = promoteImage img
-convertImg _                 = error $ "Wrong filetype, use PNG with RGBA8"
+convertImg _                 = error "Wrong filetype, use PNG with RGBA8"

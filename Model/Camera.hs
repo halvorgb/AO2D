@@ -27,7 +27,7 @@ rotateCamera add_tilt add_pan cam = cam {cTilt = tilt', cPan = pan'}
       tilt'
           | add_tilt == 0  = tilt
           | t > maxTilt    = maxTilt
-          | t < (-maxTilt) = (-maxTilt)
+          | t < (-maxTilt) = -maxTilt
           | otherwise = t -- change
           where t = tilt + add_tilt
                 maxTilt = pi/2

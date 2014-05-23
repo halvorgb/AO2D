@@ -7,6 +7,7 @@ import qualified Graphics.UI.GLFW as GLFW
 import qualified Linear as L
 
 import qualified Data.Map as M
+import qualified Data.Maybe as Maybe
 import Data.IORef
 
 import Model.Material
@@ -58,9 +59,10 @@ drawEntityInstance  projViewMat (_, _, resState) ei = do
   bindVertexArrayObject $= Just vao
 
   currentProgram $= (Just $ GLUtil.program program)
-  textureBinding Texture2D $= (Just material_diffuse)
+  textureBinding Texture2D $= Just material_diffuse
 
   GLUtil.asUniform mvp $ GLUtil.getUniform program "MVP"
+  GLUtil.asUniform global_color $ GLUtil.getUniform program "global_color"
 
   let vPosition = GLUtil.getAttrib program "v_position"
       vUV       = GLUtil.getAttrib program "v_UV"
@@ -85,6 +87,10 @@ drawEntityInstance  projViewMat (_, _, resState) ei = do
   vertexAttribArray vPosition $= Disabled
 
     where
+      global_color = Maybe.fromMaybe (eColor e) $eiColorOverride ei
+
+
+
       modelMat :: L.M44 GLfloat
       modelMat = L.mkTransformationMat modelScale modelTrans
 
@@ -92,10 +98,15 @@ drawEntityInstance  projViewMat (_, _, resState) ei = do
       mvp = projViewMat L.!*! modelMat
 
       modelScale :: L.M33 GLfloat
-      modelScale = case eiScaleOverride ei of
-                     Nothing -> let sc = eScale e
-                                in sc L.*!! L.eye3
-                     Just sc -> sc L.*!! L.eye3
+      modelScale = modelSc sc
+
+      modelSc (L.V3 x y z) = L.V3
+                             (L.V3 x 0 0)
+                             (L.V3 0 y 0)
+                             (L.V3 0 0 z)
+
+      sc = Maybe.fromMaybe (eScale e) $ eiScaleOverride ei
+
       modelTrans = eiPosition ei
       e = eiEntity ei
       shaderName = eShaderName e
