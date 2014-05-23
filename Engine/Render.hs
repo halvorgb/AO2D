@@ -88,7 +88,7 @@ drawEntityInstance  projMat viewMat (_, _, resState) ei = do
 
   vertexAttribArray vNorm   $= Enabled
   bindBuffer ArrayBuffer    $= Just norms
-  vertexAttribPointer vNorm $= (ToFloat, VertexArrayDescriptor 4 Float 0 GLUtil.offset0)
+  vertexAttribPointer vNorm $= (ToFloat, VertexArrayDescriptor 3 Float 0 GLUtil.offset0)
   checkError "Activate Attrib v_norm"
 
   bindBuffer ElementArrayBuffer $= Just elems
@@ -107,7 +107,7 @@ drawEntityInstance  projMat viewMat (_, _, resState) ei = do
       --      global_color = Maybe.fromMaybe (eColor e) $eiColorOverride ei
 
 
-      mvp = projMat L.!*! viewMat L.!*! modelMat
+      mvp = projMat L.!*! viewMat L.!*! modelMat_unscaled
       -- TODO: turn on scale again.
       modelMat :: L.M44 GLfloat
       modelMat = L.mkTransformationMat modelScale modelTrans

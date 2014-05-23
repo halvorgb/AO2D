@@ -20,7 +20,7 @@ uniform vec3 lightpos_worldspace;
 
 // based on https://code.google.com/p/opengl-tutorial-org/source/browse/tutorial08_basic_shading/StandardShading.vertexshader
 void main(){
-  mat4 MV = V * M_unscaled;
+  mat4 MV = V * M;
 
 
   gl_Position    =  MVP * v_position;
