@@ -53,12 +53,12 @@ setupEngine w h winTitle state@(_, inputState, resourceState) resourcesToLoad = 
 
               dumpInfo
 
-              blend $= Enabled
-              blendFunc $= (SrcAlpha, OneMinusSrcAlpha)
+--              blend $= Enabled
+--              blendFunc $= (SrcAlpha, OneMinusSrcAlpha)
               cullFace   $= Just Back
               depthFunc  $= Just Less
 
-              clearColor $= Color4 0.1 0.1 0.1 1
+              clearColor $= Color4 0.25 0.45 0.1 1
 
               -- load all shaders
               loadResources resourceState resourcesToLoad
