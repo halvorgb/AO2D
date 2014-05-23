@@ -17,6 +17,7 @@ import Model.State.Resources
 import Model.State.Game
 import Model.Entity
 import Model.Camera
+import Model.ClearColor
 import qualified Model.Light as ML
 
 import Engine.Errors
@@ -25,9 +26,12 @@ import Engine.Errors
 renderObjects :: State -> GLFW.Window -> IO ()
 renderObjects state@(gameState, _, _) w =
     do
+      gs <- readIORef gameState
+
+      clearColor $= (toGLColor $ gsClearColor gs)
       clear [ColorBuffer, DepthBuffer]
 
-      gs <- readIORef gameState
+
 
       (width, height) <- GLFW.getFramebufferSize w
 

@@ -5,6 +5,7 @@ import qualified Graphics.UI.GLFW as GLFW
 
 import System.Exit
 import System.IO
+import Data.IORef
 
 import Engine.InputHandler
 import Engine.MainLoop
@@ -14,10 +15,12 @@ import Engine.Resources
 
 import Model.State
 import Model.State.Resources
+import Model.State.Game
+import Model.ClearColor
 
 -- template: https://github.com/alpmestan/glfw-b-quick-example
 setupEngine :: Int -> Int -> String -> State -> Resources -> IO ()
-setupEngine w h winTitle state@(_, inputState, resourceState) resourcesToLoad = do
+setupEngine w h winTitle state@(gameState, inputState, resourceState) resourcesToLoad = do
   GLFW.setErrorCallback (Just errorCallback)
 
   successfulInit <- GLFW.init
@@ -56,8 +59,8 @@ setupEngine w h winTitle state@(_, inputState, resourceState) resourcesToLoad = 
 
               cullFace   $= Just Back
               depthFunc  $= Just Less
-
-              clearColor $= Color4 0.25 0.45 0.1 1
+              gs <- readIORef gameState
+              clearColor $= (toGLColor $ gsClearColor gs)
 
               -- load all shaders
               loadResources resourceState resourcesToLoad

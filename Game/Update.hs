@@ -12,6 +12,7 @@ import Model.State.Input
 import Model.State.Game
 
 import Model.Camera
+import Model.ClearColor
 
 inputToTranslationVector :: KeyboardInput -> L.V3 Double
 inputToTranslationVector Up       = L.V3   0   1   0
@@ -49,7 +50,11 @@ updateGame (gsIO, isIO, _) delta = do
       cam  = gsCamera gs
       cam' = moveCamera translation $ rotateCamera tilt pan cam
 
-      gs' = gs { gsCamera = cam' }
+      cc = gsClearColor gs
+      cc' = interpolateColor cc delta
+
+      gs' = gs { gsCamera = cam',
+                 gsClearColor = cc'}
 
   writeIORef isIO is'
   writeIORef gsIO gs'
