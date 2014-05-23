@@ -31,21 +31,23 @@ renderObjects state@(gameState, _, _) w =
       (width, height) <- GLFW.getFramebufferSize w
 
       let cam = gsCamera gs
-          projViewMat = mkProjViewMat width height cam
+          (projMat, viewMat) = mkProjViewMat width height cam
+
 
 
       -- ultra naive bullshit: draw every entity.
-      mapM_ (drawEntityInstance projViewMat state ) $ gsEntities gs
+      mapM_ (drawEntityInstance projMat viewMat state ) $ gsEntities gs
 
 
-drawEntityInstance :: L.M44 GLfloat -> State  -> EntityInstance -> IO ()
-drawEntityInstance  projViewMat (_, _, resState) ei = do
+drawEntityInstance :: L.M44 GLfloat -> L.M44 GLfloat -> State  -> EntityInstance -> IO ()
+drawEntityInstance  projMat viewMat (_, _, resState) ei = do
   lr <- readIORef resState
   let Just program  = M.lookup shaderName $ lrShaderPrograms lr
       Just object   = M.lookup objectName $ lrObjects lr
       Just material = M.lookup materialName $ lrMaterials lr
       verts = oVertices object
       uvs   = oUV   object
+      norms = oNormals object
       elems = oElements object -- never used?
 
       nofTris = oNOFTris object
@@ -57,45 +59,61 @@ drawEntityInstance  projViewMat (_, _, resState) ei = do
 
  -- enable VAO:
   bindVertexArrayObject $= Just vao
-
   currentProgram $= (Just $ GLUtil.program program)
   textureBinding Texture2D $= Just material_diffuse
 
+
+  let mvp :: L.M44 GLfloat
+      mvp = projMat L.!*! viewMat L.!*! modelMat
+
+  print "bikkje"
   GLUtil.asUniform mvp $ GLUtil.getUniform program "MVP"
-  GLUtil.asUniform global_color $ GLUtil.getUniform program "global_color"
+--  GLUtil.asUniform modelMat $ GLUtil.getUniform program "M"
+--  GLUtil.asUniform viewMat $ GLUtil.getUniform program "V"
+--  GLUtil.asUniform lightpos_worldspace $ GLUtil.getUniform program "lightpos_worldspace"
+--  GLUtil.asUniform global_color $ GLUtil.getUniform program "global_color"
 
   let vPosition = GLUtil.getAttrib program "v_position"
       vUV       = GLUtil.getAttrib program "v_UV"
+      vNorm     = GLUtil.getAttrib program "v_Norm"
 
 
   vertexAttribArray vPosition   $= Enabled
-  bindBuffer ArrayBuffer $= Just verts
+  bindBuffer ArrayBuffer        $= Just verts
   vertexAttribPointer vPosition $= (ToFloat, VertexArrayDescriptor 4 Float 0 GLUtil.offset0)
   checkError "Activate Attrib v_position"
 
-  vertexAttribArray vUV      $= Enabled
-  bindBuffer ArrayBuffer $= Just uvs
-  vertexAttribPointer vUV    $= (ToFloat, VertexArrayDescriptor 2 Float 0 GLUtil.offset0)
+  vertexAttribArray vUV   $= Enabled
+  bindBuffer ArrayBuffer  $= Just uvs
+  vertexAttribPointer vUV $= (ToFloat, VertexArrayDescriptor 2 Float 0 GLUtil.offset0)
   checkError "Activate Attrib v_UV"
+
+  vertexAttribArray vNorm   $= Enabled
+  bindBuffer ArrayBuffer    $= Just norms
+  vertexAttribPointer vNorm $= (ToFloat, VertexArrayDescriptor 4 Float 0 GLUtil.offset0)
+  checkError "Activate Attrib v_norm"
 
   bindBuffer ElementArrayBuffer $= Just elems
 
   GLUtil.drawIndexedTris (fromIntegral nofTris)
 
+
   -- disable attributes again
-  vertexAttribArray vUV $= Disabled
   vertexAttribArray vPosition $= Disabled
+  vertexAttribArray vUV       $= Disabled
+  vertexAttribArray vNorm     $= Disabled
 
     where
-      global_color = Maybe.fromMaybe (eColor e) $eiColorOverride ei
+      lightpos_worldspace :: L.V3 GLfloat
+      lightpos_worldspace = L.V3 1 1 1
+      --      global_color = Maybe.fromMaybe (eColor e) $eiColorOverride ei
 
 
 
+      -- TODO: turn on scale again.
       modelMat :: L.M44 GLfloat
-      modelMat = L.mkTransformationMat modelScale modelTrans
-
-      mvp :: L.M44 GLfloat
-      mvp = projViewMat L.!*! modelMat
+--      modelMat = L.mkTransformationMat modelScale modelTrans
+      modelMat = L.mkTransformationMat L.eye3 modelTrans
 
       modelScale :: L.M33 GLfloat
       modelScale = modelSc sc
@@ -114,8 +132,8 @@ drawEntityInstance  projViewMat (_, _, resState) ei = do
       materialName = eMaterialName e
 
 
-mkProjViewMat :: Int -> Int -> Camera -> L.M44 GLfloat
-mkProjViewMat width height camera  = projMat L.!*! viewMat
+mkProjViewMat :: Int -> Int -> Camera -> (L.M44 GLfloat, L.M44 GLfloat)
+mkProjViewMat width height camera  = (projMat, viewMat)
     where
       viewMat    = GLUtilC.camMatrix cam
       cam        = GLUtilC.panRad pan . GLUtilC.tiltRad tilt . GLUtilC.dolly pos $ GLUtilC.fpsCamera

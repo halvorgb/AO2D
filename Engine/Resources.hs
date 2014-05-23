@@ -20,13 +20,16 @@ loadResources :: IORef LoadedResources -> Resources -> IO ()
 loadResources resState resToLoad = do
 
 
+
   mapM_ (loadShader resState) $ rShaderPrograms resToLoad
   checkError "loadShaders"
+
   mapM_ (loadObject resState) $ rObjects resToLoad
   checkError "loadObjects"
 
   mapM_ (loadMaterial resState) $ rMaterials resToLoad
   checkError "loadMaterial"
+
 
 
 loadShader :: IORef LoadedResources -> ShaderProgramResource -> IO ()
@@ -49,19 +52,15 @@ loadObject resState oR@(ObjectResource un _ _) = do
   (vertexCoordinates, vertexUVCoordinates, vertexNormals, faceElements)
       <- loadModel oR
 
---  print vertexCoordinates
---  print faceElements
---  error "done"
-  -- Generate VAO
-  let nofTris = length faceElements
-
   [vao] <- genObjectNames 1
   bindVertexArrayObject $= Just vao
-  verts <- GLUtil.fromSource ArrayBuffer         vertexCoordinates
-  uvs   <- GLUtil.fromSource ArrayBuffer         vertexUVCoordinates
-  elems <- GLUtil.fromSource ElementArrayBuffer  faceElements
+  verts <- GLUtil.fromSource ArrayBuffer        vertexCoordinates
+  uvs   <- GLUtil.fromSource ArrayBuffer        vertexUVCoordinates
+  norms <- GLUtil.fromSource ArrayBuffer        vertexNormals
+  elems <- GLUtil.fromSource ElementArrayBuffer faceElements
 
-  let obj = Object verts uvs elems nofTris vao
+  let nofTris = length faceElements
+      obj = Object verts uvs norms elems nofTris vao
 
   modifyIORef resState
               (\ldRs -> let m = lrObjects ldRs

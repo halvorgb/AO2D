@@ -15,6 +15,7 @@ data ObjectResource =
 data Object =
     Object { oVertices :: BufferObject,
              oUV       :: BufferObject,
+             oNormals  :: BufferObject,
              oElements :: BufferObject,
              oNOFTris  :: Int,
              oVAO :: VertexArrayObject}

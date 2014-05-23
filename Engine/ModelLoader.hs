@@ -58,14 +58,17 @@ objData =
            vert_indices' = concat vert_indices
            uv_indices'   = concat uv_indices
            norm_indices' = concat norm_indices
-           (vert_indices'', vData)  = expandVertexData vert_indices' vCs
-           (uv_indices''  , uvData) = expandVertexData uv_indices'   vUVcs
+           (vert_indices'', vData)    = expandVertexData vert_indices' vCs
+           (uv_indices''  , uvData)   = expandVertexData uv_indices'   vUVcs
+           (norm_indices'', normData) = expandVertexData norm_indices'  vNs
 
-           uvData' = reorderCoordinates vert_indices'' uv_indices'' uvData
 
+           uvData'   = reorderCoordinates vert_indices'' uv_indices'' uvData
+           normData' = reorderCoordinates vert_indices'' norm_indices'' normData
            elems = indicesToElemVectors vert_indices''
---       error $ show uv_indices'' ++ ": " ++ show uvData
-       return (vData, uvData', undefined, elems) -- normals not done
+
+
+       return (vData, uvData', normData', elems) -- normals not done
 
 
     where
@@ -183,13 +186,13 @@ fromMapToJust m k err =
     (Map.lookup k m)
 
 
-reorderCoordinates :: [VertexIndex] -> [UVIndex] -> [VertexUVCoordinate] -> [VertexUVCoordinate]
+--reorderCoordinates :: [VertexIndex] -> [UVIndex] -> [VertexUVCoordinate] -> [VertexUVCoordinate]
 reorderCoordinates vis uvis cds = reorderCoordinates' vis uvis m
     where m = Map.fromList $ map (\i -> (i, cds !! fromIntegral i)) uvis
 
-reorderCoordinates' :: [VertexIndex] -> [UVIndex] -> Map.Map UVIndex VertexUVCoordinate -> [VertexUVCoordinate]
+--reorderCoordinates' :: [VertexIndex] -> [UVIndex] -> Map.Map UVIndex VertexUVCoordinate -> [VertexUVCoordinate]
 reorderCoordinates' vis uvis uvi2uvmap = map snd $ Map.toList vi2uvimap
     where vi2uvimap = List.foldl' addToTempMap Map.empty $ zip vis uvis
 
-          addToTempMap :: Map.Map VertexIndex VertexUVCoordinate -> (VertexIndex, UVIndex) -> Map.Map VertexIndex VertexUVCoordinate
+--          addToTempMap :: Map.Map VertexIndex VertexUVCoordinate -> (VertexIndex, UVIndex) -> Map.Map VertexIndex VertexUVCoordinate
           addToTempMap m' (vi, uvi) = Map.insert vi (fromMapToJust uvi2uvmap uvi "addToTempMap") m'
