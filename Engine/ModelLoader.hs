@@ -64,7 +64,7 @@ objData =
 
 
            uvData'   = reorderCoordinates vert_indices'' uv_indices'' uvData
-           normData' = reorderCoordinates vert_indices'' norm_indices'' normData
+           normData' = map L.normalize $ reorderCoordinates vert_indices'' norm_indices'' normData
            elems = indicesToElemVectors vert_indices''
 
 

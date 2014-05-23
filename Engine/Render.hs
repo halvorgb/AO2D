@@ -103,7 +103,7 @@ drawEntityInstance  projMat viewMat (_, _, resState) ei = do
 
     where
       lightpos_worldspace :: L.V3 GLfloat
-      lightpos_worldspace = L.V3 (-1.5) 2 0
+      lightpos_worldspace = L.V3 1 2 3
       --      global_color = Maybe.fromMaybe (eColor e) $eiColorOverride ei
 
 

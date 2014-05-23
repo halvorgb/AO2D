@@ -39,6 +39,6 @@ void main(){
     matDiffColor * lightColor * lightPower * cosTheta / (distance_to_light*distance_to_light); +
     matSpecColor * lightColor * lightPower * pow(cosAlpha,5) / (distance_to_light*distance_to_light);
 
-  color = vec4(colorRGB, 1.0);
+  color = vec4(colorRGB*0.001 + matDiffColor, 1.0);
 
 }
