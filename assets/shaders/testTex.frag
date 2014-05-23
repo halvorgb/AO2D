@@ -4,27 +4,29 @@ in vec2 f_UV;
 in vec3 pos_worldspace;
 in vec3 norm_camspace;
 in vec3 eyedir_camspace;
-in vec3 lightdir_camspace;
+in vec3 sundir_camspace;
 
 out vec4 color;
 
 uniform sampler2D diffuse;
-uniform vec3 lightpos_worldspace;
-//uniform vec4 global_color;
+uniform vec3 sunpos_worldspace;
+uniform float sunpower;
+uniform vec3 suncolor;
+uniform vec3 color_override;
+
 void main(){
-  // temp for testing
-  vec3 lightColor = vec3(0,1,1);
-  float lightPower = 5;
+
+  vec3 textureColor = color_override * texture2D(diffuse, f_UV).rgb;
 
   // material colors
-  vec3 matDiffColor    = texture2D(diffuse, f_UV).rgb;
+  vec3 matDiffColor    = textureColor;
   vec3 matAmbiColor    = vec3(0.1, 0.1, 0.1) * matDiffColor;
-  vec3 matSpecColor    = vec3(0.3, 0.3, 0.3);
+  vec3 matSpecColor    = vec3(1.0, 0.0, 0.0);
 
-  float distance_to_light = length(lightpos_worldspace - pos_worldspace);
+  float distance_to_light = length(sunpos_worldspace - pos_worldspace);
 
   vec3 n = normalize(norm_camspace);
-  vec3 l = normalize(lightdir_camspace);
+  vec3 l = normalize(sundir_camspace);
 
   float cosTheta = clamp(dot(n,l), 0, 1);
 
@@ -36,8 +38,8 @@ void main(){
 
   vec3 colorRGB =
     matAmbiColor +
-    matDiffColor * lightColor * lightPower * cosTheta / (distance_to_light*distance_to_light); +
-    matSpecColor * lightColor * lightPower * pow(cosAlpha,5) / (distance_to_light*distance_to_light);
+    matDiffColor * suncolor * sunpower * cosTheta / (distance_to_light*distance_to_light); +
+    matSpecColor * suncolor * sunpower * pow(cosAlpha,5) / (distance_to_light*distance_to_light);
 
   color = vec4(colorRGB, 1.0);
 

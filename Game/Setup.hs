@@ -15,6 +15,9 @@ import Model.Material
 
 import Model.Entity
 import Model.Camera
+import Model.Light
+
+import Model.Colors
 
 import qualified Linear as L
 
@@ -29,15 +32,21 @@ setupGame = do
                    GameState {
                     gsEntities =
                         [
-                         EntityInstance (L.V3 0 0 1) box2_ent (Just $ L.V3 0.2 0.1 0.25) (Just $ L.V4 0.3 0.0 0.1 1.0),
-                         EntityInstance (L.V3 0 0 1.5) box2_ent (Just $ L.V3 0.3 0.1 0.25) (Just $ L.V4 0.0 0.1 0.5 1.0),
-                         EntityInstance (L.V3 0 0 2) box2_ent (Just $ L.V3 0.01 1.0 0.25) (Just $ L.V4 0.1 0.5 0.0 1.0),
-                         EntityInstance (L.V3 1 0 0) box2_ent (Just $ L.V3 0.2 0.1 0.5) (Just $ L.V4 0.0 1.0 0.0 1.0),
-                         EntityInstance (L.V3 1.5 0 0) box2_ent (Just $ L.V3 0.1 0.1 0.1) (Just $ L.V4 0.0 0.0 1.0 1.0),
-                         EntityInstance (L.V3 2 0 0) box2_ent (Just $ L.V3 0.2 0.2 0.22) (Just $ L.V4 1.0 0.0 0.0 1.0)
+                         EntityInstance (L.V3 0 0 1) box2_ent (Just $ L.V3 0.2 0.1 0.25) (Just red),
+                         EntityInstance (L.V3 0 0 1.5) box2_ent (Just $ L.V3 0.3 0.1 0.25) (Just blue),
+                         EntityInstance (L.V3 0 0 2) box2_ent (Just $ L.V3 0.01 1.0 0.25) (Just yellow),
+                         EntityInstance (L.V3 1 0 0) box2_ent (Just $ L.V3 0.2 0.1 0.5) (Just green),
+                         EntityInstance (L.V3 1.5 0 0) box2_ent (Just $ L.V3 0.1 0.1 0.1) (Just purple),
+                         EntityInstance (L.V3 2 0 0) box2_ent (Just $ L.V3 0.2 0.2 0.22) (Just teal),
+                         EntityInstance (L.V3 3 0 0) lykt_ent Nothing Nothing
                         ],
                     gsCamera =
-                        Camera (L.V3 0 0 0) 0 0 90 }
+                        Camera (L.V3 0 0 0) 0 0 90,
+                    gsSun =
+                      Sun 14 (L.V3 0 10 0) (L.V3 0.8 1.0 0.9)
+
+
+                    }
   resourceState <- newIORef $ LoadedResources M.empty M.empty M.empty
 
   let state = (gameState, inputState, resourceState)
@@ -45,7 +54,9 @@ setupGame = do
   return (state, resourcesToLoad)
     where
       box2_ent =
-          Entity "box2" (L.V3 1.0 1.0 1.0) (L.V4 1.0 1.0 1.0 1.0) "testTexShader" "box2Object" "box2Material"
+        Entity "box2" (L.V3 1.0 1.0 1.0) white "testTexShader" "box2Object" "box2Material"
+      lykt_ent =
+        Entity "lykt" (L.V3 1.0 1.0 1.0) white "testTexShader" "lyktObject" "placeholderMaterial"
 
       -- ugly that this is here...
       resourcesToLoad =
@@ -60,9 +71,13 @@ setupGame = do
                          "assets" </> "shaders" </> "testTex.frag"
                    }
                   ],
-              rMaterials = [MaterialResource "box2Material" ("assets" </> "materials" </> "box2" </> "diffuse.png")
+              rMaterials = [MaterialResource "box2Material" ("assets" </> "materials" </> "box2" </> "diffuse.png"),
+                            MaterialResource "placeholderMaterial" ("assets" </> "materials" </> "placeholder" </> "diffuse.png")
+
                            ],
 
-              rObjects  = [ObjectResource "box2Object" ("assets" </> "models" </> "box2.obj") ModelFormat'OBJ
+              rObjects  = [ObjectResource "box2Object" ("assets" </> "models" </> "box2.obj") ModelFormat'OBJ,
+                           ObjectResource "lyktObject" ("assets" </> "models" </> "LYKTSOTLP.obj") ModelFormat'OBJ
+
                           ]
             }

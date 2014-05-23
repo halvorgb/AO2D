@@ -17,6 +17,7 @@ import Model.State.Resources
 import Model.State.Game
 import Model.Entity
 import Model.Camera
+import qualified Model.Light as ML
 
 import Engine.Errors
 
@@ -36,11 +37,11 @@ renderObjects state@(gameState, _, _) w =
 
 
       -- ultra naive bullshit: draw every entity.
-      mapM_ (drawEntityInstance projMat viewMat state ) $ gsEntities gs
+      mapM_ (drawEntityInstance projMat viewMat state $ gsSun gs) $ gsEntities gs
 
 
-drawEntityInstance :: L.M44 GLfloat -> L.M44 GLfloat -> State  -> EntityInstance -> IO ()
-drawEntityInstance  projMat viewMat (_, _, resState) ei = do
+drawEntityInstance :: L.M44 GLfloat -> L.M44 GLfloat -> State -> ML.Light -> EntityInstance -> IO ()
+drawEntityInstance  projMat viewMat (_, _, resState) sun ei = do
   lr <- readIORef resState
   let Just program  = M.lookup shaderName $ lrShaderPrograms lr
       Just object   = M.lookup objectName $ lrObjects lr
@@ -53,9 +54,12 @@ drawEntityInstance  projMat viewMat (_, _, resState) ei = do
       nofTris = oNOFTris object
 
       vao = oVAO object
-
-
       material_diffuse = mTextureObject material
+
+
+      sunpos = ML.sPosition sun
+      sunpow = ML.sPower sun
+      suncol = ML.sColor sun
 
  -- enable VAO:
   bindVertexArrayObject $= Just vao
@@ -67,9 +71,11 @@ drawEntityInstance  projMat viewMat (_, _, resState) ei = do
   GLUtil.asUniform modelMat $ GLUtil.getUniform program "M"
   GLUtil.asUniform viewMat $ GLUtil.getUniform program "V"
 
-  GLUtil.asUniform lightpos_worldspace $ GLUtil.getUniform program "lightpos_worldspace"
+  GLUtil.asUniform sunpos $ GLUtil.getUniform program "sunpos_worldspace"
+  GLUtil.asUniform sunpow $ GLUtil.getUniform program "sunpower"
+  GLUtil.asUniform suncol $ GLUtil.getUniform program "suncolor"
 
---  GLUtil.asUniform global_color $ GLUtil.getUniform program "global_color"
+  GLUtil.asUniform color_override $ GLUtil.getUniform program "color_override"
 
   let vPosition = GLUtil.getAttrib program "v_position"
       vUV       = GLUtil.getAttrib program "v_UV"
@@ -100,16 +106,13 @@ drawEntityInstance  projMat viewMat (_, _, resState) ei = do
   vertexAttribArray vNorm     $= Disabled
 
     where
-      lightpos_worldspace :: L.V3 GLfloat
-      lightpos_worldspace = L.V3 1 3 1
-      --      global_color = Maybe.fromMaybe (eColor e) $eiColorOverride ei
 
+      color_override = Maybe.fromMaybe (eColor e) $ eiColorOverride ei
 
       mvp = projMat L.!*! viewMat L.!*! modelMat
       -- TODO: turn on scale again.
       modelMat :: L.M44 GLfloat
       modelMat = L.mkTransformationMat modelScale modelTrans
---      modelMat_unscaled = L.mkTransformationMat L.eye3 modelTrans
 
       modelScale :: L.M33 GLfloat
       modelScale = modelSc sc
@@ -123,6 +126,8 @@ drawEntityInstance  projMat viewMat (_, _, resState) ei = do
 
       modelTrans = eiPosition ei
       e = eiEntity ei
+
+
       shaderName = eShaderName e
       objectName = eObjectName e
       materialName = eMaterialName e
