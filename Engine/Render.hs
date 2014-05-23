@@ -59,23 +59,21 @@ drawEntityInstance  projMat viewMat (_, _, resState) ei = do
 
  -- enable VAO:
   bindVertexArrayObject $= Just vao
+
   currentProgram $= (Just $ GLUtil.program program)
   textureBinding Texture2D $= Just material_diffuse
 
 
-  let mvp :: L.M44 GLfloat
-      mvp = projMat L.!*! viewMat L.!*! modelMat
-
-  print "bikkje"
   GLUtil.asUniform mvp $ GLUtil.getUniform program "MVP"
---  GLUtil.asUniform modelMat $ GLUtil.getUniform program "M"
---  GLUtil.asUniform viewMat $ GLUtil.getUniform program "V"
---  GLUtil.asUniform lightpos_worldspace $ GLUtil.getUniform program "lightpos_worldspace"
+  GLUtil.asUniform modelMat $ GLUtil.getUniform program "M"
+  GLUtil.asUniform modelMat_unscaled $ GLUtil.getUniform program "M_unscaled"
+  GLUtil.asUniform viewMat $ GLUtil.getUniform program "V"
+  GLUtil.asUniform lightpos_worldspace $ GLUtil.getUniform program "lightpos_worldspace"
 --  GLUtil.asUniform global_color $ GLUtil.getUniform program "global_color"
 
   let vPosition = GLUtil.getAttrib program "v_position"
       vUV       = GLUtil.getAttrib program "v_UV"
-      vNorm     = GLUtil.getAttrib program "v_Norm"
+      vNorm     = GLUtil.getAttrib program "v_norm"
 
 
   vertexAttribArray vPosition   $= Enabled
@@ -105,15 +103,15 @@ drawEntityInstance  projMat viewMat (_, _, resState) ei = do
 
     where
       lightpos_worldspace :: L.V3 GLfloat
-      lightpos_worldspace = L.V3 1 1 1
+      lightpos_worldspace = L.V3 (-1.5) 2 0
       --      global_color = Maybe.fromMaybe (eColor e) $eiColorOverride ei
 
 
-
+      mvp = projMat L.!*! viewMat L.!*! modelMat
       -- TODO: turn on scale again.
       modelMat :: L.M44 GLfloat
---      modelMat = L.mkTransformationMat modelScale modelTrans
-      modelMat = L.mkTransformationMat L.eye3 modelTrans
+      modelMat = L.mkTransformationMat modelScale modelTrans
+      modelMat_unscaled = L.mkTransformationMat L.eye3 modelTrans
 
       modelScale :: L.M33 GLfloat
       modelScale = modelSc sc

@@ -14,12 +14,14 @@ out vec3 lightdir_camspace;
 
 uniform mat4 MVP;
 uniform mat4 M;
+uniform mat4 M_unscaled;
 uniform mat4 V;
-uniform vec4 lightpos_worldspace;
+uniform vec3 lightpos_worldspace;
 
 // based on https://code.google.com/p/opengl-tutorial-org/source/browse/tutorial08_basic_shading/StandardShading.vertexshader
 void main(){
-  mat4 MV = V * M;
+  mat4 MV = V * M_unscaled;
+
 
   gl_Position    =  MVP * v_position;
 
@@ -28,11 +30,11 @@ void main(){
   vec3 pos_camspace = (MV * v_position).xyz;
   eyedir_camspace   = vec3(0,0,0) - pos_camspace;
 
-  vec3 lightpos_camspace = (V * lightpos_worldspace).xyz;
+  vec3 lightpos_camspace = (V * vec4(lightpos_worldspace, 1)).xyz;
   lightdir_camspace      = lightpos_camspace + eyedir_camspace;
 
   // wrong since M scales.
-  norm_camspace = (MV * vec4(v_norm, 0)).xyz;
+  norm_camspace = (V * M_unscaled * vec4(v_norm, 0)).xyz;
 
 
 
