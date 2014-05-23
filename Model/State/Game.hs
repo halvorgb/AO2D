@@ -9,5 +9,5 @@ import Model.Light
 data GameState =
     GameState { gsEntities :: [EntityInstance],
                 gsCamera :: Camera,
-                gsSun :: Light
+                gsLights :: [Light]
               } -- + more

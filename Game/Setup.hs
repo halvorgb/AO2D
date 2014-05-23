@@ -38,12 +38,20 @@ setupGame = do
                          EntityInstance (L.V3 1 0 0) box2_ent (Just $ L.V3 0.2 0.1 0.5) (Just green),
                          EntityInstance (L.V3 1.5 0 0) box2_ent (Just $ L.V3 0.1 0.1 0.1) (Just purple),
                          EntityInstance (L.V3 2 0 0) box2_ent (Just $ L.V3 0.2 0.2 0.22) (Just teal),
-                         EntityInstance (L.V3 3 0 0) lykt_ent Nothing Nothing
+
+                         EntityInstance (L.V3 3 0 0) lykt_ent Nothing Nothing,
+
+                         EntityInstance (L.V3 0 10 0) lightbox_ent Nothing Nothing,
+                         EntityInstance (L.V3 (-5) (-1) 0) lightbox_ent Nothing Nothing
+
                         ],
                     gsCamera =
                         Camera (L.V3 0 0 0) 0 0 90,
-                    gsSun =
-                      Sun 14 (L.V3 0 10 0) (L.V3 0.8 1.0 0.9)
+                    gsLights =
+                      [
+                        Light 14 (L.V3 0 10 0) (L.V3 0.8 1.0 0.9),
+                        Light 14 (L.V3 (-5) (-1) 0) (L.V3 0.8 1.0 0.9)
+                      ]
 
 
                     }
@@ -55,6 +63,8 @@ setupGame = do
     where
       box2_ent =
         Entity "box2" (L.V3 1.0 1.0 1.0) white "testTexShader" "box2Object" "box2Material"
+      lightbox_ent =
+        Entity "lightbox" (L.V3 0.05 0.05 0.05) yellow "testTexShader" "box2Object" "box2Material"
       lykt_ent =
         Entity "lykt" (L.V3 1.0 1.0 1.0) white "testTexShader" "lyktObject" "placeholderMaterial"
 

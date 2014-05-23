@@ -8,39 +8,56 @@ in vec3 sundir_camspace;
 
 out vec4 color;
 
+
+
+uniform mat4 V;
 uniform sampler2D diffuse;
-uniform vec3 sunpos_worldspace;
-uniform float sunpower;
-uniform vec3 suncolor;
 uniform vec3 color_override;
+uniform vec3 ambiance;
+
+uniform vec3 lightPositions[256];
+uniform vec3 lightColors[256];
+uniform vec3 lightStrengths[256];
+uniform int nofLights;
+
 
 void main(){
 
-  vec3 textureColor = color_override * texture2D(diffuse, f_UV).rgb;
-
-  // material colors
-  vec3 matDiffColor    = textureColor;
-  vec3 matAmbiColor    = vec3(0.1, 0.1, 0.1) * matDiffColor;
-  vec3 matSpecColor    = vec3(1.0, 0.0, 0.0);
-
-  float distance_to_light = length(sunpos_worldspace - pos_worldspace);
-
-  vec3 n = normalize(norm_camspace);
-  vec3 l = normalize(sundir_camspace);
-
-  float cosTheta = clamp(dot(n,l), 0, 1);
+  vec3 diffuseColor = color_override * texture2D(diffuse, f_UV).rgb;
+  vec3 specularColor = vec3(1.0, 1.0, 1.0); // TODO SPECULAR.
 
 
-  vec3 e = normalize(eyedir_camspace);
-  vec3 r = reflect(-l,n);
+  vec3 totalLighting = ambiance * diffuseColor;
+  for (int i = 0; i < nofLights; ++i) {
+    float lightStrength = lightStrengths[i].x;
 
-  float cosAlpha = clamp(dot(e, r), 0, 1);
+    float distance_to_light     = length(lightPositions[i] - pos_worldspace);
 
-  vec3 colorRGB =
-    matAmbiColor +
-    matDiffColor * suncolor * sunpower * cosTheta / (distance_to_light*distance_to_light); +
-    matSpecColor * suncolor * sunpower * pow(cosAlpha,5) / (distance_to_light*distance_to_light);
+    vec3 lightPosition_camspace = (V * vec4(lightPositions[i], 1)).xyz;
 
-  color = vec4(colorRGB, 1.0);
+    vec3 lightDirection_camspace     = lightPosition_camspace + eyedir_camspace;
+
+    vec3 n = normalize(norm_camspace);
+    vec3 l = normalize(lightDirection_camspace);
+
+    float cosTheta = clamp(dot(n,l),0,1);
+
+    vec3 diffuseReflection  =
+      diffuseColor * lightColors[i] * lightStrengths[i] * cosTheta /(distance_to_light*distance_to_light);
+
+
+    vec3 e = normalize(eyedir_camspace);
+    vec3 r = reflect(-l,n);
+
+    float cosAlpha = clamp(dot(e, r), 0, 1);
+
+
+
+    vec3 specularReflection =
+      specularColor * lightColors[i] * lightStrengths[i] * pow(cosAlpha, 5) / (distance_to_light*distance_to_light);
+
+    totalLighting = totalLighting + diffuseReflection + specularReflection;
+  }
+  color = vec4(totalLighting, 1.0);
 
 }

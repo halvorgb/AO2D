@@ -32,16 +32,17 @@ renderObjects state@(gameState, _, _) w =
       (width, height) <- GLFW.getFramebufferSize w
 
       let cam = gsCamera gs
+          lights = gsLights gs
           (projMat, viewMat) = mkProjViewMat width height cam
 
 
 
       -- ultra naive bullshit: draw every entity.
-      mapM_ (drawEntityInstance projMat viewMat state $ gsSun gs) $ gsEntities gs
+      mapM_ (drawEntityInstance projMat viewMat state lights) $ gsEntities gs
 
 
-drawEntityInstance :: L.M44 GLfloat -> L.M44 GLfloat -> State -> ML.Light -> EntityInstance -> IO ()
-drawEntityInstance  projMat viewMat (_, _, resState) sun ei = do
+drawEntityInstance :: L.M44 GLfloat -> L.M44 GLfloat -> State -> [ML.Light] -> EntityInstance -> IO ()
+drawEntityInstance  projMat viewMat (_, _, resState) lights ei = do
   lr <- readIORef resState
   let Just program  = M.lookup shaderName $ lrShaderPrograms lr
       Just object   = M.lookup objectName $ lrObjects lr
@@ -56,11 +57,6 @@ drawEntityInstance  projMat viewMat (_, _, resState) sun ei = do
       vao = oVAO object
       material_diffuse = mTextureObject material
 
-
-      sunpos = ML.sPosition sun
-      sunpow = ML.sPower sun
-      suncol = ML.sColor sun
-
  -- enable VAO:
   bindVertexArrayObject $= Just vao
 
@@ -71,11 +67,16 @@ drawEntityInstance  projMat viewMat (_, _, resState) sun ei = do
   GLUtil.asUniform modelMat $ GLUtil.getUniform program "M"
   GLUtil.asUniform viewMat $ GLUtil.getUniform program "V"
 
-  GLUtil.asUniform sunpos $ GLUtil.getUniform program "sunpos_worldspace"
-  GLUtil.asUniform sunpow $ GLUtil.getUniform program "sunpower"
-  GLUtil.asUniform suncol $ GLUtil.getUniform program "suncolor"
-
+  GLUtil.asUniform ambiance $ GLUtil.getUniform program "ambiance"
   GLUtil.asUniform color_override $ GLUtil.getUniform program "color_override"
+
+
+  GLUtil.asUniform lightPositions $ GLUtil.getUniform program "lightPositions"
+  GLUtil.asUniform lightColors $ GLUtil.getUniform program "lightColors"
+  GLUtil.asUniform lightStrengths $ GLUtil.getUniform program "lightStrengths"
+  GLUtil.asUniform nofLights $ GLUtil.getUniform program "nofLights"
+
+
 
   let vPosition = GLUtil.getAttrib program "v_position"
       vUV       = GLUtil.getAttrib program "v_UV"
@@ -106,6 +107,14 @@ drawEntityInstance  projMat viewMat (_, _, resState) sun ei = do
   vertexAttribArray vNorm     $= Disabled
 
     where
+      -- ^ temp testing vars ->
+      ambiance :: L.V3 GLfloat
+      ambiance = L.V3 0.1 0.1 0.1
+
+      (lightStrengths, lightPositions, lightColors) = unzip3 $ map ML.getVectors lights
+
+      nofLights :: GLint
+      nofLights = fromIntegral $ length lights
 
       color_override = Maybe.fromMaybe (eColor e) $ eiColorOverride ei
 
