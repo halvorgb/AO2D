@@ -27,7 +27,8 @@ setupEngine w h winTitle state@(_, inputState, resourceState) resourcesToLoad = 
               GLFW.WindowHint'ContextVersionMinor  3,
               GLFW.WindowHint'OpenGLProfile GLFW.OpenGLProfile'Core,
               GLFW.WindowHint'OpenGLDebugContext True,
-              GLFW.WindowHint'DepthBits 24 ]
+              GLFW.WindowHint'DepthBits 24
+            ]
   checkError "windowHint"
 
   if not successfulInit
@@ -53,8 +54,6 @@ setupEngine w h winTitle state@(_, inputState, resourceState) resourcesToLoad = 
 
               dumpInfo
 
---              blend $= Enabled
---              blendFunc $= (SrcAlpha, OneMinusSrcAlpha)
               cullFace   $= Just Back
               depthFunc  $= Just Less
 

@@ -13,12 +13,12 @@ uniform vec3 lightpos_worldspace;
 //uniform vec4 global_color;
 void main(){
   // temp for testing
-  vec3 lightColor = vec3(1,1,1);
-  float lightPower = 500;
+  vec3 lightColor = vec3(0,1,1);
+  float lightPower = 5;
 
   // material colors
   vec3 matDiffColor    = texture2D(diffuse, f_UV).rgb;
-  vec3 matAmbiColor    = vec3(1.0, 1.0, 1.0) * matDiffColor;
+  vec3 matAmbiColor    = vec3(0.1, 0.1, 0.1) * matDiffColor;
   vec3 matSpecColor    = vec3(0.3, 0.3, 0.3);
 
   float distance_to_light = length(lightpos_worldspace - pos_worldspace);
@@ -39,6 +39,6 @@ void main(){
     matDiffColor * lightColor * lightPower * cosTheta / (distance_to_light*distance_to_light); +
     matSpecColor * lightColor * lightPower * pow(cosAlpha,5) / (distance_to_light*distance_to_light);
 
-  color = vec4(colorRGB*0.001 + matDiffColor, 1.0);
+  color = vec4(colorRGB, 1.0);
 
 }

@@ -2,7 +2,7 @@
 
 layout(location = 0) in vec4 v_position;
 layout(location = 1) in vec2 v_UV;
-layout(location = 1) in vec3 v_norm;
+layout(location = 2) in vec3 v_norm;
 
 
 out vec2 f_UV;
@@ -14,7 +14,6 @@ out vec3 lightdir_camspace;
 
 uniform mat4 MVP;
 uniform mat4 M;
-uniform mat4 M_unscaled;
 uniform mat4 V;
 uniform vec3 lightpos_worldspace;
 
@@ -34,7 +33,7 @@ void main(){
   lightdir_camspace      = lightpos_camspace + eyedir_camspace;
 
   // wrong since M scales.
-  norm_camspace = (V * M_unscaled * vec4(v_norm, 0)).xyz;
+  norm_camspace = (V * inverse(M) * vec4(v_norm, 0)).xyz;
 
 
 
