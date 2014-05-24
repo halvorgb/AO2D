@@ -11,6 +11,11 @@ redCC    = L.V3 0.30 0.15 0.15
 greenCC  = L.V3 0.25 0.45 0.1
 blueCC   = L.V3 0.1 0.15 0.35
 
+blackCC  = L.V3 0 0 0
+whiteCC  = L.V3 1 1 1
+pinkCC   = L.V3 1 0 1
+
+
 data ClearColor =
     ClearColor {
       ccColorCycle :: [Color],
@@ -23,7 +28,8 @@ toGLColor cc = GL.Color4 r g b 1.0
     where (L.V3 r g b) = fmap realToFrac $ ccClearColor cc
 
 defaultClearColor :: ClearColor
-defaultClearColor = ClearColor (cycle [redCC, greenCC, blueCC]) redCC 5
+defaultClearColor = ClearColor (cycle [redCC, greenCC, blueCC]) redCC 0.5
+--defaultClearColor = ClearColor (cycle [blackCC, whiteCC]) blackCC 100 discoCancer
 
 interpolateColor :: ClearColor -> Double -> ClearColor
 interpolateColor cc delta
