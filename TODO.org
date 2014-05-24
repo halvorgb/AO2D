@@ -5,13 +5,20 @@ TODO:
 ** Usability
    Config Reader
    Better Model Loading/Unloading handler. Should be dynamic.
+** GUI
+   Test Console
+   Text Renderer
+
 ** Lighting
-    Implement lighting (simple)
-    Implement Ambient Occlusion
-    Implement Specularity
+   Implement Shadow Maps
+   Implement Ambient Occlusion
+** Meterials
+   Normal Maps
+   Specular Maps
 ** Asset Loading
 *** Textures
 	NormalMaps
 	Specular maps
 *** Models
-     (COLLADA files)
+
+    (COLLADA files)

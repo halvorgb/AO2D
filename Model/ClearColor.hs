@@ -23,7 +23,7 @@ toGLColor cc = GL.Color4 r g b 1.0
     where (L.V3 r g b) = fmap realToFrac $ ccClearColor cc
 
 defaultClearColor :: ClearColor
-defaultClearColor = ClearColor (cycle [redCC, greenCC, blueCC]) redCC 1
+defaultClearColor = ClearColor (cycle [redCC, greenCC, blueCC]) redCC 5
 
 interpolateColor :: ClearColor -> Double -> ClearColor
 interpolateColor cc delta
