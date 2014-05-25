@@ -38,7 +38,7 @@ setupGame = do
   return (state, resourcesToLoad)
 
 gameState :: GameState
-gameState = GameState entities camera lights clearColor
+gameState = GameState entities camera light clearColor
     where
       entities =
           [
@@ -66,11 +66,7 @@ gameState = GameState entities camera lights clearColor
       camera = Camera (L.V3 0 0 0) 0 0 90
 
 
-      lights =
-          [
-           Light 8 (L.V3 0 10 0) white,
-           Light 8 (L.V3 1 2 (-4)) white
-          ]
+      light = Light 8 (L.V3 1 2 (-4)) white
 
       clearColor = defaultClearColor
 

@@ -10,6 +10,6 @@ import Model.ClearColor
 data GameState =
     GameState { gsEntities :: [EntityInstance],
                 gsCamera :: Camera,
-                gsLights :: [Light],
+                gsLight :: Light,
                 gsClearColor :: ClearColor
               } -- + more

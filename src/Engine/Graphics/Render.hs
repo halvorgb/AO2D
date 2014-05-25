@@ -36,17 +36,17 @@ renderObjects state@(gameState, _, _) w =
       (width, height) <- GLFW.getFramebufferSize w
 
       let cam = gsCamera gs
-          lights = gsLights gs
+          l = gsLight gs
           (projMat, viewMat) = mkProjViewMat width height cam
 
 
 
       -- ultra naive bullshit: draw every entity.
-      mapM_ (drawEntityInstance projMat viewMat state lights) $ gsEntities gs
+      mapM_ (drawEntityInstance projMat viewMat state l) $ gsEntities gs
 
 
-drawEntityInstance :: L.M44 GLfloat -> L.M44 GLfloat -> State -> [ML.Light] -> EntityInstance -> IO ()
-drawEntityInstance  projMat viewMat (_, _, resState) lights ei = do
+drawEntityInstance :: L.M44 GLfloat -> L.M44 GLfloat -> State -> ML.Light -> EntityInstance -> IO ()
+drawEntityInstance  projMat viewMat (_, _, resState) l ei = do
   lr <- readIORef resState
   let Just program  = M.lookup shaderName $ lrShaderPrograms lr
       Just object   = M.lookup objectName $ lrObjects lr
@@ -74,11 +74,9 @@ drawEntityInstance  projMat viewMat (_, _, resState) lights ei = do
   GLUtil.asUniform ambiance $ GLUtil.getUniform program "ambiance"
   GLUtil.asUniform color_override $ GLUtil.getUniform program "color_override"
 
-
-  GLUtil.asUniform lightPositions $ GLUtil.getUniform program "lightPositions"
-  GLUtil.asUniform lightColors $ GLUtil.getUniform program "lightColors"
-  GLUtil.asUniform lightStrengths $ GLUtil.getUniform program "lightStrengths"
-  GLUtil.asUniform nofLights $ GLUtil.getUniform program "nofLights"
+  GLUtil.asUniform lightPosition $ GLUtil.getUniform program "lightPosition"
+  GLUtil.asUniform lightColor $ GLUtil.getUniform program "lightColor"
+  GLUtil.asUniform lightStrength $ GLUtil.getUniform program "lightStrength"
 
 
 
@@ -111,19 +109,19 @@ drawEntityInstance  projMat viewMat (_, _, resState) lights ei = do
   vertexAttribArray vNorm     $= Disabled
 
     where
-      -- ^ temp testing vars ->
       ambiance :: L.V3 GLfloat
       ambiance = L.V3 0.1 0.1 0.1
 
-      (lightStrengths, lightPositions, lightColors) = unzip3 $ map ML.getVectors lights
-
-      nofLights :: GLint
-      nofLights = fromIntegral $ length lights
+      lightStrength = ML.lStrength l
+      lightPosition = ML.lPosition l
+      lightColor    = ML.lColor    l
 
       color_override = Maybe.fromMaybe (eColor e) $ eiColorOverride ei
 
       mvp = projMat L.!*! viewMat L.!*! modelMat
-      -- TODO: turn on scale again.
+
+
+
       modelMat :: L.M44 GLfloat
       modelMat = L.mkTransformationMat modelScale modelTrans
 

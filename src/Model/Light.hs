@@ -10,10 +10,3 @@ data Light =
     lColor :: L.V3 GLfloat
     }
   deriving(Eq)
-
-getVectors :: Light -> (L.V3 GLfloat, L.V3 GLfloat, L.V3 GLfloat)
-getVectors l = (sVec, pVec, lVec)
-  where s    = lStrength l
-        sVec = L.V3 s 0 0
-        pVec = lPosition l
-        lVec = lColor l
