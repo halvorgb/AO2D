@@ -28,7 +28,7 @@ toGLColor cc = GL.Color4 r g b 1.0
     where (L.V3 r g b) = fmap realToFrac $ ccClearColor cc
 
 defaultClearColor :: ClearColor
-defaultClearColor = ClearColor (cycle [redCC, greenCC, blueCC]) redCC 0.5
+defaultClearColor = ClearColor (cycle [redCC, greenCC, blueCC]) redCC 0.1
 --defaultClearColor = ClearColor (cycle [blackCC, whiteCC]) blackCC 100 discoCancer
 
 interpolateColor :: ClearColor -> Double -> ClearColor
