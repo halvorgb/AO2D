@@ -7,7 +7,7 @@ import Model.State
 
 import Game.Update
 
-import Engine.Render
+import Engine.Graphics.Render
 
 mainLoop :: State -> GLFW.Window  -> IO ()
 mainLoop s w = do

@@ -1,4 +1,4 @@
-module Engine.ImageLoader(loadImage) where
+module Engine.Graphics.Assets.ImageLoader(loadImage) where
 
 import Codec.Picture
 import Codec.Picture.Types

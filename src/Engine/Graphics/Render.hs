@@ -1,8 +1,8 @@
-module Engine.Render(renderObjects) where
+module Engine.Graphics.Render(renderObjects) where
 
+import Graphics.Rendering.OpenGL
 import qualified Graphics.GLUtil as GLUtil
 import qualified Graphics.GLUtil.Camera3D as GLUtilC
-import Graphics.Rendering.OpenGL
 import qualified Graphics.UI.GLFW as GLFW
 import qualified Linear as L
 
@@ -20,7 +20,7 @@ import Model.Camera
 import Model.ClearColor
 import qualified Model.Light as ML
 
-import Engine.Errors
+import Engine.Graphics.Common
 
 
 renderObjects :: State -> GLFW.Window -> IO ()
@@ -28,7 +28,7 @@ renderObjects state@(gameState, _, _) w =
     do
       gs <- readIORef gameState
 
-      clearColor $= (toGLColor $ gsClearColor gs)
+      clearColor $= toGLColor (gsClearColor gs)
       clear [ColorBuffer, DepthBuffer]
 
 

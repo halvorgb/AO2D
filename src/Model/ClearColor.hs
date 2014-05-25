@@ -10,11 +10,11 @@ redCC, greenCC, blueCC :: Color
 redCC    = L.V3 0.30 0.15 0.15
 greenCC  = L.V3 0.25 0.45 0.1
 blueCC   = L.V3 0.1 0.15 0.35
-
+{- unused
 blackCC  = L.V3 0 0 0
 whiteCC  = L.V3 1 1 1
 pinkCC   = L.V3 1 0 1
-
+-}
 
 data ClearColor =
     ClearColor {

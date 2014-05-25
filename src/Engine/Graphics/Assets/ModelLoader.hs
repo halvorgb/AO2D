@@ -1,4 +1,4 @@
-module Engine.ModelLoader(loadModel) where
+module Engine.Graphics.Assets.ModelLoader(loadModel) where
 
 import Graphics.Rendering.OpenGL
 
@@ -187,10 +187,14 @@ fromMapToJust m k err =
 
 
 --reorderCoordinates :: [VertexIndex] -> [UVIndex] -> [VertexUVCoordinate] -> [VertexUVCoordinate]
+reorderCoordinates :: (Ord a, Integral b) =>
+                      [a] -> [b] -> [c] -> [c]
 reorderCoordinates vis uvis cds = reorderCoordinates' vis uvis m
     where m = Map.fromList $ map (\i -> (i, cds !! fromIntegral i)) uvis
 
 --reorderCoordinates' :: [VertexIndex] -> [UVIndex] -> Map.Map UVIndex VertexUVCoordinate -> [VertexUVCoordinate]
+reorderCoordinates' :: (Ord a, Integral b) =>
+                       [a] -> [b] -> Map.Map b c -> [c]
 reorderCoordinates' vis uvis uvi2uvmap = map snd $ Map.toList vi2uvimap
     where vi2uvimap = List.foldl' addToTempMap Map.empty $ zip vis uvis
 

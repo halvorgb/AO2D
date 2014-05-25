@@ -1,26 +1,23 @@
-module Engine.Setup(setupEngine) where
+module Engine.Graphics.InitGraphics(initGraphics) where
 
 import Graphics.Rendering.OpenGL
 import qualified Graphics.UI.GLFW as GLFW
-
 import System.Exit
-import System.IO
-import Data.IORef
+
 
 import Engine.InputHandler
 import Engine.MainLoop
-import Engine.Errors
-import Engine.Resources
+import Engine.Graphics.Common
+import Engine.Graphics.Assets.Resources
 
 
 import Model.State
 import Model.State.Resources
-import Model.State.Game
-import Model.ClearColor
 
--- template: https://github.com/alpmestan/glfw-b-quick-example
-setupEngine :: Int -> Int -> String -> State -> Resources -> IO ()
-setupEngine w h winTitle state@(gameState, inputState, resourceState) resourcesToLoad = do
+
+
+initGraphics :: Int -> Int -> String -> State -> Resources -> IO ()
+initGraphics w h winTitle state@(_, inputState, resourceState) resourcesToLoad = do
   GLFW.setErrorCallback (Just errorCallback)
 
   successfulInit <- GLFW.init
@@ -59,8 +56,6 @@ setupEngine w h winTitle state@(gameState, inputState, resourceState) resourcesT
 
               cullFace   $= Just Back
               depthFunc  $= Just Less
-              gs <- readIORef gameState
-              clearColor $= (toGLColor $ gsClearColor gs)
 
               -- load all shaders
               loadResources resourceState resourcesToLoad
@@ -73,19 +68,3 @@ setupEngine w h winTitle state@(gameState, inputState, resourceState) resourcesT
               GLFW.destroyWindow window
               GLFW.terminate
               exitSuccess
--- type ErrorCallback = Error -> String -> IO ()
-errorCallback :: GLFW.ErrorCallback
-errorCallback _ = hPutStrLn stderr
-
-resizeCallback :: GLFW.WindowSizeCallback
-resizeCallback _ width height = viewport $= (Position 0 0, Size (fromIntegral width) (fromIntegral height))
-
-
-dumpInfo :: IO ()
-dumpInfo = do
-   let dump message var = putStrLn . ((message ++ ": ") ++) =<< get var
-   dump "Vendor" vendor
-   dump "Renderer" renderer
-   dump "Version" glVersion
-   dump "GLSL" shadingLanguageVersion
-   checkError "dumpInfo"

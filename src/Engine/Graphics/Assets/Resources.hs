@@ -1,4 +1,4 @@
-module Engine.Resources(loadResources) where
+module Engine.Graphics.Assets.Resources(loadResources) where
 
 import qualified Graphics.GLUtil as GLUtil
 import Graphics.Rendering.OpenGL
@@ -6,9 +6,9 @@ import Data.IORef
 import qualified Data.Map as M
 import qualified Codec.Picture as PNG
 
-import Engine.Errors
-import Engine.ImageLoader
-import Engine.ModelLoader
+import Engine.Graphics.Common
+import Engine.Graphics.Assets.ImageLoader
+import Engine.Graphics.Assets.ModelLoader
 
 import Model.ShaderProgram
 import Model.Object

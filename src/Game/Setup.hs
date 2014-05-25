@@ -26,17 +26,18 @@ import qualified Linear as L
 
 setupGame :: IO (State, Resources)
 setupGame = do
-  inputState    <- newIORef $
-                   InputState [] (MouseInput 0 0)
+  is <- newIORef $
+        InputState [] (MouseInput 0 0)
 
-  gameState     <- newIORef gameState
+  gs <- newIORef gameState
 
-  resourceState <- newIORef $ LoadedResources M.empty M.empty M.empty
+  rs <- newIORef $ LoadedResources M.empty M.empty M.empty
 
-  let state = (gameState, inputState, resourceState)
+  let state = (gs, is, rs)
 
   return (state, resourcesToLoad)
 
+gameState :: GameState
 gameState = GameState entities camera lights clearColor
     where
       entities =
@@ -74,7 +75,7 @@ gameState = GameState entities camera lights clearColor
       clearColor = defaultClearColor
 
 
-
+resourcesToLoad :: Resources
 resourcesToLoad =
     Resources {
   rShaderPrograms =
