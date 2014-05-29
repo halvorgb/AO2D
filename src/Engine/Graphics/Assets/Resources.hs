@@ -34,7 +34,9 @@ loadResources resState resToLoad = do
 
 loadShader :: IORef LoadedResources -> ShaderProgramResource -> IO ()
 loadShader resState shaderRes = do
-  prog <- GLUtil.simpleShaderProgram vert frag
+  --  prog <- GLUtil.loadShaderProgram [(VertexShader, vert), (FragmentShader, frag), (GeometryShader, geo)]
+  prog <- GLUtil.loadShaderProgram [(VertexShader, vert), (FragmentShader, frag)]
+--  prog <- GLUtil.simpleShaderProgram vert frag
   modifyIORef resState
                   (\ldRs -> let m = lrShaderPrograms ldRs
                             in ldRs { lrShaderPrograms =

@@ -63,7 +63,7 @@ gameState = GameState entities camera light clearColor
       lykt_ent =
         Entity "lykt" (L.V3 0.2 0.2 0.2) white "standardShader" "lyktObject" "placeholderMaterial"
 
-      camera = Camera (L.V3 0 0 0) 0 0 90
+      camera = Camera (L.V3 0 0 0) 0 0 (pi/2)
 
 
       light = Light 8 (L.V3 1 2 (-4)) white
