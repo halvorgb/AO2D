@@ -1,6 +1,7 @@
 module Engine.Graphics.Render(renderObjects) where
 
 import Graphics.Rendering.OpenGL
+import qualified Graphics.Rendering.OpenGL.Raw.Core31 as GLRaw
 import qualified Graphics.GLUtil as GLUtil
 import qualified Graphics.GLUtil.Camera3D as GLUtilC
 import qualified Graphics.UI.GLFW as GLFW
@@ -25,7 +26,7 @@ renderObjects :: World -> GLFW.Window -> IO ()
 renderObjects (gs, _) w =
     do
       clearColor $= toGLColor (gsClearColor gs)
-      clear [ColorBuffer, DepthBuffer]
+
 
 
 
@@ -36,8 +37,50 @@ renderObjects (gs, _) w =
           (projMat, viewMat) = mkProjViewMat width height cam
           ambiance = gsAmbiance gs
 
+      cullFace   $= Just Back -- unclear if these should be here
+      depthFunc  $= Just Less
 
 
+      -- Algorithm: First clear all buffers.
+      clear [ColorBuffer, DepthBuffer, StencilBuffer]
+      -- Then: render DEPTH to depthbuffer. ---
+      drawBuffer $= NoBuffers
+      depthMask  $= Enabled
+      -- mapM_ (drawObject projMat viewMat ambiance l) $ gsObjects gs
+
+
+      -- Then: Render into stencilbuffer ----
+      drawBuffer $= NoBuffers
+      depthMask $= Disabled
+      cullFace $= Nothing
+
+      GLRaw.glEnable GLRaw.gl_STENCIL_TEST
+      stencilFunc $= (Always, 0, 0xFF)
+      stencilOpSeparate Back  $= (OpKeep, OpIncrWrap, OpKeep)
+      stencilOpSeparate Front $= (OpKeep, OpDecrWrap, OpKeep)
+      -- useProgram stencilThingie. (pass as argument Maybe programOverride?
+      -- mapM_ (drawObject projMat viewMat ambiance l) $ gsObjects gs
+      -- turn on culling again.
+      cullFace $= Just Back
+
+      -- Then: render shadows: ------
+      drawBuffer $= BackBuffers
+      -- do not update stencil buffer
+      stencilOpSeparate Back $= (OpKeep, OpKeep, OpKeep)
+      stencilFunc $= (Equal, 0, 0xFF)
+      -- useProgram shadowThingie (pass as argument Maybe programOverride?)
+      -- mapM_ (drawObject projMat viewMat ambiance l) $ gsObjects gs
+
+      GLRaw.glDisable GLRaw.gl_STENCIL_TEST
+
+      -- Then: Render Ambient Light (only)
+      depthMask $= Enabled
+      GLRaw.glEnable GLRaw.gl_BLEND
+      GLRaw.glBlendEquation GLRaw.gl_FUNC_ADD
+      GLRaw.glBlendFunc GLRaw.gl_ONE GLRaw.gl_ONE
+      -- mapM_ (drawObject projMat viewMat ambiance l) $ gsObjects gs
+
+      GLRaw.glDisable GLRaw.gl_BLEND
       -- ultra naive bullshit: draw every entity
       mapM_ (drawObject projMat viewMat ambiance l) $ gsObjects gs
 --      mapM_ (drawEntityInstance projMat viewMat l) $ gsEntities gs

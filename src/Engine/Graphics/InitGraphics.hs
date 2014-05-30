@@ -1,6 +1,5 @@
 module Engine.Graphics.InitGraphics(initGraphics) where
 
-import Graphics.Rendering.OpenGL
 import qualified Graphics.UI.GLFW as GLFW
 import System.Exit
 
@@ -50,9 +49,6 @@ initGraphics w h winTitle initialState@((_, inputState), _, _, _)  = do
                   window $ Just mouseButtonCallback
 
               dumpInfo
-
-              cullFace   $= Just Back
-              depthFunc  $= Just Less
 
               -- load everything, build objets and entities
               world <- loadResources initialState
