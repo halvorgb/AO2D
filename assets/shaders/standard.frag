@@ -20,7 +20,7 @@ uniform float lightStrength;
 void main(){
 
   //  vec3 diffuseColor = color_override * texture2D(diffuse, f_UV).rgb;
-  vec3 diffuseColor = texture2D(diffuse, f_UV).rgb;
+  vec3 diffuseColor = texture2D(diffuse, f_UV*16).rgb;
   vec3 specularColor = vec3(0.5, 0.5, 0.5);
 
 
