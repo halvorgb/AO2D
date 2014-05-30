@@ -142,7 +142,7 @@ loadGeometry gr = do
   [vao] <- genObjectNames 1
   bindVertexArrayObject $= Just vao
   verts <- GLUtil.fromSource ArrayBuffer        vertices
-  uvs   <- GLUtil.fromSource ArrayBuffer        uvs
+  uvCds <- GLUtil.fromSource ArrayBuffer        uvs
   norms <- GLUtil.fromSource ArrayBuffer        normals
   elems <- GLUtil.fromSource ElementArrayBuffer elements
 
@@ -151,7 +151,7 @@ loadGeometry gr = do
   let nofTris = length elements
       geometry = Geometry {
                     gVertices = verts,
-                    gUVCoords = uvs,
+                    gUVCoords = uvCds,
                     gNormals  = norms,
                     gElements = elems,
                     gNOFTris  = fromIntegral nofTris,
