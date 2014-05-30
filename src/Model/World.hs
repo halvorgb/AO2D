@@ -1,6 +1,5 @@
 module Model.World where
 
-import Model.Types
 import Model.InputState
 import Model.GameState
 

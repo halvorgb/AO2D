@@ -18,7 +18,6 @@ import Model.Entity
 import Model.Geometry
 import Model.Material
 
-import Model.Types
 import Model.World
 
 import Model.GameState
@@ -110,7 +109,7 @@ loadEntity shaderMap materialMap geometryMap entMap eu =
 -- Load raw assets:
 -------------------
 buildIOMap :: (r -> IO (String, l)) -> [r] -> IO (M.Map String l)
-buildIOMap loadFunc rs = L.foldl' loadFunc' (return M.empty) rs
+buildIOMap loadFunc = L.foldl' loadFunc' (return M.empty)
 
     where --loadFunc' :: IO (M.Map String l) -> r -> IO (M.Map String l)
           loadFunc' loadedMap r

@@ -26,4 +26,4 @@ mainLoop world win = do
 
     GLFW.swapBuffers win
     GLFW.pollEvents
-    mainLoop world win
+    mainLoop world' win

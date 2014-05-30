@@ -5,9 +5,6 @@ import Model.Types
 import Model.Collision
 import Model.Entity
 
-
-import qualified Linear as L
-
 type UnloadedObjects = [Object'Unloaded]
 
 data Object'Unloaded =
@@ -36,4 +33,4 @@ instance Transformable Object where
 
 
 instance Collidable Object where
-    getBBT          o = oBBT o
+    getBBT = oBBT

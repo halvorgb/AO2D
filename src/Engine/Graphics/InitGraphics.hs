@@ -11,9 +11,7 @@ import Engine.Graphics.Common
 import Engine.Graphics.Assets.Resources
 
 
---import Model.Types
 import Model.World
-import Model.InputState
 
 initGraphics :: Int -> Int -> String -> InitialState -> IO ()
 initGraphics w h winTitle initialState@((_, inputState), _, _, _)  = do

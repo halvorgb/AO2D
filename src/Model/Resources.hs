@@ -1,8 +1,5 @@
 module Model.Resources where
 
-
-import Model.Material
-
 data Resources =
     Resources {
       rGeometryRs :: [GeometryResource],

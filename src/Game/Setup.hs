@@ -3,15 +3,12 @@ module Game.Setup(setupGame) where
 
 import System.FilePath
 import Data.IORef
-import qualified Data.Map as M
-
 
 import Model.GameState
 import Model.InputState
 import Model.Resources
 
 import Model.Object
-import Model.Material
 import Model.ClearColor
 
 import Model.Entity
@@ -45,7 +42,8 @@ gameState = GameState {
               gsCamera = camera,
               gsObjects = [], -- to be loaded.
               gsLights = lights,
-              gsClearColor = clearColor
+              gsClearColor = clearColor,
+              gsAmbiance = L.V3 0.1 0.1 0.1
             }
     where
       camera = Camera (L.V3 0 0 0) 0 0 (pi/2)
@@ -66,25 +64,25 @@ resources = Resources {
        GeometryResource {
          grUniqueName  = "box2",
          grModelFormat = ModelFormat'OBJ,
-         grModelFP     = ("assets" </> "models" </> "box2.obj")
+         grModelFP     = "assets" </> "models" </> "box2.obj"
        },
        GeometryResource {
-         grUniqueName = "lykt",
+         grUniqueName  = "lykt",
          grModelFormat = ModelFormat'OBJ,
-         grModelFP     = ("assets" </> "models" </> "LYKTSOTLP.obj")
+         grModelFP     = "assets" </> "models" </> "LYKTSOTLP.obj"
        }]
 
       shaderResources = [
        ShaderResource {
-         srUniqueName       = "standard",
-         srVertShaderFP     = "assets" </> "shaders" </> "standard.vert",
+         srUniqueName   = "standard",
+         srVertShaderFP = "assets" </> "shaders" </> "standard.vert",
          srGeomShaderFP = undefined,
-         srFragShaderFP     = "assets" </> "shaders" </> "standard.frag"
+         srFragShaderFP = "assets" </> "shaders" </> "standard.frag"
        }]
       materialResources = [
        MaterialResource {
          mrUniqueName =  "placeholderDiffuse",
-         mrDiffuseFP  = ("assets" </> "materials" </> "placeholder" </> "diffuse.png"),
+         mrDiffuseFP  = "assets" </> "materials" </> "placeholder" </> "diffuse.png",
          mrSpecularFP = undefined,
          mrNormalFP = undefined}]
 
@@ -96,14 +94,14 @@ unloadedObjects = [
    ouRotation = L.V3 0 0 0,
    ouScale = L.V3 0.25 0.25 0.25,
 
-   ouEntityNames = ["box2"]
+   ouEntityNames = ["lykt"]
  },
  Object'Unloaded {
    ouPosition = L.V3 0 0 2,
    ouRotation = L.V3 0 0 0,
    ouScale = L.V3 0.25 0.25 0.25,
 
-   ouEntityNames = ["lykt"]
+   ouEntityNames = ["box2"]
  }]
 
 unloadedEntities :: UnloadedEntities

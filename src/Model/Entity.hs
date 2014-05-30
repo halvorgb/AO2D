@@ -1,7 +1,6 @@
 module Model.Entity where
 
 
-import qualified Linear as L
 import qualified Graphics.GLUtil as GLUtil
 
 import Model.Material

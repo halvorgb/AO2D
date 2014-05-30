@@ -6,9 +6,6 @@ import qualified Graphics.GLUtil.Camera3D as GLUtilC
 import qualified Graphics.UI.GLFW as GLFW
 import qualified Linear as L
 
-import qualified Data.Map as M
-import qualified Data.Maybe as Maybe
-
 import Model.Geometry
 import Model.Material
 import Model.Object
@@ -27,7 +24,7 @@ import Engine.Graphics.Common
 renderObjects :: World -> GLFW.Window -> IO ()
 renderObjects (gs, _) w =
     do
-      clearColor $= (Color4 0 0 0 1) --toGLColor (gsClearColor gs)
+      clearColor $= toGLColor (gsClearColor gs)
       clear [ColorBuffer, DepthBuffer]
 
 
@@ -37,38 +34,33 @@ renderObjects (gs, _) w =
       let cam = gsCamera gs
           [l] = gsLights gs -- TODO multiple lights..
           (projMat, viewMat) = mkProjViewMat width height cam
+          ambiance = gsAmbiance gs
 
 
 
       -- ultra naive bullshit: draw every entity
-      mapM_ (drawObject projMat viewMat l) $ gsObjects gs
+      mapM_ (drawObject projMat viewMat ambiance l) $ gsObjects gs
 --      mapM_ (drawEntityInstance projMat viewMat l) $ gsEntities gs
 
 
-drawObject :: TransformationMatrix -> TransformationMatrix -> PointLight -> Object -> IO ()
-drawObject projMat viewMat pl o = do
-  mapM_ (drawEntity projMat viewMat objMat pl) $ oEntities o
+drawObject :: TransformationMatrix -> TransformationMatrix -> Color'RGB -> PointLight -> Object -> IO ()
+drawObject projMat viewMat ambiance pl o =
+  mapM_ (drawEntity projMat viewMat objMat ambiance pl) $ oEntities o
       where
         objMat = mkTransMat o
 
-
-drawEntity :: TransformationMatrix -> TransformationMatrix -> TransformationMatrix -> PointLight -> Entity -> IO ()
-drawEntity projMat viewMat objMat pl e = do
-  bindVertexArrayObject $= Just vao
+drawEntity :: TransformationMatrix -> TransformationMatrix -> TransformationMatrix -> Color'RGB -> PointLight -> Entity -> IO ()
+drawEntity projMat viewMat objMat ambiance pl e = do
   currentProgram $= (Just $ GLUtil.program program)
-  textureBinding Texture2D $= Just diffuse
+  textureBinding Texture2D $= Just diff_map
 
+  bindVertexArrayObject $= Just vao
   -- load uniforms
   GLUtil.asUniform mvp             $ GLUtil.getUniform program "MVP"
-  checkError "loadUniforms MVP"
   GLUtil.asUniform modelMat        $ GLUtil.getUniform program "M"
-  checkError "loadUniforms M"
   GLUtil.asUniform viewMat         $ GLUtil.getUniform program "V"
-  checkError "loadUniforms V"
   GLUtil.asUniform ambiance        $ GLUtil.getUniform program "ambiance"
-  checkError "loadUniforms amb"
   GLUtil.asUniform lightPosition   $ GLUtil.getUniform program "lightPosition"
-
   GLUtil.asUniform lightColor      $ GLUtil.getUniform program "lightColor"
   GLUtil.asUniform lightStrength   $ GLUtil.getUniform program "lightStrength"
   checkError "loadUniforms"
@@ -105,12 +97,9 @@ drawEntity projMat viewMat objMat pl e = do
   currentProgram                $= Nothing
   bindVertexArrayObject         $= Nothing
     where
-      ambiance :: L.V3 GLfloat
-      ambiance = L.V3 1 1 1
-
 
       entMat = mkTransMat e
-      modelMat = objMat -- L.!*! entMat
+      modelMat = objMat L.!*! entMat
       mvp = projMat L.!*! viewMat L.!*! modelMat
 
       lightPosition = plPosition pl
@@ -129,7 +118,7 @@ drawEntity projMat viewMat objMat pl e = do
       nofTris = gNOFTris geometry
       vao = gVAO geometry
 
-      diffuse = mDiffuseMap material
+      diff_map = mDiffuseMap material
 
 
       vPosition = GLUtil.getAttrib program "v_position"
