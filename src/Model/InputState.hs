@@ -1,11 +1,13 @@
-module Model.State.Input where
+module Model.InputState where
+
+import Model.Types
 
 data KeyboardInput = Up | Down | Left | Right | Forward | Backward -- ++ more
                      deriving (Eq, Show, Ord)
 
 data MouseInput =
-    MouseInput { miX :: Double,
-                 miY :: Double }
+    MouseInput { miX :: GLfloat,
+                 miY :: GLfloat }
 
 
 

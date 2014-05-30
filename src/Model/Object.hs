@@ -1,21 +1,39 @@
 module Model.Object where
 
-import Graphics.Rendering.OpenGL
+import Model.Classes
+import Model.Types
+import Model.Collision
+import Model.Entity
 
 
-data ModelFormat = ModelFormat'OBJ
-                 deriving(Eq, Show)
+import qualified Linear as L
 
-data ObjectResource =
-    ObjectResource { omrUniqueName :: String,
-                     omrFilePath :: FilePath,
-                     omrModelFormat :: ModelFormat
-                   } deriving(Show)
+type UnloadedObjects = [Object'Unloaded]
+
+data Object'Unloaded =
+    Object'Unloaded {
+      ouPosition :: Translation,
+      ouRotation :: Rotation,
+      ouScale :: Scale,
+
+      ouEntityNames :: [String]
+    }
 
 data Object =
-    Object { oVertices :: BufferObject,
-             oUV       :: BufferObject,
-             oNormals  :: BufferObject,
-             oElements :: BufferObject,
-             oNOFTris  :: Int,
-             oVAO :: VertexArrayObject}
+    Object { oPosition  :: Translation,
+             oRotation  :: Rotation,
+             oScale     :: Scale,
+
+             oBBT       :: BoundingBoxTree,
+
+             oEntities  :: [Entity]
+           }
+
+instance Transformable Object where
+    translationVector = oPosition
+    rotationVector    = oRotation
+    scaleVector       = oScale
+
+
+instance Collidable Object where
+    getBBT          o = oBBT o

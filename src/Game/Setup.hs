@@ -5,11 +5,11 @@ import System.FilePath
 import Data.IORef
 import qualified Data.Map as M
 
-import Model.State
-import Model.State.Game
-import Model.State.Input
-import Model.State.Resources
-import Model.ShaderProgram
+
+import Model.GameState
+import Model.InputState
+import Model.Resources
+
 import Model.Object
 import Model.Material
 import Model.ClearColor
@@ -17,86 +17,114 @@ import Model.ClearColor
 import Model.Entity
 import Model.Camera
 import Model.Light
+import Model.World
 
-import Model.Colors
 
 import qualified Linear as L
 
 
 
-setupGame :: IO (State, Resources)
+setupGame :: IO InitialState
 setupGame = do
-  is <- newIORef $
-        InputState [] (MouseInput 0 0)
+  w <- world
+  return (w, resources, unloadedObjects, unloadedEntities)
 
-  gs <- newIORef gameState
+world :: IO World
+world = do
+  isIO <- newIORef inputState
+  return (gameState, isIO)
 
-  rs <- newIORef $ LoadedResources M.empty M.empty M.empty
-
-  let state = (gs, is, rs)
-
-  return (state, resourcesToLoad)
+inputState :: InputState
+inputState = InputState {
+               isKeyboardInput = [],
+               isMouseInput = MouseInput 0 0
+             }
 
 gameState :: GameState
-gameState = GameState entities camera light clearColor
+gameState = GameState {
+              gsCamera = camera,
+              gsObjects = [], -- to be loaded.
+              gsLights = lights,
+              gsClearColor = clearColor
+            }
     where
-      entities =
-          [
-           EntityInstance (L.V3 0 0 1) box2_ent (Just $ L.V3 0.2 0.1 0.25) Nothing,
-           EntityInstance (L.V3 0 0 1.5) box2_ent (Just $ L.V3 0.3 0.1 0.25) $ Just red,
-           EntityInstance (L.V3 0 0 2) box2_ent (Just $ L.V3 0.01 1.0 0.25) Nothing,
-           EntityInstance (L.V3 1 0 0) box2_ent (Just $ L.V3 0.2 0.1 0.5) Nothing,
-           EntityInstance (L.V3 1.5 0 0) box2_ent (Just $ L.V3 0.1 0.1 0.1) Nothing,
-           EntityInstance (L.V3 2 0 0) box2_ent (Just $ L.V3 0.2 0.2 0.22) Nothing,
-
-           EntityInstance (L.V3 0 1.5 0) lykt_ent Nothing Nothing,
-
-           EntityInstance (L.V3 0 10 0) lightbox_ent Nothing Nothing,
-           EntityInstance (L.V3 1 2 (-4)) lightbox_ent Nothing Nothing
-
-          ]
-
-      box2_ent =
-        Entity "box2" (L.V3 1.0 1.0 1.0) white "standardShader" "box2Object" "box2Material"
-      lightbox_ent =
-        Entity "lightbox" (L.V3 0.05 0.05 0.05) yellow "lightSourceShader" "box2Object" "box2Material"
-      lykt_ent =
-        Entity "lykt" (L.V3 0.2 0.2 0.2) white "standardShader" "lyktObject" "placeholderMaterial"
-
       camera = Camera (L.V3 0 0 0) 0 0 (pi/2)
 
 
-      light = Light 8 (L.V3 1 2 (-4)) white
+      lights = [PointLight (L.V3 1 2 (-4)) 10 (L.V3 1 1 1) Nothing]
 
       clearColor = defaultClearColor
 
-
-resourcesToLoad :: Resources
-resourcesToLoad =
-    Resources {
-  rShaderPrograms =
-      [
-       ShaderProgramResource {
-         sprUniqueName = "standardShader",
-         sprVertShader = "assets" </> "shaders" </> "standard.vert",
-         sprFragShader = "assets" </> "shaders" </> "standard.frag"
+resources :: Resources
+resources = Resources {
+              rGeometryRs = geometryResources,
+              rShaderRs   = shaderResources,
+              rMaterialRs = materialResources
+            }
+    where
+      geometryResources = [
+       GeometryResource {
+         grUniqueName  = "box2",
+         grModelFormat = ModelFormat'OBJ,
+         grModelFP     = ("assets" </> "models" </> "box2.obj")
        },
-       ShaderProgramResource {
-         sprUniqueName = "lightSourceShader",
-         sprVertShader = "assets" </> "shaders" </> "standard.vert",
-         sprFragShader = "assets" </> "shaders" </> "lightSource.frag"
-       }
+       GeometryResource {
+         grUniqueName = "lykt",
+         grModelFormat = ModelFormat'OBJ,
+         grModelFP     = ("assets" </> "models" </> "LYKTSOTLP.obj")
+       }]
 
-      ],
+      shaderResources = [
+       ShaderResource {
+         srUniqueName       = "standard",
+         srVertShaderFP     = "assets" </> "shaders" </> "standard.vert",
+         srGeomShaderFP = undefined,
+         srFragShaderFP     = "assets" </> "shaders" </> "standard.frag"
+       }]
+      materialResources = [
+       MaterialResource {
+         mrUniqueName =  "placeholderDiffuse",
+         mrDiffuseFP  = ("assets" </> "materials" </> "placeholder" </> "diffuse.png"),
+         mrSpecularFP = undefined,
+         mrNormalFP = undefined}]
 
-  rMaterials = [
-   MaterialResource "box2Material" ("assets" </> "materials" </> "box2" </> "diffuse.png"),
-   MaterialResource "placeholderMaterial" ("assets" </> "materials" </> "placeholder" </> "diffuse.png")
-  ],
 
-  rObjects  = [
-   ObjectResource "box2Object" ("assets" </> "models" </> "box2.obj") ModelFormat'OBJ,
-   ObjectResource "lyktObject" ("assets" </> "models" </> "LYKTSOTLP.obj") ModelFormat'OBJ
+unloadedObjects :: UnloadedObjects
+unloadedObjects = [
+ Object'Unloaded {
+   ouPosition = L.V3 0 0 0,
+   ouRotation = L.V3 0 0 0,
+   ouScale = L.V3 0.25 0.25 0.25,
 
-  ]
-}
+   ouEntityNames = ["box2"]
+ },
+ Object'Unloaded {
+   ouPosition = L.V3 0 0 2,
+   ouRotation = L.V3 0 0 0,
+   ouScale = L.V3 0.25 0.25 0.25,
+
+   ouEntityNames = ["lykt"]
+ }]
+
+unloadedEntities :: UnloadedEntities
+unloadedEntities = [
+ Entity'Unloaded {
+   euUniqueName  = "box2",
+   euRelativePos = L.V3 0 0 0,
+   euRelativeRot = L.V3 0 0 0,
+   euScale       = L.V3 1 1 1,
+
+   euShaderName  = "standard",
+   euGeometryName = "box2",
+   euMaterialName = "placeholderDiffuse"
+ },
+ Entity'Unloaded {
+   euUniqueName  = "lykt",
+   euRelativePos = L.V3 0 0 0,
+   euRelativeRot = L.V3 0 0 0,
+   euScale       = L.V3 1 1 1,
+
+   euShaderName  = "standard",
+   euGeometryName = "lykt",
+   euMaterialName = "placeholderDiffuse"
+ }]

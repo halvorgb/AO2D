@@ -11,13 +11,12 @@ import Engine.Graphics.Common
 import Engine.Graphics.Assets.Resources
 
 
-import Model.State
-import Model.State.Resources
+--import Model.Types
+import Model.World
+import Model.InputState
 
-
-
-initGraphics :: Int -> Int -> String -> State -> Resources -> IO ()
-initGraphics w h winTitle state@(_, inputState, resourceState) resourcesToLoad = do
+initGraphics :: Int -> Int -> String -> InitialState -> IO ()
+initGraphics w h winTitle initialState@((_, inputState), _, _, _)  = do
   GLFW.setErrorCallback (Just errorCallback)
 
   successfulInit <- GLFW.init
@@ -57,12 +56,12 @@ initGraphics w h winTitle state@(_, inputState, resourceState) resourcesToLoad =
               cullFace   $= Just Back
               depthFunc  $= Just Less
 
-              -- load all shaders
-              loadResources resourceState resourcesToLoad
+              -- load everything, build objets and entities
+              world <- loadResources initialState
 
               checkError "initializing..."
               -- mainLoop
-              mainLoop state window
+              mainLoop world window
 
               -- mainLoop complete, exit.
               GLFW.destroyWindow window

@@ -4,7 +4,7 @@ import Prelude hiding (Left, Right)
 import Control.Monad
 import qualified Graphics.UI.GLFW as GLFW
 import Data.IORef
-import Model.State.Input
+import Model.InputState
 
 
 
@@ -38,8 +38,8 @@ cursorCallback inputStateIO window x y =
                    mx = miX m
                    my = miY m
 
-                   m' = MouseInput { miX = mx + delta_x,
-                                     miY = my + delta_y
+                   m' = MouseInput { miX = mx + realToFrac delta_x,
+                                     miY = my + realToFrac delta_y
                                    }
                    is' = is {isMouseInput = m'}
                writeIORef inputStateIO is' -- write updated mouse input!

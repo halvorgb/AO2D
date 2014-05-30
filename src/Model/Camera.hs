@@ -3,8 +3,10 @@ module Model.Camera where
 import Graphics.Rendering.OpenGL
 import qualified Linear as L
 
+import Model.Types
+
 data Camera =
-    Camera { cPosition :: L.V3 GLfloat,
+    Camera { cPosition :: Translation,
              cPan :: GLfloat, -- radians
              cTilt :: GLfloat, -- radians
              cFov :: GLfloat -- radians
@@ -41,30 +43,13 @@ rotateCamera add_tilt add_pan cam = cam {cTilt = tilt', cPan = pan'}
 
 
 
-moveCamera :: L.V3 GLfloat -> Camera -> Camera
+moveCamera :: Translation -> Camera -> Camera
 moveCamera (L.V3 0 0 0) cam = cam
 moveCamera moveBy cam = cam {cPosition = pos'}
     where
-      -- finally translate position by moveBy'
-      reduceDim (L.V4 x y z _) = L.V3 x y z
-      pos' = pos L.^+^ reduceDim trans
-
-
-
-      -- moveBy rotated to fit the camera angles.
-      trans :: L.V4 GLfloat
-      trans = rotationMatrix L.!* increaseDim moveBy
-
-      increaseDim (L.V3 x y z) = L.V4 x y z 0
-
-      rotationMatrix :: L.M44 GLfloat
-      rotationMatrix = L.mkTransformationMat (panRotationMatrix L.!*! tiltRotationMatrix) (L.V3 0 0 0)
-
-      tiltRotationMatrix :: L.M33 GLfloat
-      tiltRotationMatrix = L.V3
-                           (L.V3 1 0 0)
-                           (L.V3 0 (cos tilt) (-sin tilt))
-                           (L.V3 0 (sin tilt) (cos tilt))
+      pos = cPosition cam
+      pan = cPan cam
+      tilt = cTilt cam
 
       panRotationMatrix :: L.M33 GLfloat
       panRotationMatrix =  L.V3
@@ -73,6 +58,28 @@ moveCamera moveBy cam = cam {cPosition = pos'}
                            (L.V3 (-sin pan) 0 (cos pan))
 
 
-      pos = cPosition cam
-      pan = cPan cam
-      tilt = cTilt cam
+      tiltRotationMatrix :: L.M33 GLfloat
+      tiltRotationMatrix = L.V3
+                           (L.V3 1 0 0)
+                           (L.V3 0 (cos tilt) (-sin tilt))
+                           (L.V3 0 (sin tilt) (cos tilt))
+
+
+      rotationMatrix :: TransformationMatrix
+      rotationMatrix = L.mkTransformationMat (panRotationMatrix L.!*! tiltRotationMatrix) (L.V3 0 0 0)
+
+
+      -- moveBy rotated to fit the camera angles.
+      trans :: L.V4 GLfloat
+      trans = rotationMatrix L.!* increaseDim moveBy
+
+
+
+      -- finally translate position by moveBy'
+      pos' = pos L.^+^ reduceDim trans
+
+
+
+
+      reduceDim (L.V4 x y z _) = L.V3 x y z
+      increaseDim (L.V3 x y z) = L.V4 x y z 0

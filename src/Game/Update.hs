@@ -7,14 +7,13 @@ import Graphics.Rendering.OpenGL
 import qualified Linear as L
 
 
-import Model.State
-import Model.State.Input
-import Model.State.Game
-
+import Model.InputState
+import Model.GameState
+import Model.World
 import Model.Camera
 import Model.ClearColor
 
-inputToTranslationVector :: KeyboardInput -> L.V3 Double
+inputToTranslationVector :: KeyboardInput -> L.V3 GLfloat
 inputToTranslationVector Up       = L.V3   0   1   0
 inputToTranslationVector Down     = L.V3   0 (-1)  0
 inputToTranslationVector Right    = L.V3   1   0   0
@@ -22,17 +21,16 @@ inputToTranslationVector Left     = L.V3 (-1)  0   0
 inputToTranslationVector Forward  = L.V3   0   0 (-1)
 inputToTranslationVector Backward = L.V3   0   0   1
 
-sensitivity :: Double
+sensitivity :: GLfloat
 sensitivity = 2
 
-move_speed :: Double
+move_speed :: GLfloat
 move_speed = 3
 
 
 -- updates the game state
-updateGame :: State -> Double -> IO ()
-updateGame (gsIO, isIO, _) delta = do
-  gs <- readIORef gsIO
+updateGame :: World -> GLfloat -> IO World
+updateGame (gs, isIO) delta = do
   is <- readIORef isIO
 
   let kb = isKeyboardInput is -- handle keyboard changes
@@ -57,4 +55,4 @@ updateGame (gsIO, isIO, _) delta = do
                  gsClearColor = cc'}
 
   writeIORef isIO is'
-  writeIORef gsIO gs'
+  return (gs', isIO)

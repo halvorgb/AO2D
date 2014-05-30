@@ -10,7 +10,7 @@ import qualified Data.Set as Set
 import qualified Data.List as List
 
 
-import Model.Object
+import Model.Resources
 
 type VertexIndex        = GLuint
 type UVIndex            = GLuint
@@ -23,10 +23,10 @@ type ElementIndex       = L.V3 GLuint
 type ModelOutput = ([VertexCoordinate], [VertexUVCoordinate], [VertexNormal], [ElementIndex])
 
 
-loadModel :: ObjectResource -> IO ModelOutput
-loadModel oR@(ObjectResource _ fp format)
+loadModel :: GeometryResource -> IO ModelOutput
+loadModel gR@(GeometryResource _ format fp)
     | format == ModelFormat'OBJ = loadOBJModel fp
-    | otherwise = error $ "unsupported format: " ++ show oR
+    | otherwise = error $ "unsupported format: " ++ show gR
 
 loadOBJModel :: FilePath -> IO ModelOutput
 loadOBJModel fp = do

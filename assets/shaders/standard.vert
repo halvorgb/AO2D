@@ -26,10 +26,7 @@ void main(){
   vec3 pos_camspace = (MV * v_position).xyz;
   eyedir_camspace   = vec3(0,0,0) - pos_camspace;
 
-  // wrong since M scales.
   norm_camspace = (V * inverse(M) * vec4(v_norm, 0)).xyz;
-
-
 
   f_UV = v_UV;
 }

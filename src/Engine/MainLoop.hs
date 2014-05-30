@@ -3,28 +3,27 @@ module Engine.MainLoop(mainLoop) where
 import qualified Graphics.UI.GLFW as GLFW
 import Control.Monad
 
-import Model.State
+import Model.World
 
 import Game.Update
 
 import Engine.Graphics.Render
 
-mainLoop :: State -> GLFW.Window  -> IO ()
-mainLoop s w = do
-  close <- GLFW.windowShouldClose w
+mainLoop :: World -> GLFW.Window  -> IO ()
+mainLoop world win = do
+  close <- GLFW.windowShouldClose win
   unless close $ do
 
     -- update the game!
     Just delta <- GLFW.getTime
-    updateGame s delta
+    world' <- updateGame world $ realToFrac delta
     GLFW.setTime 0
 
 
     -- draw Everything!
-    --    renderEngineState vs cs w
-    renderObjects s w
+    renderObjects world' win
 
 
-    GLFW.swapBuffers w
+    GLFW.swapBuffers win
     GLFW.pollEvents
-    mainLoop s w
+    mainLoop world win

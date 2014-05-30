@@ -1,0 +1,54 @@
+* Data Model Hierarchy
+
+* World
+  (Game -- player etc,
+   GlobalSettings,
+   Camera
+   ResourceMaps, -- Geometry,
+                    Shaders and
+		    Images are saved in Data.Maps.
+   KeyBindings,
+   Lights,
+   Objects)
+
+
+
+
+* Light
+  - Primive Fields:
+    Position, Strength, Color,
+    RelativeTo :: Maybe Object
+
+  - Note:
+    All lights are point lights.
+
+
+
+* Object
+  - Primitive Fields:
+    Position, Scale, Rotation, BoundingBox'AxisAligned
+
+  - Building blocks:
+    A list of Entities.
+
+** Entity
+   - Primitive Fields:
+     UniqueName
+     relative: position, scale, rotation, BB'AA'Tree,
+     GeometryName, ShaderName,
+     diffuseMapName, specularMapName, normalMapName.
+
+*** Geometry
+
+    - Primitive FieldScale :
+      UniqueName
+      Vertices, UVs, Normals, VAO  (Objects!)
+      nofElements
+
+*** Shader: (GlUtil datatype)
+    UniqueName
+    programInfo...
+
+
+*** MaterialResource:
+    Object

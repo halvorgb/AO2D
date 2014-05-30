@@ -1,12 +1,12 @@
 module Model.Light where
 
-import Graphics.Rendering.OpenGL.Raw.Types
-import qualified Linear as L
+import Model.Types
+import Model.Object
 
-data Light =
-  Light {
-    lStrength :: GLfloat,
-    lPosition :: L.V3 GLfloat,
-    lColor :: L.V3 GLfloat
+data PointLight =
+    PointLight {
+      plPosition   :: Translation,
+      plStrength   :: GLfloat,
+      plColor      :: Color'RGB,
+      plrelativeTo :: Maybe Object
     }
-  deriving(Eq)
