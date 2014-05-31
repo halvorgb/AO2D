@@ -24,7 +24,7 @@ data BoundingBox =
       bbMinZ :: GLfloat } -- corners instead?
 
 
-type BBT = BoundingBoxTree
+
 data BoundingBoxTree =
     BoundingBoxTree BoundingBox BoundingBoxTree BoundingBoxTree
   | BBTLeaf
