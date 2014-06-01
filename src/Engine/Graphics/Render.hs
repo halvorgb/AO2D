@@ -2,6 +2,7 @@ module Engine.Graphics.Render(renderObjects) where
 
 import Graphics.Rendering.OpenGL
 import qualified Graphics.Rendering.OpenGL.Raw.Core31 as GLRaw
+import qualified Graphics.Rendering.OpenGL.Raw.ARB.GeometryShader4 as GLRaw
 import qualified Graphics.GLUtil as GLUtil
 import qualified Graphics.GLUtil.Camera3D as GLUtilC
 import qualified Graphics.UI.GLFW as GLFW
@@ -81,9 +82,7 @@ renderObjects (gs, _) w =
       -- mapM_ (drawObject projMat viewMat ambiance l) $ gsObjects gs
 
       GLRaw.glDisable GLRaw.gl_BLEND
-      -- ultra naive bullshit: draw every entity
       mapM_ (drawObject projMat viewMat ambiance l) $ gsObjects gs
---      mapM_ (drawEntityInstance projMat viewMat l) $ gsEntities gs
 
 
 drawObject :: TransformationMatrix -> TransformationMatrix -> Color'RGB -> PointLight -> Object -> IO ()
@@ -111,7 +110,7 @@ drawEntity projMat viewMat objMat ambiance pl e = do
   -- load vertex attrib data:
   vertexAttribArray vPosition   $= Enabled
   bindBuffer ArrayBuffer        $= Just verts
-  vertexAttribPointer vPosition $= (ToFloat, VertexArrayDescriptor 4 Float 0 GLUtil.offset0)
+  vertexAttribPointer vPosition $= (ToFloat, VertexArrayDescriptor 3 Float 0 GLUtil.offset0)
   checkError "Activate Attrib v_position"
 
   vertexAttribArray vUV   $= Enabled
@@ -128,7 +127,8 @@ drawEntity projMat viewMat objMat ambiance pl e = do
 
 
   -- Draw!
-  GLUtil.drawIndexedTris nofTris
+  --  GLUtil.drawIndexedTris nofTris
+  GLRaw.glDrawArrays GLRaw.gl_TRIANGLES_ADJACENCY 0 nofTris
 
   -- disable buffers
   vertexAttribArray vPosition $= Disabled
