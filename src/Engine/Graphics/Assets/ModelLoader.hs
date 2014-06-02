@@ -251,205 +251,87 @@ reorderCoordinates' vis uvis uvi2uvmap = map snd $ Map.toList vi2uvimap
 
 
 
-type Edge = (VertexIndex, VertexIndex)
-type FaceIndex = GLuint
-type EdgeFaceMap = Map.Map Edge (Maybe FaceIndex, Maybe FaceIndex)
-
-
-makeAdjacencyList :: [VertexCoordinate] -> [ElementIndex] -> [VertexIndex]
-makeAdjacencyList vs eles = eles'
-    where
-      -- make an array of the coordinates for constant lookup.
-      vertArray = Array.listArray (0, length vs -1) vs
-      eleArray = Array.listArray (0, length eles-1) eles
-
-
-
-      elesFaces = zip eles [0..]
-
-
-      edgeFaceMap = buildEdgeFaceMap elesFaces Map.empty
-
-
-      eles' = expandToAdjList eles []
-
-      expandToAdjList :: [ElementIndex] -> [[VertexIndex]] -> [VertexIndex]
-      expandToAdjList [] mem = concat mem
-      expandToAdjList (ei:eis) mem =
-          expandToAdjList eis $ mkExpandedIndex ei oppositeIndices:mem
-          where edges = map sortEdge $ elementIndexToEdges ei
-
-
-                neighbours :: [ElementIndex]
-                neighbours = map (\(Just f1, Just f2) ->
-                                      let fe1 = eleArray Array.! fromIntegral f1
-                                          fe2 = eleArray Array.! fromIntegral f2
-                                      in if fe1 == ei
-                                         then fe2
-                                         else fe1) $
-                             map (edgeFaceMap Map.!) edges
-
-                oppositeIndices :: [VertexIndex]
-                oppositeIndices = map oppositeIndex $ zip neighbours edges
-
-                mkExpandedIndex :: ElementIndex -> [VertexIndex] -> [VertexIndex]
-                mkExpandedIndex (L.V3 v0 v2 v4) [v1, v3, v5] =
-                    [v0, v1, v2, v3, v4, v5]
-                mkExpandedIndex _ _ = error "malformed input"
-
-
-      oppositeIndex :: (ElementIndex, Edge) -> VertexIndex
-      oppositeIndex (L.V3 a b c, (v1, v2))
-          | av12 && bv12 = c
-          | av12 && cv12 = b
-          | bv12 && cv12 = a
-          | otherwise    = error "sup."
-          where av12 = a' == v1 ||
-                       a' == v2
-
-                bv12 = b' == v1 ||
-                       b' == v2
-
-                cv12 = c' == v1 ||
-                       c' == v2
-
-
-                [a', b', c'] = map firstOccurenceOfVertex [a,b,c]
-
-
-
-      buildEdgeFaceMap :: [(ElementIndex, FaceIndex)] ->
-                          EdgeFaceMap ->
-                          EdgeFaceMap
-      buildEdgeFaceMap [] m = m
-      buildEdgeFaceMap ((ei, fi):r) eFM = buildEdgeFaceMap r eFM'
-          where edges = map sortEdge $ elementIndexToEdges ei
-
-                eFM' :: EdgeFaceMap
-                eFM' =
-                    List.foldl' (\m k ->
-                                 Map.insertWith insertFunc k (Just fi, Nothing) m)
-                    eFM edges
-
-
-
-                insertFunc :: (Maybe FaceIndex, Maybe FaceIndex) ->
-                              (Maybe FaceIndex, Maybe FaceIndex) ->
-                             (Maybe FaceIndex, Maybe FaceIndex)
-                insertFunc _ (old1, Nothing)    = (old1, Just fi)
-                insertFunc _ _ = error "lol wrong"
-
-
-      firstOccurenceOfVertex :: VertexIndex -> VertexIndex
-      firstOccurenceOfVertex vi = firstIndex vs 0
-          where viVert = vertArray Array.! fromIntegral vi
-                firstIndex [] _ = error "index not found"
-                firstIndex (vert:verts) n
-                    | vert == viVert = n
-                    | otherwise      = firstIndex verts (n+1)
-
-      elementIndexToEdges :: ElementIndex -> [Edge]
-      elementIndexToEdges (L.V3 a b c) = [(a',b'),(a',c'),(b',c')]
-          where [a', b', c'] = map firstOccurenceOfVertex [a,b,c]
-
-
-
-
-
-
-makeAdjacencyList' ::  [VertexCoordinate] -> [ElementIndex] -> [VertexIndex]
-makeAdjacencyList' vertexCoords elements = vertexIndices
-    where
-      -- make an array of the coordinates for constant lookup.
-      vertArray :: Array.Array Int VertexCoordinate
-      vertArray = Array.listArray
-                  (0, length vertexCoords - 1)
-                  vertexCoords
-
-
-      elemLowestIndices = map (firstIndicesOf vertArray) elements
-
-
-      -- create a map between edges and possible third vertices.
-      edgeVertMap = List.foldl' (edgeVertFunc vertArray) Map.empty elemLowestIndices
-
-
-      vertexIndices = concatMap (buildVertexIndices edgeVertMap vertArray) $ zip elements elemLowestIndices
-
-
-buildVertexIndices :: Map.Map Edge [VertexIndex] ->
-                      Array.Array Int VertexCoordinate ->
-                      (ElementIndex, ElementIndex) ->
-                      [VertexIndex]
-buildVertexIndices m arr (L.V3 a b c, L.V3 lowA lowB lowC) =
-    [a, a_b, b, b_c, c, c_a]
-    where
-      a_b = findOpposite (lowA, lowB) (/= lowC)
-      b_c = findOpposite (lowB, lowC) (/= lowA)
-      c_a = findOpposite (lowC, lowA) (/= lowB)
-
-
-      findOpposite :: (VertexIndex, VertexIndex) ->
-                      (VertexIndex -> Bool) ->
-                      VertexIndex
-      findOpposite (low_v1, low_v2) f =
-          head $
-          filter f $
-          m Map.! sortEdge (low_v1, low_v2)
-
-
-firstIndicesOf :: Array.Array Int VertexCoordinate ->
-                  ElementIndex ->
-                  ElementIndex
-firstIndicesOf arr (L.V3 a b c) = L.V3 a' b' c'
-    where [a',b',c'] = map (findLowestIndexOf arr) [a,b,c]
-
-
-
-
-edgeVertFunc :: Array.Array Int VertexCoordinate ->
-                Map.Map Edge [VertexIndex] ->
-                ElementIndex ->
-                Map.Map Edge [VertexIndex]
-edgeVertFunc arr m (L.V3 a b c) =
-    List.foldl'
-            (\m' (k,v) ->
-             Map.insertWith (++) k [v] m')
-            m s
-    where
-      sortedEdges = map sortEdge [(a,b),
-                                  (a, c),
-                                  (b, c)]
-      s = zip sortedEdges [c, b, a]
-
-findLowestIndexOf :: Array.Array Int VertexCoordinate ->
-                     VertexIndex ->
-                     VertexIndex
-findLowestIndexOf arr vi = vi'
-    where viVert = arr Array.! fromIntegral vi
-          vi' = findFirstInArray 0
-          f = (== viVert)
-
-          -- can fail
-          findFirstInArray :: Int -> VertexIndex
-          findFirstInArray i
-              | f $ arr Array.! i = fromIntegral i
-              | otherwise  = findFirstInArray (i+1)
-
-
-sortEdge :: Edge -> Edge
-sortEdge (a,b)
-    | a >= b = (a,b)
-    | otherwise = (b,a)
-
-
 type VertCIMap = Map.Map VertexCoordinate VertexIndex
+type EdgeVMap  = Map.Map (VertexIndex, VertexIndex) [VertexIndex]
+
 makeAdjacencyList'' :: [VertexCoordinate] -> [VertexIndex] -> [VertexIndex]
-makeAdjacencyList'' vertCoords vertIndices = error $ show vertIndices
-    where
+makeAdjacencyList'' vertCoords vertIndices = adjacentVertIndices
+  -- error $ show vertIndices ++
+  --                                            "      ~      " ++
+  --                                            show vertCoords ++
+  --                                            "      ~      " ++
+  --                                            show vertCoordToFirstIndexMap ++
+  --                                                  "      ~      " ++
+  --                                            show edgeVertexMap
+  where
+
+      -- 0 make a vertexcoordinate array for constant lookup times.
+      vertArray :: Array.Array Int VertexCoordinate
+      vertArray = Array.listArray (0, length vertCoords - 1) vertCoords
+
       -- 1. create a map between vertexCoords and the first vertexIndex that refers to it.
       vertCoordToFirstIndexMap :: VertCIMap
-      vertCoordToFirstIndexMap = Map.fromList [(snd vc,fst vc) --unsafeFind (==(fst vc)) vertIndices)
-                                               | vc <- (zip [0..] $ List.nub vertCoords)]
-          where unsafeFind :: (VertexIndex -> Bool) -> [VertexIndex] -> VertexIndex
-                unsafeFind f vis = Maybe.fromJust $ List.find f vis
+      vertCoordToFirstIndexMap = Map.fromList $ zip (fastNub vertCoords) [0..]
+
+
+      -- 2. create a map between edges and uniquqe vertex indices
+      edgeVertexMap :: EdgeVMap
+      edgeVertexMap = mkEVMap Map.empty vertIndices
+        where mkEVMap :: EdgeVMap -> [VertexIndex] -> EdgeVMap
+              mkEVMap evMap []            = evMap
+              mkEVMap evMap (v0:v2:v4:vr) = mkEVMap evMap' vr
+                where e02 = mkEdge v0 v2
+                      e24 = mkEdge v2 v4
+                      e40 = mkEdge v4 v0
+                      edges = [e02, e24, e40]
+                      notVs = map getUniqueIndex [v4, v0, v2]
+
+                      evMap' :: EdgeVMap
+                      evMap' = List.foldl' (\m (k,v) ->
+                                             Map.insertWith (++) k [v] m)
+                               evMap $ zip edges notVs
+
+
+
+
+      adjacentVertIndices :: [VertexIndex]
+      adjacentVertIndices = concat $ embellishVertices vertIndices
+        where embellishVertices :: [VertexIndex] -> [[VertexIndex]]
+              embellishVertices [] = []
+              embellishVertices (v0:v2:v4:vr) =  [v0, v1, v2, v3, v4, v5]:embellishVertices vr
+                where e02 = mkEdge v0 v2
+                      v1 = oppositeEdge e02 v4
+                      e24 = mkEdge v2 v4
+                      v3 = oppositeEdge e24 v0
+                      e40 = mkEdge v4 v0
+                      v5 = oppositeEdge e40 v2
+
+
+
+      mkEdge :: VertexIndex -> VertexIndex -> (VertexIndex, VertexIndex)
+      mkEdge v1 v2
+        | uv1 > uv2 = (uv1, uv2)
+        | otherwise = (uv2, uv1)
+        where uv1 = getUniqueIndex v1
+              uv2 = getUniqueIndex v2
+
+
+      oppositeEdge :: (VertexIndex, VertexIndex) -> VertexIndex -> VertexIndex
+      oppositeEdge e notV
+        | v1 == notV = v2
+        | otherwise  = v1
+        where [v1, v2] = edgeVertexMap Map.!e
+
+
+      getUniqueIndex :: VertexIndex -> VertexIndex
+      getUniqueIndex vi = vertCoordToFirstIndexMap Map.! viVert
+        where viVert = vertArray Array.! fromIntegral vi
+
+fastNub :: Ord a => [a] -> [a]
+fastNub l = fastNub' l Set.empty
+  where  fastNub' :: Ord a => [a] -> Set.Set a -> [a]
+         fastNub' [] _     = []
+         fastNub' (x:xs) s
+           | Set.member x s = fastNub' xs s
+           | otherwise = x:fastNub' xs s'
+           where s' = Set.insert x s

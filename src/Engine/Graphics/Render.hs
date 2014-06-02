@@ -100,13 +100,13 @@ drawEntity :: TransformationMatrix -> TransformationMatrix -> TransformationMatr
 drawEntity projMat viewMat objMat ambiance pl e = do
   currentProgram $= (Just $ GLUtil.program program)
 --  textureBinding Texture2D $= Just diff_map
-  checkError "begin"
+
   bindVertexArrayObject $= Just vao
 
   Just prog <- get currentProgram
-  acts <- get $ activeUniforms prog
-  checkError "halla"
-  print acts
+--  acts <- get $ activeUniforms prog
+--  checkError "halla"
+--  print acts
   -- load uniforms
   GLUtil.asUniform mvp             $ GLUtil.getUniform program "MVP"
   GLUtil.asUniform lightPosition   $ GLUtil.getUniform program "gLightPos"
@@ -150,8 +150,6 @@ drawEntity projMat viewMat objMat ambiance pl e = do
   textureBinding Texture2D      $= Nothing
   currentProgram                $= Nothing
   bindVertexArrayObject         $= Nothing
-
-  checkError "end"
     where
 
       entMat = mkTransMat e
