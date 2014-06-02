@@ -1,10 +1,10 @@
 module Engine.Graphics.Render.Light(renderLightedObjects) where
 
 import qualified Graphics.Rendering.OpenGL.Raw.Core31 as GLRaw
-import qualified Graphics.Rendering.OpenGL.Raw.ARB.GeometryShader4 as GLRaw
 import qualified Graphics.GLUtil as GLUtil
 import Graphics.Rendering.OpenGL
 
+import qualified Data.Maybe as Maybe
 import qualified Linear as L
 import Foreign.Ptr(nullPtr)
 
@@ -27,8 +27,6 @@ renderLightedObjects projMat viewMat ambiance pl prog os =
        depthMask $= Enabled
        cullFace  $= Just Back
        drawBuffer $= BackBuffers
-
-
 
        mapM_ (renderLightedObject projMat viewMat ambiance pl prog) os
        checkError "renderLightedObjects"
@@ -86,7 +84,7 @@ renderLightedEntity projMat viewMat objMat ambiance pl prog e =
        currentProgram                $= Nothing
        bindVertexArrayObject         $= Nothing
     where
-      ambiance' = maybe ambiance id $ eAmbOverride e
+      ambiance' = Maybe.fromMaybe ambiance $ eAmbOverride e
 
       entMat = mkTransMat e
       modelMat = objMat L.!*! entMat

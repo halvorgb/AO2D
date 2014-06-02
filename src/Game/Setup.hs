@@ -50,7 +50,7 @@ gameState = GameState {
       camera = Camera (L.V3 0 0 0) 0 0 (pi/2)
 
 
-      lights = [PointLight (L.V3 (-2) (-2) (-2)) 10 (L.V3 1 1 1) Nothing]
+      lights = [PointLight lightPos 10 (L.V3 1 1 1) Nothing]
 
       clearColor = defaultClearColor
 
@@ -116,9 +116,9 @@ unloadedObjects = [
    ouEntityNames = ["lykt"]
  },
  Object'Unloaded {
-   ouPosition = L.V3 (-2) (-2) (-2),
+   ouPosition = lightPos,
    ouRotation = L.V3 0 0 0,
-   ouScale = L.V3 0.05 0.05 0.05,
+   ouScale = L.V3 0.005 0.005 0.005,
 
    ouEntityNames = ["light_box"]
  }]
@@ -165,3 +165,8 @@ unloadedShaderPrograms =
   spSilhouetteName = "silhouette",
   spLightName = "light"
 }
+
+
+
+
+lightPos = L.V3 0 0 0

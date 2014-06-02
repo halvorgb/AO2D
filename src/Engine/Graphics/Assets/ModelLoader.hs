@@ -19,7 +19,6 @@ type NormalIndex        = GLuint
 type VertexCoordinate   = L.V3 GLfloat
 type VertexUVCoordinate = L.V2 GLfloat
 type VertexNormal       = L.V3 GLfloat
-type ElementIndex       = L.V3 GLuint
 
 type ModelOutput = ([VertexCoordinate], [VertexUVCoordinate], [VertexNormal], [VertexIndex], [VertexIndex])
 
@@ -192,12 +191,6 @@ objData =
              return (r_vec, r_uv, r_norm)
 
 
-indicesToElemVectors :: [VertexIndex]-> [ElementIndex]
-indicesToElemVectors [] = []
-indicesToElemVectors (i1:i2:i3:r) =
-    L.V3 i1 i2 i3:indicesToElemVectors r
-indicesToElemVectors _ = error "indices not divisible by 3..."
-
 --expandVertexData :: [Index] -> [VertexCoordinate] -> ([Index], [VertexCoordinate])
 expandVertexData :: Integral a => [a] -> [b] -> ([a],[b])
 expandVertexData vis vcs = expandVertexData' vis m Set.empty []
@@ -290,7 +283,7 @@ makeAdjacencyList'' vertCoords vertIndices = adjacentVertIndices
                       evMap' = List.foldl' (\m (k,v) ->
                                              Map.insertWith (++) k [v] m)
                                evMap $ zip edges notVs
-
+              mkEVMap _ _ = error "something went terribly wrong in mkEVMap"
 
 
 
@@ -305,7 +298,7 @@ makeAdjacencyList'' vertCoords vertIndices = adjacentVertIndices
                       v3 = oppositeEdge e24 v0
                       e40 = mkEdge v4 v0
                       v5 = oppositeEdge e40 v2
-
+              embellishVertices _ = error "something went terribly wrong in embellishVertices"
 
 
       mkEdge :: VertexIndex -> VertexIndex -> (VertexIndex, VertexIndex)

@@ -1,11 +1,7 @@
 module Model.Entity where
 
-
-import qualified Graphics.GLUtil as GLUtil
-
 import Model.Material
 import Model.Geometry
-
 import Model.Types
 import Model.Classes
 

@@ -22,13 +22,13 @@ import Model.Classes
 
 renderSilhouettedObjects :: TransformationMatrix -> TransformationMatrix -> PointLight -> GLUtil.ShaderProgram -> [Object] -> IO ()
 renderSilhouettedObjects projMat viewMat pl prog os =
-    do depthFunc $= Just Less
+    do depthFunc $= Just Lequal
        depthMask $= Enabled
        cullFace  $= Nothing
        drawBuffer $= BackBuffers
 
 
-       lineWidth $= 10
+       lineWidth $= 8
        mapM_ (renderSilhouettedObject projMat viewMat pl prog) os
        checkError "renderSilhouettedObjects"
 

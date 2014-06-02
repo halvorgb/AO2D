@@ -1,29 +1,16 @@
 module Engine.Graphics.Render(render) where
 
 import Graphics.Rendering.OpenGL
-import qualified Graphics.Rendering.OpenGL.Raw.Core31 as GLRaw
-import qualified Graphics.Rendering.OpenGL.Raw.ARB.GeometryShader4 as GLRaw
-import qualified Graphics.GLUtil as GLUtil
 import qualified Graphics.GLUtil.Camera3D as GLUtilC
 import qualified Graphics.UI.GLFW as GLFW
-import qualified Linear as L
 
-import Foreign.Ptr
-
-import Model.Geometry
-import Model.Material
-import Model.Object
-import Model.Entity
 import Model.Camera
 import Model.ClearColor
 import Model.Types
 import Model.World
 import Model.GameState
-import Model.Classes
-import Model.Light
 import Model.ShaderPrograms
 
-import Engine.Graphics.Common
 import Engine.Graphics.Render.Light
 import Engine.Graphics.Render.Silhouette
 
