@@ -8,6 +8,8 @@ import qualified Graphics.GLUtil.Camera3D as GLUtilC
 import qualified Graphics.UI.GLFW as GLFW
 import qualified Linear as L
 
+import Foreign.Ptr
+
 import Model.Geometry
 import Model.Material
 import Model.Object
@@ -23,13 +25,12 @@ import Model.Light
 import Engine.Graphics.Common
 
 
+
+
 renderObjects :: World -> GLFW.Window -> IO ()
 renderObjects (gs, _) w =
     do
       clearColor $= toGLColor (gsClearColor gs)
-
-
-
 
       (width, height) <- GLFW.getFramebufferSize w
 
@@ -38,55 +39,56 @@ renderObjects (gs, _) w =
           (projMat, viewMat) = mkProjViewMat width height cam
           ambiance = gsAmbiance gs
 
-      cullFace   $= Just Back -- unclear if these should be here
+--      cullFace   $= Just Back -- unclear if these should be here
       depthFunc  $= Just Less
 
 
       -- Algorithm: First clear all buffers.
-      clear [ColorBuffer, DepthBuffer, StencilBuffer]
+--      clear [ColorBuffer, DepthBuffer, StencilBuffer]
+      clear [ColorBuffer, DepthBuffer]
       -- Then: render DEPTH to depthbuffer. ---
-      drawBuffer $= NoBuffers
+--      drawBuffer $= NoBuffers
       depthMask  $= Enabled
       -- mapM_ (drawObject projMat viewMat ambiance l) $ gsObjects gs
 
 
       -- Then: Render into stencilbuffer ----
-      drawBuffer $= NoBuffers
-      depthMask $= Disabled
-      cullFace $= Nothing
+--      drawBuffer $= NoBuffers
+--      depthMask $= Disabled
+--      cullFace $= Nothing
 
-      GLRaw.glEnable GLRaw.gl_STENCIL_TEST
-      stencilFunc $= (Always, 0, 0xFF)
-      stencilOpSeparate Back  $= (OpKeep, OpIncrWrap, OpKeep)
-      stencilOpSeparate Front $= (OpKeep, OpDecrWrap, OpKeep)
+--      GLRaw.glEnable GLRaw.gl_STENCIL_TEST
+--      stencilFunc $= (Always, 0, 0xFF)
+--      stencilOpSeparate Back  $= (OpKeep, OpIncrWrap, OpKeep)
+--      stencilOpSeparate Front $= (OpKeep, OpDecrWrap, OpKeep)
 
       -- useProgram stencilThingie. (pass as argument Maybe programOverride?
       -- mapM_ (drawObject projMat viewMat ambiance l) $ gsObjects gs
       -- turn on culling again.
-      cullFace $= Just Back
+      cullFace $= Nothing
 
       -- Then: render shadows: ------
       drawBuffer $= BackBuffers
 
       -- do not update stencil buffer
-      stencilOpSeparate Back $= (OpKeep, OpKeep, OpKeep)
-      stencilFunc $= (Equal, 0, 0xFF)
+--      stencilOpSeparate Back $= (OpKeep, OpKeep, OpKeep)
+--      stencilFunc $= (Equal, 0, 0xFF)
 
       -- useProgram shadowThingie (pass as argument Maybe programOverride?)
       -- mapM_ (drawObject projMat viewMat ambiance l) $ gsObjects gs
 
-      GLRaw.glDisable GLRaw.gl_STENCIL_TEST
+--      GLRaw.glDisable GLRaw.gl_STENCIL_TEST
 
       -- Then: Render Ambient Light (only)
       depthMask $= Enabled
-      GLRaw.glEnable GLRaw.gl_BLEND
-      GLRaw.glBlendEquation GLRaw.gl_FUNC_ADD
-      GLRaw.glBlendFunc GLRaw.gl_ONE GLRaw.gl_ONE
+--      GLRaw.glEnable GLRaw.gl_BLEND
+--      GLRaw.glBlendEquation GLRaw.gl_FUNC_ADD
+--      GLRaw.glBlendFunc GLRaw.gl_ONE GLRaw.gl_ONE
 
       -- mapM_ (drawObject projMat viewMat ambiance l) $ gsObjects gs
 
 
-      GLRaw.glDisable GLRaw.gl_BLEND
+--      GLRaw.glDisable GLRaw.gl_BLEND
       mapM_ (drawObject projMat viewMat ambiance l) $ gsObjects gs
 
 
@@ -103,7 +105,7 @@ drawEntity projMat viewMat objMat ambiance pl e = do
 
   bindVertexArrayObject $= Just vao
 
-  Just prog <- get currentProgram
+--  Just prog <- get currentProgram
 --  acts <- get $ activeUniforms prog
 --  checkError "halla"
 --  print acts
@@ -139,7 +141,10 @@ drawEntity projMat viewMat objMat ambiance pl e = do
   checkError "setup"
   -- Draw!
   --  GLUtil.drawIndexedTris nofTris
-  GLRaw.glDrawArrays GLRaw.gl_TRIANGLES_ADJACENCY 0 nofTris
+  --  GLRaw.glDrawArrays GLRaw.gl_TRIANGLES 0 nofTris
+--  drawArrays Triangles 0 nofTris
+--  drawElements Triangles (nofTris*3) UnsignedInt nullPtr
+  GLRaw.glDrawElements GLRaw.gl_TRIANGLES_ADJACENCY nofTris GLRaw.gl_UNSIGNED_INT nullPtr
   checkError "draw"
   -- disable buffers
   vertexAttribArray vPosition $= Disabled
@@ -151,14 +156,13 @@ drawEntity projMat viewMat objMat ambiance pl e = do
   currentProgram                $= Nothing
   bindVertexArrayObject         $= Nothing
     where
-
       entMat = mkTransMat e
       modelMat = objMat L.!*! entMat
       mvp = projMat L.!*! viewMat L.!*! modelMat
 
       lightPosition = plPosition pl
-      lightColor    = plColor pl
-      lightStrength = plStrength pl
+--      lightColor    = plColor pl
+--      lightStrength = plStrength pl
 
 
       program  = eShader e
@@ -166,18 +170,18 @@ drawEntity projMat viewMat objMat ambiance pl e = do
       material = eMaterial e
 
       verts = gVertices geometry
-      uvs   = gUVCoords geometry
-      norms = gNormals  geometry
+--      uvs   = gUVCoords geometry
+--      norms = gNormals  geometry
       elems = gElements geometry
       nofTris = gNOFTris geometry
       vao = gVAO geometry
 
-      diff_map = mDiffuseMap material
+--      diff_map = mDiffuseMap material
 
 
       vPosition = GLUtil.getAttrib program "v_position"
-      vNorm     = GLUtil.getAttrib program "v_norm"
-      vUV       = GLUtil.getAttrib program "v_UV"
+--      vNorm     = GLUtil.getAttrib program "v_norm"
+--      vUV       = GLUtil.getAttrib program "v_UV"
 
 
 

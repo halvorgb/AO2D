@@ -153,7 +153,7 @@ loadGeometry gr = do
                     gUVCoords = uvCds,
                     gNormals  = norms,
                     gElements = elems,
-                    gNOFTris  = div (fromIntegral nofTris) 3,
+                    gNOFTris  = div (fromIntegral nofTris) 2,
                     gVAO      = vao }
 
   return (un, geometry)
