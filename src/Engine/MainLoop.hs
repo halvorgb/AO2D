@@ -21,7 +21,7 @@ mainLoop world win = do
 
 
     -- draw Everything!
-    renderObjects world' win
+    render world' win
 
 
     GLFW.swapBuffers win

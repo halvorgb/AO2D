@@ -13,7 +13,7 @@ import Engine.Graphics.Assets.Resources
 import Model.World
 
 initGraphics :: Int -> Int -> String -> InitialState -> IO ()
-initGraphics w h winTitle initialState@((_, inputState), _, _, _)  = do
+initGraphics w h winTitle initialState@((_, inputState), _, _, _, _)  = do
   GLFW.setErrorCallback (Just errorCallback)
 
   successfulInit <- GLFW.init

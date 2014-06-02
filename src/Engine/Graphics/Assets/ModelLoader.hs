@@ -21,7 +21,7 @@ type VertexUVCoordinate = L.V2 GLfloat
 type VertexNormal       = L.V3 GLfloat
 type ElementIndex       = L.V3 GLuint
 
-type ModelOutput = ([VertexCoordinate], [VertexUVCoordinate], [VertexNormal], [VertexIndex])
+type ModelOutput = ([VertexCoordinate], [VertexUVCoordinate], [VertexNormal], [VertexIndex], [VertexIndex])
 
 loadModel :: GeometryResource -> IO ModelOutput
 loadModel gR@(GeometryResource _ format fp)
@@ -110,12 +110,12 @@ objData =
            uvData'   = reorderCoordinates vert_indices'' uv_indices'' uvData
            normData' = map L.normalize $ reorderCoordinates vert_indices'' norm_indices'' normData
 
-           elems = indicesToElemVectors vert_indices''
+           --           elems = indicesToElemVectors vert_indices''
+           triElems     = vert_indices''
+           triAdjElems = makeAdjacencyList'' vData vert_indices''
 
-           elems' = makeAdjacencyList'' vData vert_indices''
 
-
-       return (vData, uvData', normData', elems') -- normals not done
+       return (vData, uvData', normData', triElems, triAdjElems) -- normals not done
 
 
     where

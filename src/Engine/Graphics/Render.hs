@@ -1,4 +1,4 @@
-module Engine.Graphics.Render(renderObjects) where
+module Engine.Graphics.Render(render) where
 
 import Graphics.Rendering.OpenGL
 import qualified Graphics.Rendering.OpenGL.Raw.Core31 as GLRaw
@@ -21,12 +21,58 @@ import Model.World
 import Model.GameState
 import Model.Classes
 import Model.Light
+import Model.ShaderPrograms
 
 import Engine.Graphics.Common
+import Engine.Graphics.Render.Light
+import Engine.Graphics.Render.Silhouette
+
+
+render :: World -> GLFW.Window -> IO ()
+render (gs, _) w =
+    do clearColor $= toGLColor (gsClearColor gs)
+
+
+       (width, height) <- GLFW.getFramebufferSize w
+
+       let cam = gsCamera gs
+           [l] = gsLights gs -- TODO multiple lights..
+           (projMat, viewMat) = mkProjViewMat width height cam
+           ambiance = gsAmbiance gs
+
+           sp = gsShaderPrograms gs
+           lightShader      = spLight sp
+           silhouetteShader = spSilhouette sp
+
+           objects = gsObjects gs
+
+
+       clear [ColorBuffer, DepthBuffer, StencilBuffer]
+
+       renderLightedObjects projMat viewMat ambiance l lightShader objects
+       renderSilhouettedObjects projMat viewMat l silhouetteShader objects
 
 
 
 
+mkProjViewMat :: Int -> Int -> Camera -> (TransformationMatrix, TransformationMatrix)
+mkProjViewMat width height camera  = (projMat, viewMat)
+    where
+      viewMat    = GLUtilC.camMatrix cam
+      cam        = GLUtilC.panRad pan . GLUtilC.tiltRad tilt . GLUtilC.dolly pos $ GLUtilC.fpsCamera
+
+
+      tilt       = cTilt camera
+      pan        = cPan camera
+      pos        = cPosition camera
+
+      projMat    = GLUtilC.projectionMatrix fov aspect nearClip farClip
+      aspect     = fromIntegral width / fromIntegral height
+      fov        = cFov camera
+      nearClip   = 0.05
+      farClip    = 20
+
+{-
 renderObjects :: World -> GLFW.Window -> IO ()
 renderObjects (gs, _) w =
     do
@@ -185,19 +231,5 @@ drawEntity projMat viewMat objMat ambiance pl e = do
 
 
 
-mkProjViewMat :: Int -> Int -> Camera -> (TransformationMatrix, TransformationMatrix)
-mkProjViewMat width height camera  = (projMat, viewMat)
-    where
-      viewMat    = GLUtilC.camMatrix cam
-      cam        = GLUtilC.panRad pan . GLUtilC.tiltRad tilt . GLUtilC.dolly pos $ GLUtilC.fpsCamera
 
-
-      tilt       = cTilt camera
-      pan        = cPan camera
-      pos        = cPosition camera
-
-      projMat    = GLUtilC.projectionMatrix fov aspect nearClip farClip
-      aspect     = fromIntegral width / fromIntegral height
-      fov        = cFov camera
-      nearClip   = 0.05
-      farClip    = 20
+-}

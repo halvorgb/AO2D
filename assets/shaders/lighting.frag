@@ -17,7 +17,7 @@ uniform vec3 lightColor;
 uniform float lightStrength;
 
 
-void main() {
+void main(){
 
   //  vec3 diffuseColor = color_override * texture2D(diffuse, f_UV).rgb;
   vec3 diffuseColor = texture2D(diffuse, f_UV*16).rgb;

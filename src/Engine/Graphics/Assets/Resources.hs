@@ -14,6 +14,7 @@ import Engine.Graphics.Assets.ModelLoader
 import Model.Resources
 import Model.Object
 import Model.Entity
+import Model.ShaderPrograms
 
 import Model.Geometry
 import Model.Material
@@ -24,7 +25,7 @@ import Model.GameState
 
 
 loadResources :: InitialState -> IO World
-loadResources ((gs, is), rs, ulObjs, ulEnts) = do
+loadResources ((gs, is), rs, ulObjs, ulEnts, ulSPs) = do
   shaderMap   <- buildIOMap loadShader   $ rShaderRs rs
   checkError "loadShader"
 
@@ -36,11 +37,25 @@ loadResources ((gs, is), rs, ulObjs, ulEnts) = do
 
 
 
-  let entityMap = L.foldl' (loadEntity shaderMap materialMap geometryMap) M.empty ulEnts
-      objects   = map (loadObject entityMap) ulObjs
+  let entityMap   = L.foldl' (loadEntity materialMap geometryMap) M.empty ulEnts
+      objects     = map (loadObject entityMap) ulObjs
+      shaderProgs = addShaderProgs shaderMap ulSPs
 
+  return (gs {gsObjects = objects,
+              gsShaderPrograms = shaderProgs},
+          is)
 
-  return (gs {gsObjects = objects}, is)
+-------------------------------------
+-- Add loaded shader programs.......
+-------------------------------------
+addShaderProgs :: M.Map String GLUtil.ShaderProgram ->
+                  ShaderPrograms'Unloaded ->
+                  ShaderPrograms
+addShaderProgs shaderMap spsU =
+    ShaderPrograms {
+  spSilhouette = shaderMap M.! spSilhouetteName spsU,
+  spLight = shaderMap M.! spLightName spsU
+}
 
 --------------------------------------
 -- Load Objects using loaded entities:
@@ -67,22 +82,19 @@ loadObject entityMap ou = obj
 -------------------------------------
 -- Load Entities using loaded assets:
 -------------------------------------
-loadEntity :: M.Map String GLUtil.ShaderProgram ->
-              M.Map String Material ->
+loadEntity :: M.Map String Material ->
               M.Map String Geometry ->
               M.Map String Entity ->
               Entity'Unloaded ->
               M.Map String Entity
-loadEntity shaderMap materialMap geometryMap entMap eu =
+loadEntity materialMap geometryMap entMap eu =
     M.insert un ent entMap
     where
       un = euUniqueName eu
 
-      sn = euShaderName eu
       mn = euMaterialName eu
       gn = euGeometryName eu
 
-      s = shaderMap M.! sn
       m = materialMap M.! mn
       g = geometryMap M.! gn
 
@@ -92,18 +104,11 @@ loadEntity shaderMap materialMap geometryMap entMap eu =
               eRelativeRot = euRelativeRot eu,
               eScale       = euScale eu,
 
-              eShader      = s,
+              eAmbOverride = euAmbOverride eu,
+
               eGeometry    = g,
               eMaterial    = m
             }
-
-
-
-
-
-
-
-
 
 -------------------
 -- Load raw assets:
@@ -121,13 +126,17 @@ buildIOMap loadFunc = L.foldl' loadFunc' (return M.empty)
 
 loadShader :: ShaderResource -> IO (String, GLUtil.ShaderProgram)
 loadShader sr = do
-  sp <- GLUtil.loadShaderProgram
-        [(VertexShader, vert),
-         (GeometryShader, geom),
-         (FragmentShader, frag)]
+  sp <- GLUtil.loadShaderProgram $
+        (v:g)++f
+
+
   return (un, sp)
 
       where
+        v = (VertexShader, vert)
+        g = maybe [] (\geomFP -> [(GeometryShader, geomFP)]) geom
+        f = maybe [] (\fragFP -> [(FragmentShader, fragFP)]) frag
+
         un   = srUniqueName sr
         vert = srVertShaderFP sr
         geom = srGeomShaderFP sr
@@ -136,25 +145,26 @@ loadShader sr = do
 
 loadGeometry :: GeometryResource -> IO (String, Geometry)
 loadGeometry gr = do
-  (vertices, uvs, normals, elements) <- loadModel gr
+  (vertices, uvs, normals, triElements, triAdjElements) <- loadModel gr
 
   [vao] <- genObjectNames 1
   bindVertexArrayObject $= Just vao
-  verts <- GLUtil.fromSource ArrayBuffer        vertices
-  uvCds <- GLUtil.fromSource ArrayBuffer        uvs
-  norms <- GLUtil.fromSource ArrayBuffer        normals
-  elems <- GLUtil.fromSource ElementArrayBuffer elements
-
+  verts       <- GLUtil.fromSource ArrayBuffer        vertices
+  uvCds       <- GLUtil.fromSource ArrayBuffer        uvs
+  norms       <- GLUtil.fromSource ArrayBuffer        normals
+  triElems    <- GLUtil.fromSource ElementArrayBuffer triElements
+  triAdjElems <- GLUtil.fromSource ElementArrayBuffer triAdjElements
   bindVertexArrayObject $= Nothing
 
-  let nofTris = length elements
+  let nofTris = length triAdjElements
       geometry = Geometry {
-                    gVertices = verts,
-                    gUVCoords = uvCds,
-                    gNormals  = norms,
-                    gElements = elems,
-                    gNOFTris  = div (fromIntegral nofTris) 2,
-                    gVAO      = vao }
+                    gVertices    = verts,
+                    gUVCoords    = uvCds,
+                    gNormals     = norms,
+                    gTriElems    = triElems,
+                    gTriAdjElems = triAdjElems,
+                    gNOFTris     = div (fromIntegral nofTris) 2,
+                    gVAO         = vao }
 
   return (un, geometry)
     where un = grUniqueName gr

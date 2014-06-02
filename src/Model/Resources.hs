@@ -11,8 +11,8 @@ data ShaderResource =
     ShaderResource {
       srUniqueName :: String,
       srVertShaderFP :: FilePath,
-      srGeomShaderFP :: FilePath,
-      srFragShaderFP :: FilePath
+      srGeomShaderFP :: Maybe FilePath,
+      srFragShaderFP :: Maybe FilePath
 }
 
 

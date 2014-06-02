@@ -19,7 +19,8 @@ data Entity'Unloaded =
       euRelativeRot :: Rotation,
       euScale       :: Scale,
 
-      euShaderName   :: String,
+      euAmbOverride :: Maybe Color'RGB,
+
       euGeometryName :: String,
       euMaterialName :: String -- TODO, add more for specular/normal
     }
@@ -30,7 +31,8 @@ data Entity =
       eRelativeRot :: Rotation,
       eScale       :: Scale,
 
-      eShader      :: GLUtil.ShaderProgram,
+      eAmbOverride :: Maybe Color'RGB,
+
       eGeometry    :: Geometry,
       eMaterial    :: Material
     }
