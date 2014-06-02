@@ -24,7 +24,7 @@ renderSilhouettedObjects :: TransformationMatrix -> TransformationMatrix -> Poin
 renderSilhouettedObjects projMat viewMat pl prog os =
     do depthFunc $= Just Lequal
        depthMask $= Enabled
-       cullFace  $= Nothing
+       cullFace  $= Just Back
        drawBuffer $= BackBuffers
 
 
@@ -53,7 +53,6 @@ renderSilhouettedEntity projMat viewMat objMat pl prog e =
        bindBuffer ArrayBuffer        $= Just verts
        vertexAttribPointer vPosition $= (ToFloat, VertexArrayDescriptor 3 Float 0 GLUtil.offset0)
 
-
        bindBuffer ElementArrayBuffer $= Just elems
 
        GLRaw.glDrawElements
@@ -78,7 +77,7 @@ renderSilhouettedEntity projMat viewMat objMat pl prog e =
 
       verts = gVertices geometry
       elems = gTriAdjElems geometry -- important
-      nofTris = gNOFTris geometry
+      nofTris = gNOFTris geometry * 2
       vao = gVAO geometry
 
       vPosition = GLUtil.getAttrib prog "v_position"

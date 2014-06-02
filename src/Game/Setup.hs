@@ -169,4 +169,4 @@ unloadedShaderPrograms =
 
 
 
-lightPos = L.V3 0 0 0
+lightPos = L.V3 1 2 3

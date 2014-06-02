@@ -126,8 +126,7 @@ buildIOMap loadFunc = L.foldl' loadFunc' (return M.empty)
 
 loadShader :: ShaderResource -> IO (String, GLUtil.ShaderProgram)
 loadShader sr = do
-  sp <- GLUtil.loadShaderProgram $
-        (v:g)++f
+  sp <- GLUtil.loadShaderProgram $ (v:g)++f
 
 
   return (un, sp)

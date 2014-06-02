@@ -47,8 +47,7 @@ void main()
 
         Normal = cross(e2,e6);
         LightDir = lightPosition - pos_worldspace[4];
-
-        if (dot(Normal, LightDir) <= 0) {
+	if (dot(Normal, LightDir) <= 0) {
             EmitLine(4, 0);
         }
     }
