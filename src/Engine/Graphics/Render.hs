@@ -59,6 +59,7 @@ renderObjects (gs, _) w =
       stencilFunc $= (Always, 0, 0xFF)
       stencilOpSeparate Back  $= (OpKeep, OpIncrWrap, OpKeep)
       stencilOpSeparate Front $= (OpKeep, OpDecrWrap, OpKeep)
+
       -- useProgram stencilThingie. (pass as argument Maybe programOverride?
       -- mapM_ (drawObject projMat viewMat ambiance l) $ gsObjects gs
       -- turn on culling again.
@@ -66,9 +67,11 @@ renderObjects (gs, _) w =
 
       -- Then: render shadows: ------
       drawBuffer $= BackBuffers
+
       -- do not update stencil buffer
       stencilOpSeparate Back $= (OpKeep, OpKeep, OpKeep)
       stencilFunc $= (Equal, 0, 0xFF)
+
       -- useProgram shadowThingie (pass as argument Maybe programOverride?)
       -- mapM_ (drawObject projMat viewMat ambiance l) $ gsObjects gs
 
@@ -79,7 +82,9 @@ renderObjects (gs, _) w =
       GLRaw.glEnable GLRaw.gl_BLEND
       GLRaw.glBlendEquation GLRaw.gl_FUNC_ADD
       GLRaw.glBlendFunc GLRaw.gl_ONE GLRaw.gl_ONE
+
       -- mapM_ (drawObject projMat viewMat ambiance l) $ gsObjects gs
+
 
       GLRaw.glDisable GLRaw.gl_BLEND
       mapM_ (drawObject projMat viewMat ambiance l) $ gsObjects gs
@@ -94,17 +99,23 @@ drawObject projMat viewMat ambiance pl o =
 drawEntity :: TransformationMatrix -> TransformationMatrix -> TransformationMatrix -> Color'RGB -> PointLight -> Entity -> IO ()
 drawEntity projMat viewMat objMat ambiance pl e = do
   currentProgram $= (Just $ GLUtil.program program)
-  textureBinding Texture2D $= Just diff_map
-
+--  textureBinding Texture2D $= Just diff_map
+  checkError "begin"
   bindVertexArrayObject $= Just vao
+
+  Just prog <- get currentProgram
+  acts <- get $ activeUniforms prog
+  checkError "halla"
+  print acts
   -- load uniforms
   GLUtil.asUniform mvp             $ GLUtil.getUniform program "MVP"
-  GLUtil.asUniform modelMat        $ GLUtil.getUniform program "M"
-  GLUtil.asUniform viewMat         $ GLUtil.getUniform program "V"
-  GLUtil.asUniform ambiance        $ GLUtil.getUniform program "ambiance"
-  GLUtil.asUniform lightPosition   $ GLUtil.getUniform program "lightPosition"
-  GLUtil.asUniform lightColor      $ GLUtil.getUniform program "lightColor"
-  GLUtil.asUniform lightStrength   $ GLUtil.getUniform program "lightStrength"
+  GLUtil.asUniform lightPosition   $ GLUtil.getUniform program "gLightPos"
+--  GLUtil.asUniform modelMat        $ GLUtil.getUniform program "M"
+--  GLUtil.asUniform viewMat         $ GLUtil.getUniform program "V"
+--  GLUtil.asUniform ambiance        $ GLUtil.getUniform program "ambiance"
+--  GLUtil.asUniform lightPosition   $ GLUtil.getUniform program "lightPosition"
+--  GLUtil.asUniform lightColor      $ GLUtil.getUniform program "lightColor"
+--  GLUtil.asUniform lightStrength   $ GLUtil.getUniform program "lightStrength"
   checkError "loadUniforms"
 
   -- load vertex attrib data:
@@ -113,32 +124,34 @@ drawEntity projMat viewMat objMat ambiance pl e = do
   vertexAttribPointer vPosition $= (ToFloat, VertexArrayDescriptor 3 Float 0 GLUtil.offset0)
   checkError "Activate Attrib v_position"
 
-  vertexAttribArray vUV   $= Enabled
-  bindBuffer ArrayBuffer  $= Just uvs
-  vertexAttribPointer vUV $= (ToFloat, VertexArrayDescriptor 2 Float 0 GLUtil.offset0)
-  checkError "Activate Attrib v_UV"
+  -- vertexAttribArray vUV   $= Enabled
+  -- bindBuffer ArrayBuffer  $= Just uvs
+  -- vertexAttribPointer vUV $= (ToFloat, VertexArrayDescriptor 2 Float 0 GLUtil.offset0)
+  -- checkError "Activate Attrib v_UV"
 
-  vertexAttribArray vNorm   $= Enabled
-  bindBuffer ArrayBuffer    $= Just norms
-  vertexAttribPointer vNorm $= (ToFloat, VertexArrayDescriptor 3 Float 0 GLUtil.offset0)
-  checkError "Activate Attrib v_norm"
+  -- vertexAttribArray vNorm   $= Enabled
+  -- bindBuffer ArrayBuffer    $= Just norms
+  -- vertexAttribPointer vNorm $= (ToFloat, VertexArrayDescriptor 3 Float 0 GLUtil.offset0)
+  -- checkError "Activate Attrib v_norm"
 
   bindBuffer ElementArrayBuffer $= Just elems
 
-
+  checkError "setup"
   -- Draw!
   --  GLUtil.drawIndexedTris nofTris
   GLRaw.glDrawArrays GLRaw.gl_TRIANGLES_ADJACENCY 0 nofTris
-
+  checkError "draw"
   -- disable buffers
   vertexAttribArray vPosition $= Disabled
-  vertexAttribArray vUV       $= Disabled
-  vertexAttribArray vNorm     $= Disabled
+--  vertexAttribArray vUV       $= Disabled
+--  vertexAttribArray vNorm     $= Disabled
 
   bindBuffer ElementArrayBuffer $= Nothing
   textureBinding Texture2D      $= Nothing
   currentProgram                $= Nothing
   bindVertexArrayObject         $= Nothing
+
+  checkError "end"
     where
 
       entMat = mkTransMat e

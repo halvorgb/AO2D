@@ -123,14 +123,14 @@ loadShader :: ShaderResource -> IO (String, GLUtil.ShaderProgram)
 loadShader sr = do
   sp <- GLUtil.loadShaderProgram
         [(VertexShader, vert),
-         -- (GeometryShader, geom),
+         (GeometryShader, geom),
          (FragmentShader, frag)]
   return (un, sp)
 
       where
         un   = srUniqueName sr
         vert = srVertShaderFP sr
-        -- geom = srGeomShaderFP sr
+        geom = srGeomShaderFP sr
         frag = srFragShaderFP sr
 
 

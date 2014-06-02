@@ -112,7 +112,7 @@ objData =
 
            elems = indicesToElemVectors vert_indices''
 
-           elems' = makeAdjacencyList' vData elems
+           elems' = makeAdjacencyList'' vData vert_indices''
 
 
        return (vData, uvData', normData', elems') -- normals not done
@@ -384,15 +384,17 @@ buildVertexIndices :: Map.Map Edge [VertexIndex] ->
 buildVertexIndices m arr (L.V3 a b c, L.V3 lowA lowB lowC) =
     [a, a_b, b, b_c, c, c_a]
     where
-      a_b = findOpposite (lowA, lowB) lowC
-      b_c = findOpposite (lowB, lowC) lowA
-      c_a = findOpposite (lowC, lowA) lowB
+      a_b = findOpposite (lowA, lowB) (/= lowC)
+      b_c = findOpposite (lowB, lowC) (/= lowA)
+      c_a = findOpposite (lowC, lowA) (/= lowB)
+
 
       findOpposite :: (VertexIndex, VertexIndex) ->
-                      VertexIndex -> VertexIndex
-      findOpposite (low_v1, low_v2) not_this_low_v =
+                      (VertexIndex -> Bool) ->
+                      VertexIndex
+      findOpposite (low_v1, low_v2) f =
           head $
-          filter (/= not_this_low_v) $
+          filter f $
           m Map.! sortEdge (low_v1, low_v2)
 
 
@@ -439,3 +441,15 @@ sortEdge :: Edge -> Edge
 sortEdge (a,b)
     | a >= b = (a,b)
     | otherwise = (b,a)
+
+
+type VertCIMap = Map.Map VertexCoordinate VertexIndex
+makeAdjacencyList'' :: [VertexCoordinate] -> [VertexIndex] -> [VertexIndex]
+makeAdjacencyList'' vertCoords vertIndices = error $ show vertIndices
+    where
+      -- 1. create a map between vertexCoords and the first vertexIndex that refers to it.
+      vertCoordToFirstIndexMap :: VertCIMap
+      vertCoordToFirstIndexMap = Map.fromList [(snd vc,fst vc) --unsafeFind (==(fst vc)) vertIndices)
+                                               | vc <- (zip [0..] $ List.nub vertCoords)]
+          where unsafeFind :: (VertexIndex -> Bool) -> [VertexIndex] -> VertexIndex
+                unsafeFind f vis = Maybe.fromJust $ List.find f vis

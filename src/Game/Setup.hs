@@ -76,7 +76,7 @@ resources = Resources {
        ShaderResource {
          srUniqueName   = "standard",
          srVertShaderFP = "assets" </> "shaders" </> "standard.vert",
-         srGeomShaderFP = undefined,
+         srGeomShaderFP = "assets" </> "shaders" </> "standard.geom",
          srFragShaderFP = "assets" </> "shaders" </> "standard.frag"
        }]
       materialResources = [
