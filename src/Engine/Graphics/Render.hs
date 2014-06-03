@@ -40,8 +40,8 @@ render (gs, _) w =
        renderSceneToDepth          projMat viewMat depthShader objects
        renderShadowVolumeToStencil projMat viewMat l shadowVolShader objects
 
-       renderLightedObjects projMat viewMat l lightShader objects
---       renderAmbientObjects projMat viewMat ambiance l
+       renderShadowedObjects projMat viewMat l lightShader objects
+       renderAmbientObjects projMat viewMat l lightShader ambiance objects
 --       renderSilhouettedObjects projMat viewMat l silhouetteShader objects
 
 

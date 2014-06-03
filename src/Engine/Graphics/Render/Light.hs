@@ -1,4 +1,4 @@
-module Engine.Graphics.Render.Light(renderLightedObjects) where
+module Engine.Graphics.Render.Light(renderShadowedObjects, renderAmbientObjects) where
 
 import qualified Graphics.Rendering.OpenGL.Raw.Core31 as GLRaw
 import qualified Graphics.GLUtil as GLUtil
@@ -21,43 +21,61 @@ import Model.Material
 
 
 
-renderLightedObjects :: TransformationMatrix -> TransformationMatrix -> PointLight -> GLUtil.ShaderProgram -> [Object] -> IO ()
-renderLightedObjects projMat viewMat pl prog os =
+renderShadowedObjects :: TransformationMatrix -> TransformationMatrix -> PointLight -> GLUtil.ShaderProgram -> [Object] -> IO ()
+renderShadowedObjects projMat viewMat pl prog os =
     do drawBuffer $= BackBuffers
        stencilOpSeparate Back $= (OpKeep, OpKeep,OpKeep)
        stencilFunc $= (Equal, 0, 0xFF)
 
 
-       let ambiance = L.V3 0 0 0 -- no ambiance in this pass.
+       let ambianceIntensity = 0
+           diffuseIntensity  = 1
 
-       mapM_ (renderLightedObject projMat viewMat ambiance pl prog) os
-       checkError "renderLightedObjects"
+       mapM_ (renderLightedObject projMat viewMat ambianceIntensity diffuseIntensity pl prog) os
+       checkError "renderShadowedObjects"
 
 
        GLRaw.glDisable GLRaw.gl_STENCIL_TEST
 
 
 
-renderLightedObject :: TransformationMatrix -> TransformationMatrix -> Color'RGB -> PointLight -> GLUtil.ShaderProgram -> Object -> IO ()
-renderLightedObject projMat viewMat ambiance pl prog o =
-  mapM_ (renderLightedEntity projMat viewMat objMat ambiance pl prog) $ oEntities o
+renderAmbientObjects :: TransformationMatrix -> TransformationMatrix -> PointLight -> GLUtil.ShaderProgram -> GLfloat -> [Object] -> IO ()
+renderAmbientObjects projMat viewMat pl prog ambianceIntensity os =
+    do drawBuffer $= BackBuffers
+       depthMask $= Enabled
+
+       GLRaw.glDisable GLRaw.gl_BLEND
+       GLRaw.glBlendEquation GLRaw.gl_FUNC_ADD
+       GLRaw.glBlendFunc GLRaw.gl_ONE GLRaw.gl_ONE
+
+
+       let diffuseIntensity  = 0
+
+       mapM_ (renderLightedObject projMat viewMat ambianceIntensity diffuseIntensity pl prog) os
+       checkError "renderAmbientObjects"
+
+
+renderLightedObject :: TransformationMatrix -> TransformationMatrix -> GLfloat -> GLfloat -> PointLight -> GLUtil.ShaderProgram -> Object -> IO ()
+renderLightedObject projMat viewMat ambianceIntensity diffuseIntensity pl prog o =
+  mapM_ (renderLightedEntity projMat viewMat objMat ambianceIntensity diffuseIntensity pl prog) $ oEntities o
       where
         objMat = mkTransMat o
 
-renderLightedEntity :: TransformationMatrix -> TransformationMatrix -> TransformationMatrix -> Color'RGB -> PointLight -> GLUtil.ShaderProgram -> Entity -> IO ()
-renderLightedEntity projMat viewMat objMat ambiance pl prog e =
+renderLightedEntity :: TransformationMatrix -> TransformationMatrix -> TransformationMatrix -> GLfloat -> GLfloat -> PointLight -> GLUtil.ShaderProgram -> Entity -> IO ()
+renderLightedEntity projMat viewMat objMat ambianceIntensity diffuseIntensity pl prog e =
     do currentProgram $= (Just $ GLUtil.program prog)
        textureBinding Texture2D $= Just diff_map
        bindVertexArrayObject $= Just vao
 
-       GLUtil.asUniform mvp           $ GLUtil.getUniform prog "MVP"
-       GLUtil.asUniform lightPosition $ GLUtil.getUniform prog "lightPosition"
-       GLUtil.asUniform modelMat      $ GLUtil.getUniform prog "M"
-       GLUtil.asUniform viewMat       $ GLUtil.getUniform prog "V"
-       GLUtil.asUniform ambiance'     $ GLUtil.getUniform prog "ambiance"
-       GLUtil.asUniform lightPosition $ GLUtil.getUniform prog "lightPosition"
-       GLUtil.asUniform lightColor    $ GLUtil.getUniform prog "lightColor"
-       GLUtil.asUniform lightStrength $ GLUtil.getUniform prog "lightStrength"
+       GLUtil.asUniform mvp                $ GLUtil.getUniform prog "MVP"
+       GLUtil.asUniform lightPosition      $ GLUtil.getUniform prog "lightPosition"
+       GLUtil.asUniform modelMat           $ GLUtil.getUniform prog "M"
+       GLUtil.asUniform viewMat            $ GLUtil.getUniform prog "V"
+       GLUtil.asUniform ambianceIntensity' $ GLUtil.getUniform prog "ambianceIntensity"
+       GLUtil.asUniform diffuseIntensity   $ GLUtil.getUniform prog "diffuseIntensity"
+       GLUtil.asUniform lightPosition      $ GLUtil.getUniform prog "lightPosition"
+       GLUtil.asUniform lightColor         $ GLUtil.getUniform prog "lightColor"
+       GLUtil.asUniform lightStrength      $ GLUtil.getUniform prog "lightStrength"
 
        vertexAttribArray vPosition   $= Enabled
        bindBuffer ArrayBuffer        $= Just verts
@@ -90,7 +108,9 @@ renderLightedEntity projMat viewMat objMat ambiance pl prog e =
        currentProgram                $= Nothing
        bindVertexArrayObject         $= Nothing
     where
-      ambiance' = Maybe.fromMaybe ambiance $ eAmbOverride e
+      ambianceIntensity'
+          | ambianceIntensity == 0 = 0
+          | otherwise =  Maybe.fromMaybe ambianceIntensity $ eAmbOverride e
 
       entMat = mkTransMat e
       modelMat = objMat L.!*! entMat

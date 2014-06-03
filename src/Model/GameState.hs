@@ -13,7 +13,7 @@ data GameState =
       gsObjects :: [Object], -- TODO: change this to a bsp tree.
       gsLights :: [PointLight],  -- TODO: need a maxLights value or something.
       gsClearColor :: ClearColor,
-      gsAmbiance :: Color'RGB,
+      gsAmbiance :: GLfloat, -- [0,1]
       gsShaderPrograms :: ShaderPrograms
 --      gsKeyBindings :: KeyBindings
     }

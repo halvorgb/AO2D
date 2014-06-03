@@ -15,7 +15,7 @@ data Entity'Unloaded =
       euRelativeRot :: Rotation,
       euScale       :: Scale,
 
-      euAmbOverride :: Maybe Color'RGB,
+      euAmbOverride :: Maybe GLfloat,
 
       euGeometryName :: String,
       euMaterialName :: String -- TODO, add more for specular/normal
@@ -27,7 +27,7 @@ data Entity =
       eRelativeRot :: Rotation,
       eScale       :: Scale,
 
-      eAmbOverride :: Maybe Color'RGB,
+      eAmbOverride :: Maybe GLfloat,
 
       eGeometry    :: Geometry,
       eMaterial    :: Material

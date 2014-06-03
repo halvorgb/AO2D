@@ -43,7 +43,7 @@ gameState = GameState {
               gsObjects = [], -- to be loaded.
               gsLights = lights,
               gsClearColor = clearColor,
-              gsAmbiance = L.V3 0.1 0.1 0.1,
+              gsAmbiance = 0.1,
               gsShaderPrograms = undefined -- overwritten later...
             }
     where
@@ -166,7 +166,7 @@ unloadedEntities = [
    euRelativeRot = L.V3 0 0 0,
    euScale       = L.V3 1 1 1,
 
-   euAmbOverride = Just $ L.V3 1.0 1.0 1.0,
+   euAmbOverride = Just 1, -- fullbright
 
    euGeometryName = "box2",
    euMaterialName = "white"

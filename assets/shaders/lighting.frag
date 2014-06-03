@@ -9,8 +9,8 @@ out vec4 color;
 
 uniform mat4 V;
 uniform sampler2D diffuse;
-//uniform vec3 color_override;
-uniform vec3 ambiance;
+uniform float ambianceIntensity;
+uniform float diffuseIntensity;
 
 uniform vec3 lightPosition;
 uniform vec3 lightColor;
@@ -19,12 +19,11 @@ uniform float lightStrength;
 
 void main(){
 
-  //  vec3 diffuseColor = color_override * texture2D(diffuse, f_UV).rgb;
-  vec3 diffuseColor = texture2D(diffuse, f_UV*16).rgb;
+  vec3 diffuseColor = diffuseIntensity * texture2D(diffuse, f_UV*16).rgb;
   vec3 specularColor = vec3(0.5, 0.5, 0.5);
 
 
-  vec3 ambianceColor = ambiance * diffuseColor;
+  vec3 ambianceColor = ambianceIntensity * diffuseColor;
 
 
   float distance_to_light = length(lightPosition - pos_worldspace);
