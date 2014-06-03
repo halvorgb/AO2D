@@ -23,7 +23,8 @@ initGraphics w h winTitle initialState@((_, inputState), _, _, _, _)  = do
               GLFW.WindowHint'ContextVersionMinor  3,
               GLFW.WindowHint'OpenGLProfile GLFW.OpenGLProfile'Core,
               GLFW.WindowHint'OpenGLDebugContext True,
-              GLFW.WindowHint'DepthBits 24
+              GLFW.WindowHint'DepthBits 24,
+              GLFW.WindowHint'StencilBits 24
             ]
   checkError "windowHint"
 

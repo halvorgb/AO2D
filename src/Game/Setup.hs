@@ -75,10 +75,16 @@ resources = Resources {
 
       shaderResources = [
        ShaderResource {
-         srUniqueName   = "silhouette",
-         srVertShaderFP = "assets" </> "shaders" </> "silhouette.vert",
-         srGeomShaderFP = Just $ "assets" </> "shaders" </> "silhouette.geom",
-         srFragShaderFP = Just $ "assets" </> "shaders" </> "silhouette.frag"
+         srUniqueName   = "depth",
+         srVertShaderFP = "assets" </> "shaders" </> "depth.vert",
+         srGeomShaderFP = Nothing,
+         srFragShaderFP = Just $ "assets" </> "shaders" </> "depth.frag"
+       },
+       ShaderResource {
+         srUniqueName   = "shadowVol",
+         srVertShaderFP = "assets" </> "shaders" </> "shadowVolume.vert",
+         srGeomShaderFP = Just $ "assets" </> "shaders" </> "shadowVolume.geom",
+         srFragShaderFP = Just $ "assets" </> "shaders" </> "shadowVolume.frag"
        },
        ShaderResource {
          srUniqueName   = "light",
@@ -101,6 +107,13 @@ resources = Resources {
 
 unloadedObjects :: UnloadedObjects
 unloadedObjects = [
+ Object'Unloaded {
+   ouPosition = L.V3(-0.7) (-0.5) 1.8,
+   ouRotation = L.V3 0 0 0,
+   ouScale = L.V3 0.25 0.25 0.25,
+
+   ouEntityNames = ["box2"]
+ },
  Object'Unloaded {
    ouPosition = L.V3 0 0 2,
    ouRotation = L.V3 0 0 0,
@@ -162,7 +175,8 @@ unloadedEntities = [
 unloadedShaderPrograms :: ShaderPrograms'Unloaded
 unloadedShaderPrograms =
     ShaderPrograms'Unloaded {
-  spSilhouetteName = "silhouette",
+  spDepthName =  "depth",
+  spShadowVolName  =  "shadowVol",
   spLightName = "light"
 }
 

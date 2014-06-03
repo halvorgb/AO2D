@@ -4,11 +4,13 @@ import qualified Graphics.GLUtil as GLUtil
 
 data ShaderPrograms =
     ShaderPrograms {
-      spSilhouette :: GLUtil.ShaderProgram,
-      spLight :: GLUtil.ShaderProgram
+      spDepth     :: GLUtil.ShaderProgram,
+      spShadowVol :: GLUtil.ShaderProgram,
+      spLight     :: GLUtil.ShaderProgram
     }
 data ShaderPrograms'Unloaded =
     ShaderPrograms'Unloaded {
-      spSilhouetteName :: String,
+      spDepthName :: String,
+      spShadowVolName :: String,
       spLightName :: String
     }

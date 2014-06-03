@@ -21,15 +21,21 @@ import Model.Material
 
 
 
-renderLightedObjects :: TransformationMatrix -> TransformationMatrix -> Color'RGB -> PointLight -> GLUtil.ShaderProgram -> [Object] -> IO ()
-renderLightedObjects projMat viewMat ambiance pl prog os =
-    do depthFunc $= Just Less
-       depthMask $= Enabled
-       cullFace  $= Just Back
-       drawBuffer $= BackBuffers
+renderLightedObjects :: TransformationMatrix -> TransformationMatrix -> PointLight -> GLUtil.ShaderProgram -> [Object] -> IO ()
+renderLightedObjects projMat viewMat pl prog os =
+    do drawBuffer $= BackBuffers
+       stencilOpSeparate Back $= (OpKeep, OpKeep,OpKeep)
+       stencilFunc $= (Equal, 0, 0xFF)
+
+
+       let ambiance = L.V3 0 0 0 -- no ambiance in this pass.
 
        mapM_ (renderLightedObject projMat viewMat ambiance pl prog) os
        checkError "renderLightedObjects"
+
+
+       GLRaw.glDisable GLRaw.gl_STENCIL_TEST
+
 
 
 renderLightedObject :: TransformationMatrix -> TransformationMatrix -> Color'RGB -> PointLight -> GLUtil.ShaderProgram -> Object -> IO ()

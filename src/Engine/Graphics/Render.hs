@@ -12,7 +12,8 @@ import Model.GameState
 import Model.ShaderPrograms
 
 import Engine.Graphics.Render.Light
-import Engine.Graphics.Render.Silhouette
+import Engine.Graphics.Render.ShadowVolume
+import Engine.Graphics.Render.Depth
 
 
 render :: World -> GLFW.Window -> IO ()
@@ -28,16 +29,20 @@ render (gs, _) w =
            ambiance = gsAmbiance gs
 
            sp = gsShaderPrograms gs
-           lightShader      = spLight sp
-           silhouetteShader = spSilhouette sp
+           depthShader     = spDepth sp
+           lightShader     = spLight sp
+           shadowVolShader = spShadowVol sp
 
            objects = gsObjects gs
 
 
        clear [ColorBuffer, DepthBuffer, StencilBuffer]
+       renderSceneToDepth          projMat viewMat depthShader objects
+       renderShadowVolumeToStencil projMat viewMat l shadowVolShader objects
 
-       renderLightedObjects projMat viewMat ambiance l lightShader objects
-       renderSilhouettedObjects projMat viewMat l silhouetteShader objects
+       renderLightedObjects projMat viewMat l lightShader objects
+--       renderAmbientObjects projMat viewMat ambiance l
+--       renderSilhouettedObjects projMat viewMat l silhouetteShader objects
 
 
 
