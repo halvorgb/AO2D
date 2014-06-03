@@ -19,11 +19,12 @@ uniform float lightStrength;
 
 void main(){
 
-  vec3 diffuseColor = diffuseIntensity * texture2D(diffuse, f_UV*16).rgb;
+  vec3 diffuseColor_RAW =  texture2D(diffuse, f_UV*16).rgb;
+  vec3 diffuseColor = diffuseIntensity * diffuseColor_RAW;
   vec3 specularColor = vec3(0.5, 0.5, 0.5);
 
 
-  vec3 ambianceColor = ambianceIntensity * diffuseColor;
+  vec3 ambianceColor = ambianceIntensity * diffuseColor_RAW;
 
 
   float distance_to_light = length(lightPosition - pos_worldspace);
@@ -54,7 +55,7 @@ void main(){
 
 
 
-  vec3 totalColor = ambianceColor + diffuseReflection + specularReflection;
+  vec3 totalColor = max(ambianceColor, diffuseReflection + specularReflection);
 
   color = vec4(totalColor, 1.0);
 

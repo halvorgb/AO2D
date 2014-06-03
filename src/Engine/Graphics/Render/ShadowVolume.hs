@@ -28,10 +28,9 @@ renderShadowVolumeToStencil :: TransformationMatrix ->
 renderShadowVolumeToStencil projMat viewMat pl prog os =
     do GLRaw.glEnable GLRaw.gl_STENCIL_TEST
 
-
-       drawBuffer $= NoBuffers
-       depthMask  $= Disabled
-       cullFace   $= Nothing
+       GLRaw.glDrawBuffer GLRaw.gl_NONE
+       GLRaw.glDepthMask $ fromIntegral GLRaw.gl_FALSE
+       GLRaw.glDisable GLRaw.gl_CULL_FACE
 
 
        stencilFunc $= (Always, 0, 0xFF)
@@ -42,7 +41,7 @@ renderShadowVolumeToStencil projMat viewMat pl prog os =
        checkError "renderShadowVolumeToStencil"
 
 
-       cullFace $= Just Back
+       GLRaw.glEnable GLRaw.gl_CULL_FACE
 
 renderObjectToStencil :: TransformationMatrix -> TransformationMatrix -> PointLight -> GLUtil.ShaderProgram -> Object -> IO ()
 renderObjectToStencil projMat viewMat pl prog o =
@@ -93,7 +92,7 @@ renderEntityToStencil projMat viewMat objMat pl prog e =
 
       verts = gVertices geometry
       elems = gTriAdjElems geometry -- important
-      nofTris = gNOFTris geometry
+      nofTris = gNOFTris geometry * 2
       vao = gVAO geometry
 
       vPosition = GLUtil.getAttrib prog "v_position"

@@ -1,6 +1,7 @@
 module Engine.Graphics.InitGraphics(initGraphics) where
 
 import qualified Graphics.UI.GLFW as GLFW
+import qualified Graphics.Rendering.OpenGL.Raw as GLRaw
 import System.Exit
 
 
@@ -49,6 +50,16 @@ initGraphics w h winTitle initialState@((_, inputState), _, _, _, _)  = do
               GLFW.setMouseButtonCallback
                   window $ Just mouseButtonCallback
 
+
+
+              GLRaw.glCullFace GLRaw.gl_BACK
+              GLRaw.glEnable GLRaw.gl_CULL_FACE
+              GLRaw.glEnable GLRaw.gl_DEPTH_TEST
+              GLRaw.glDepthFunc GLRaw.gl_LEQUAL
+              GLRaw.glEnable GLRaw.gl_DEPTH_CLAMP
+
+
+
               dumpInfo
 
               -- load everything, build objets and entities
@@ -61,4 +72,5 @@ initGraphics w h winTitle initialState@((_, inputState), _, _, _, _)  = do
               -- mainLoop complete, exit.
               GLFW.destroyWindow window
               GLFW.terminate
+
               exitSuccess

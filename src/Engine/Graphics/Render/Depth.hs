@@ -21,8 +21,8 @@ import Model.Classes
 
 renderSceneToDepth :: TransformationMatrix -> TransformationMatrix  -> GLUtil.ShaderProgram -> [Object] -> IO ()
 renderSceneToDepth projMat viewMat prog os =
-    do drawBuffer $= NoBuffers
-       depthMask  $= Enabled
+    do GLRaw.glDrawBuffer GLRaw.gl_NONE
+       GLRaw.glDepthMask $ fromIntegral GLRaw.gl_TRUE
 
 
        mapM_ (renderObjectToDepth projMat viewMat prog) os
@@ -71,7 +71,7 @@ renderEntityToDepth projMat viewMat objMat prog e =
 
 
       verts = gVertices geometry
-      elems = gTriAdjElems geometry -- important
+      elems = gTriElems geometry -- important
       nofTris = gNOFTris geometry
       vao = gVAO geometry
 

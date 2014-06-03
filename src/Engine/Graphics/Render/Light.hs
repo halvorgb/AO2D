@@ -23,7 +23,7 @@ import Model.Material
 
 renderShadowedObjects :: TransformationMatrix -> TransformationMatrix -> PointLight -> GLUtil.ShaderProgram -> [Object] -> IO ()
 renderShadowedObjects projMat viewMat pl prog os =
-    do drawBuffer $= BackBuffers
+    do GLRaw.glDrawBuffer GLRaw.gl_BACK
        stencilOpSeparate Back $= (OpKeep, OpKeep,OpKeep)
        stencilFunc $= (Equal, 0, 0xFF)
 
@@ -41,10 +41,11 @@ renderShadowedObjects projMat viewMat pl prog os =
 
 renderAmbientObjects :: TransformationMatrix -> TransformationMatrix -> PointLight -> GLUtil.ShaderProgram -> GLfloat -> [Object] -> IO ()
 renderAmbientObjects projMat viewMat pl prog ambianceIntensity os =
-    do drawBuffer $= BackBuffers
-       depthMask $= Enabled
+    do GLRaw.glDrawBuffer GLRaw.gl_BACK
+       GLRaw.glDepthMask $ fromIntegral GLRaw.gl_TRUE
 
-       GLRaw.glDisable GLRaw.gl_BLEND
+
+       GLRaw.glEnable GLRaw.gl_BLEND
        GLRaw.glBlendEquation GLRaw.gl_FUNC_ADD
        GLRaw.glBlendFunc GLRaw.gl_ONE GLRaw.gl_ONE
 
@@ -52,6 +53,8 @@ renderAmbientObjects projMat viewMat pl prog ambianceIntensity os =
        let diffuseIntensity  = 0
 
        mapM_ (renderLightedObject projMat viewMat ambianceIntensity diffuseIntensity pl prog) os
+
+       GLRaw.glDisable GLRaw.gl_BLEND
        checkError "renderAmbientObjects"
 
 
