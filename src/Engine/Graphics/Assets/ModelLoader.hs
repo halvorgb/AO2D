@@ -32,6 +32,7 @@ loadOBJModel fp = do
   contents <- readFile fp
   return $ parseOBJModel contents
 
+
 {- meh: boring.
 parseObjModel' :: String -> ModelOutput
 parseObjModel' contents = undefined

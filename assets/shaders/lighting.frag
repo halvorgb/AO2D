@@ -21,7 +21,7 @@ void main(){
 
   vec3 diffuseColor_RAW =  texture2D(diffuse, f_UV*16).rgb;
   vec3 diffuseColor = diffuseIntensity * diffuseColor_RAW;
-  vec3 specularColor = vec3(0.5, 0.5, 0.5);
+  vec3 specularColor = vec3(0.15, 0.15, 0.15);
 
 
   vec3 ambianceColor = ambianceIntensity * diffuseColor_RAW;

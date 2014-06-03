@@ -1,6 +1,7 @@
 module Engine.Graphics.Render(render) where
 
 import Graphics.Rendering.OpenGL
+import qualified Graphics.Rendering.OpenGL.Raw.Core31 as GLRaw
 import qualified Graphics.GLUtil.Camera3D as GLUtilC
 import qualified Graphics.UI.GLFW as GLFW
 
@@ -37,10 +38,17 @@ render (gs, _) w =
 
 
        clear [ColorBuffer, DepthBuffer, StencilBuffer]
-       renderSceneToDepth          projMat viewMat depthShader objects
+
+       renderSceneToDepth projMat viewMat depthShader objects
+
+       GLRaw.glEnable GLRaw.gl_STENCIL_TEST
+
        renderShadowVolumeToStencil projMat viewMat l shadowVolShader objects
 
        renderShadowedObjects projMat viewMat l lightShader objects
+
+       GLRaw.glDisable GLRaw.gl_STENCIL_TEST
+
        renderAmbientObjects projMat viewMat l lightShader ambiance objects
 
 

@@ -26,9 +26,7 @@ renderShadowVolumeToStencil :: TransformationMatrix ->
                                GLUtil.ShaderProgram -> [Object] ->
                                IO ()
 renderShadowVolumeToStencil projMat viewMat pl prog os =
-    do GLRaw.glEnable GLRaw.gl_STENCIL_TEST
-
-       GLRaw.glDrawBuffer GLRaw.gl_NONE
+    do GLRaw.glDrawBuffer GLRaw.gl_NONE
        GLRaw.glDepthMask $ fromIntegral GLRaw.gl_FALSE
        GLRaw.glDisable GLRaw.gl_CULL_FACE
 
@@ -92,7 +90,7 @@ renderEntityToStencil projMat viewMat objMat pl prog e =
 
       verts = gVertices geometry
       elems = gTriAdjElems geometry -- important
-      nofTris = gNOFTris geometry * 2
+      nofTris = div (gNOFTris geometry) 2
       vao = gVAO geometry
 
       vPosition = GLUtil.getAttrib prog "v_position"

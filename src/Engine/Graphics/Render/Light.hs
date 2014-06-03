@@ -35,7 +35,7 @@ renderShadowedObjects projMat viewMat pl prog os =
        checkError "renderShadowedObjects"
 
 
-       GLRaw.glDisable GLRaw.gl_STENCIL_TEST
+
 
 
 
@@ -49,8 +49,7 @@ renderAmbientObjects projMat viewMat pl prog ambianceIntensity os =
        GLRaw.glBlendEquation GLRaw.gl_FUNC_ADD
        GLRaw.glBlendFunc GLRaw.gl_ONE GLRaw.gl_ONE
 
-
-       let diffuseIntensity  = 0
+       let diffuseIntensity  = 1
 
        mapM_ (renderLightedObject projMat viewMat ambianceIntensity diffuseIntensity pl prog) os
 
