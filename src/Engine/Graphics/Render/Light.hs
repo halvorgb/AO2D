@@ -49,7 +49,7 @@ renderAmbientObjects projMat viewMat pl prog ambianceIntensity os =
        GLRaw.glBlendEquation GLRaw.gl_FUNC_ADD
        GLRaw.glBlendFunc GLRaw.gl_ONE GLRaw.gl_ONE
 
-       let diffuseIntensity  = 1
+       let diffuseIntensity  = 0
 
        mapM_ (renderLightedObject projMat viewMat ambianceIntensity diffuseIntensity pl prog) os
 

@@ -39,15 +39,15 @@ render (gs, _) w =
 
        clear [ColorBuffer, DepthBuffer, StencilBuffer]
 
-       renderSceneToDepth projMat viewMat depthShader objects
+---       renderSceneToDepth projMat viewMat depthShader objects
 
-       GLRaw.glEnable GLRaw.gl_STENCIL_TEST
+--       GLRaw.glEnable GLRaw.gl_STENCIL_TEST
 
-       renderShadowVolumeToStencil projMat viewMat l shadowVolShader objects
+--       renderShadowVolumeToStencil projMat viewMat l shadowVolShader objects
 
        renderShadowedObjects projMat viewMat l lightShader objects
 
-       GLRaw.glDisable GLRaw.gl_STENCIL_TEST
+  --     GLRaw.glDisable GLRaw.gl_STENCIL_TEST
 
        renderAmbientObjects projMat viewMat l lightShader ambiance objects
 

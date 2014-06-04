@@ -10,6 +10,8 @@ import qualified Data.Set as Set
 import qualified Data.Array as Array
 import qualified Data.List as List
 
+import Data.Monoid
+
 import Model.Resources
 
 type VertexIndex        = GLuint
@@ -30,52 +32,145 @@ loadModel gR@(GeometryResource _ format fp)
 loadOBJModel :: FilePath -> IO ModelOutput
 loadOBJModel fp = do
   contents <- readFile fp
-  return $ parseOBJModel contents
+
+--  return $ parseOBJModel contents
+  return $ parseOBJModel' $ lines contents
 
 
-{- meh: boring.
-parseObjModel' :: String -> ModelOutput
-parseObjModel' contents = undefined
-    where a = map parseLine $ lines contents
+data LineOutput = Indices ([VertexIndex], [UVIndex], [NormalIndex])
+                | VXC VertexCoordinate
+                | UVC VertexUVCoordinate
+                | VXN VertexNormal
+                | NoParse
 
-parseLine :: String -> ModelOutput
-parseLine l
-    | t2 == "v "  = (v d2, [],    [],    [])
-    | t3 == "vt " = ([],   uv d3, [],    [])
-    | t3 == "vn " = ([],   [],    vn d3, [])
-    | t2 == "f "  = ([],   [],    [],    f d2)
-    | otherwise   = ([],   [],    [],    [])
-    where t2 = take 2 l
-          d2 = words $ drop 2 l
+type QuadrupleList = ([([VertexIndex], [UVIndex], [NormalIndex])],
+                      [VertexCoordinate],
+                      [VertexUVCoordinate],
+                      [VertexNormal])
+parseOBJModel' ::  [String] -> ModelOutput
+parseOBJModel' contents = (vData, uvData', normData', triElems, triAdjElems)
+    where (is, vs, uvs, ns) = concatedLists
+          (vert_indices, uv_indices, norm_indices) = unzip3 is
+          vert_indices' = concat vert_indices
+          uv_indices'   = concat uv_indices
+          norm_indices' = concat norm_indices
 
-          t3 = take 3 l
-          d3 = words $ drop 3 l
+          (vert_indices'', vData)    = expandVertexData vert_indices' vs
+          (uv_indices''  , uvData)   = expandVertexData uv_indices'   uvs
+          (norm_indices'', normData) = expandVertexData norm_indices' ns
 
-          v :: [String] -> [VertexCoordinate]
-          v [x,y,z] = [L.V4 (read x) (read y) (read z) 1.0]
-          v err = error $ "parseError: v! " ++ show err
+          uvData'   = reorderCoordinates vert_indices'' uv_indices'' uvData
+          normData' = map L.normalize $ reorderCoordinates vert_indices'' norm_indices'' normData
 
-          uv :: [String] -> [VertexUVCoordinate]
-          uv [x,y] = [L.V2 (read x) (read y)]
-          uv err = error $ "parseError: uv! " ++ show err
+          triElems     = vert_indices''
+          triAdjElems = makeAdjacencyList'' vData vert_indices''
 
-          vn :: [String] -> [VertexNormal]
-          vn [x,y,z] = [L.V3 (read x) (read y) (read z)]
-          vn err = error $ "parseError: vn! " ++ show err
+          --
+          parseRes = map parseLine contents
 
-          f :: [String] -> [ElementIndex]
-          f [a,b,c] = []
-              where [v1, uv1, vn1] = splitStringAndParse a []
-                    [v2, uv2, vn2] = splitStringAndParse b []
-                    [v3, uv3, vn3] = splitStringAndParse c []
+          parseLine :: String -> LineOutput
+          parseLine l = case parse line "parseLine" l of
+                          Left err -> error $ show err
+                          Right p -> p
 
-                    splitStringAndParse :: String -> String -> [GLuint]
-                    splitStringAndParse [] mem = [read mem]
-                    splitStringAndParse (s:sx) mem
-                        | s == '\\' = read mem : splitStringAndParse sx []
-                        | otherwise = splitStringAndParse sx (mem ++ [s])
+          concatedLists :: QuadrupleList
+          concatedLists = foldl concatQuadruples emptyQuadruple $ reverse $
+                          map toQuadrupleList parseRes
+              where toQuadrupleList :: LineOutput -> QuadrupleList
+                    toQuadrupleList (Indices is) = ([is], [],    [],    [])
+                    toQuadrupleList (VXC vxc)    = ([],   [vxc], [],    [])
+                    toQuadrupleList (UVC uvc)    = ([],   [],    [uvc], [])
+                    toQuadrupleList (VXN vxn)    = ([],   [],    [],    [vxn])
+                    toQuadrupleList _                  = emptyQuadruple
 
--}
+                    emptyQuadruple = ([],   [],    [],    [])
+
+                    concatQuadruples :: QuadrupleList ->
+                                        QuadrupleList -> QuadrupleList
+                    concatQuadruples (a,b,c,d) (a', b', c', d') =
+                        (a'++a, b'++b, c'++c, d'++d)
+
+line :: GenParser Char st LineOutput
+line = try vertexCoordinate <|>
+       try vertexUVCoordinate <|>
+       try vertexNormal <|>
+       try faceElements <|>
+       return NoParse
+    where
+
+      skipSpace = skipMany space
+
+      nonFloatParser = skipMany $ noneOf "1234567890-."
+      floatParser = many $ oneOf "1234567890-."
+
+
+      vertexCoordinate :: GenParser Char st LineOutput
+      vertexCoordinate =
+          do _ <- string "v "
+             nonFloatParser
+             x <- floatParser
+             skipSpace
+             y <- floatParser
+             skipSpace
+             z <- floatParser
+             let rx = read x
+                 ry = read y
+                 rz = read z
+
+             return $ VXC $ L.V3 rx ry rz
+
+      vertexUVCoordinate :: GenParser Char st LineOutput
+      vertexUVCoordinate =
+          do _ <- string "vt "
+             nonFloatParser
+             x <- floatParser
+             skipSpace
+             y <- floatParser
+             let rx = read x
+                 ry = read y
+             return $ UVC $ L.V2 rx ry
+
+      vertexNormal :: GenParser Char st LineOutput
+      vertexNormal =
+          do _ <- string "vn "
+             nonFloatParser
+             x <- floatParser
+             skipSpace
+             y <- floatParser
+             skipSpace
+             z <- floatParser
+             let rx = read x
+                 ry = read y
+                 rz = read z
+             return $ VXN $ L.V3 rx ry rz
+
+      nonFaceElement = skipMany $ noneOf "/1234567890"
+
+
+      faceElements :: GenParser Char st LineOutput
+      faceElements =
+          do _ <- string "f "
+             nonFaceElement
+             (v1, u1, n1) <- faceElement
+             skipSpace
+             (v2, u2, n2) <- faceElement
+             skipSpace
+             (v3, u3, n3) <- faceElement
+             return $ Indices ([v1, v2, v3], [u1, u2, u3], [n1, n2, n3])
+
+      faceElement :: GenParser Char st (VertexIndex, UVIndex, NormalIndex)
+      faceElement =
+          do vertexIndex <- many digit
+             skipMany1 $ char '/'
+             uvIndex <- many digit
+             skipMany1 $ char '/'
+             normalIndex <- many digit
+             let r_vec  = read vertexIndex - 1 -- OBJ files are 1 indexed.
+                 r_uv   = read uvIndex - 1
+                 r_norm = read normalIndex - 1
+
+             return (r_vec, r_uv, r_norm)
+
 
 
 parseOBJModel :: String -> ModelOutput
@@ -250,13 +345,6 @@ type EdgeVMap  = Map.Map (VertexIndex, VertexIndex) [VertexIndex]
 
 makeAdjacencyList'' :: [VertexCoordinate] -> [VertexIndex] -> [VertexIndex]
 makeAdjacencyList'' vertCoords vertIndices = adjacentVertIndices
-  -- error $ show vertIndices ++
-  --                                            "      ~      " ++
-  --                                            show vertCoords ++
-  --                                            "      ~      " ++
-  --                                            show vertCoordToFirstIndexMap ++
-  --                                                  "      ~      " ++
-  --                                            show edgeVertexMap
   where
 
       -- 0 make a vertexcoordinate array for constant lookup times.

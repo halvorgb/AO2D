@@ -17,14 +17,37 @@ uniform vec3 lightColor;
 uniform float lightStrength;
 
 
+
+
+vec4 calcPointLight() {
+
+  vec3 lightDirection = pos_worldpsace - lightPosition;
+  float lightDistance = length(lightDirection);
+  lightDirection = normalize(lightDirection);
+
+  vec4 color = ca
+
+
+}
+
+
 void main(){
 
-  vec3 diffuseColor_RAW =  texture2D(diffuse, f_UV*16).rgb;
-  vec3 diffuseColor = diffuseIntensity * diffuseColor_RAW;
+  vec4 totalLight = Vec4(0, 0, 0, 1);
+  // for loop etc for every pointlight.
+
+  totalLight += calcPointLight(); //(i)
+
+
+
+
+
+  /*
+  vec3 diffuseColor = diffuseIntensity * texture2D(diffuse, f_UV*16).rgb;
   vec3 specularColor = vec3(0.15, 0.15, 0.15);
 
 
-  vec3 ambianceColor = ambianceIntensity * diffuseColor_RAW;
+  vec3 ambianceColor = ambianceIntensity * lightColor;
 
 
   float distance_to_light = length(lightPosition - pos_worldspace);
@@ -39,7 +62,7 @@ void main(){
   float cosTheta = clamp(dot(n,l),0,1);
 
   vec3 diffuseReflection  =
-    diffuseColor * lightColor * lightStrength * cosTheta /(distance_to_light*distance_to_light);
+    diffuseColor * lightColor * lightStrength * cosTheta /(distance_to_light*distance_to_light) ;
 
 
 
@@ -58,5 +81,5 @@ void main(){
   vec3 totalColor = max(ambianceColor, diffuseReflection + specularReflection);
 
   color = vec4(totalColor, 1.0);
-
+  */
 }

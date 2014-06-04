@@ -50,7 +50,7 @@ gameState = GameState {
       camera = Camera (L.V3 0 0 0) 0 0 (pi/2)
 
 
-      lights = [PointLight lightPos 10 (L.V3 1 1 1) Nothing]
+      lights = [PointLight lightPos 4 (L.V3 1 1 1) Nothing]
 
       clearColor = defaultClearColor
 
