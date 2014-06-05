@@ -21,12 +21,14 @@ import Model.Classes
 
 renderSceneToDepth :: TransformationMatrix -> TransformationMatrix  -> GLUtil.ShaderProgram -> [Object] -> IO ()
 renderSceneToDepth projMat viewMat prog os =
-    do GLRaw.glDrawBuffer GLRaw.gl_NONE
-       GLRaw.glDepthMask $ fromIntegral GLRaw.gl_TRUE
+    do cullFace $= Just Back
 
+       currentProgram $= (Just $ GLUtil.program prog)
 
        mapM_ (renderObjectToDepth projMat viewMat prog) os
        checkError "renderObjectToDepth"
+
+       currentProgram $= Nothing
 
 
 renderObjectToDepth :: TransformationMatrix -> TransformationMatrix ->
@@ -39,9 +41,7 @@ renderObjectToDepth projMat viewMat prog o =
 
 renderEntityToDepth :: TransformationMatrix -> TransformationMatrix -> TransformationMatrix -> GLUtil.ShaderProgram -> Entity -> IO ()
 renderEntityToDepth projMat viewMat objMat prog e =
-    do currentProgram $= (Just $ GLUtil.program prog)
-
-       bindVertexArrayObject $= Just vao
+    do bindVertexArrayObject $= Just vao
 
        GLUtil.asUniform mvp           $ GLUtil.getUniform prog "MVP"
 
@@ -54,12 +54,12 @@ renderEntityToDepth projMat viewMat objMat prog e =
        GLRaw.glDrawElements
             GLRaw.gl_TRIANGLES
             nofTris
-            GLRaw.gl_UNSIGNED_INT nullPtr
+            GLRaw.gl_UNSIGNED_INT
+            nullPtr
 
        vertexAttribArray vPosition $= Disabled
 
        bindBuffer ElementArrayBuffer $= Nothing
-       currentProgram                $= Nothing
        bindVertexArrayObject         $= Nothing
     where
       entMat = mkTransMat e

@@ -23,15 +23,15 @@ import Model.Material
 
 renderShadowedObjects :: TransformationMatrix -> TransformationMatrix -> PointLight -> GLUtil.ShaderProgram -> [Object] -> IO ()
 renderShadowedObjects projMat viewMat pl prog os =
-    do GLRaw.glDrawBuffer GLRaw.gl_BACK
-       stencilOpSeparate Back $= (OpKeep, OpKeep,OpKeep)
+    do stencilOpSeparate Back $= (OpKeep, OpKeep,OpKeep)
        stencilFunc $= (Equal, 0, 0xFF)
 
 
        let ambianceIntensity = 0
            diffuseIntensity  = 1
-
+       currentProgram $= (Just $ GLUtil.program prog)
        mapM_ (renderLightedObject projMat viewMat ambianceIntensity diffuseIntensity pl prog) os
+       currentProgram $= Nothing
        checkError "renderShadowedObjects"
 
 
@@ -41,19 +41,21 @@ renderShadowedObjects projMat viewMat pl prog os =
 
 renderAmbientObjects :: TransformationMatrix -> TransformationMatrix -> PointLight -> GLUtil.ShaderProgram -> GLfloat -> [Object] -> IO ()
 renderAmbientObjects projMat viewMat pl prog ambianceIntensity os =
-    do GLRaw.glDrawBuffer GLRaw.gl_BACK
-       GLRaw.glDepthMask $ fromIntegral GLRaw.gl_TRUE
-
-
-       GLRaw.glEnable GLRaw.gl_BLEND
-       GLRaw.glBlendEquation GLRaw.gl_FUNC_ADD
-       GLRaw.glBlendFunc GLRaw.gl_ONE GLRaw.gl_ONE
+    do --       GLRaw.glDepthMask $ fromIntegral GLRaw.gl_TRUE
+       blend $= Enabled
+       --       GLRaw.glEnable GLRaw.gl_BLEND
+       blendEquation $= FuncAdd
+       --       GLRaw.glBlendEquation GLRaw.gl_FUNC_ADD
+       blendFunc $= (One, One)
+       --       GLRaw.glBlendFunc GLRaw.gl_ONE GLRaw.gl_ONE
 
        let diffuseIntensity  = 0
-
+       currentProgram $= (Just $ GLUtil.program prog)
        mapM_ (renderLightedObject projMat viewMat ambianceIntensity diffuseIntensity pl prog) os
 
-       GLRaw.glDisable GLRaw.gl_BLEND
+       --       GLRaw.glDisable GLRaw.gl_BLEND
+       blend $= Disabled
+       currentProgram $= Nothing
        checkError "renderAmbientObjects"
 
 
@@ -65,8 +67,7 @@ renderLightedObject projMat viewMat ambianceIntensity diffuseIntensity pl prog o
 
 renderLightedEntity :: TransformationMatrix -> TransformationMatrix -> TransformationMatrix -> GLfloat -> GLfloat -> PointLight -> GLUtil.ShaderProgram -> Entity -> IO ()
 renderLightedEntity projMat viewMat objMat ambianceIntensity diffuseIntensity pl prog e =
-    do currentProgram $= (Just $ GLUtil.program prog)
-       textureBinding Texture2D $= Just diff_map
+    do textureBinding Texture2D $= Just diff_map
        bindVertexArrayObject $= Just vao
 
        GLUtil.asUniform mvp                $ GLUtil.getUniform prog "MVP"
@@ -107,7 +108,6 @@ renderLightedEntity projMat viewMat objMat ambianceIntensity diffuseIntensity pl
 
        bindBuffer ElementArrayBuffer $= Nothing
        textureBinding Texture2D      $= Nothing
-       currentProgram                $= Nothing
        bindVertexArrayObject         $= Nothing
     where
       ambianceIntensity'

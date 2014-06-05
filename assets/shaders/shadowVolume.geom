@@ -64,7 +64,7 @@ void main()
         }
 
         Normal = cross(e2,e6);
-        LightDir = lightPosition - pos_worldspace[4];
+        LightDir = lightPosition - pos_worldspace[0];
 
         if (dot(Normal, LightDir) <= 0) {
             vec3 StartVertex = pos_worldspace[4];

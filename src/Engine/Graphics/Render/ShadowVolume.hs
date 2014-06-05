@@ -26,20 +26,23 @@ renderShadowVolumeToStencil :: TransformationMatrix ->
                                GLUtil.ShaderProgram -> [Object] ->
                                IO ()
 renderShadowVolumeToStencil projMat viewMat pl prog os =
-    do GLRaw.glDrawBuffer GLRaw.gl_NONE
-       GLRaw.glDepthMask $ fromIntegral GLRaw.gl_FALSE
-       GLRaw.glDisable GLRaw.gl_CULL_FACE
-
+    do drawBuffer $= NoBuffers
+       cullFace   $= Nothing
 
        stencilFunc $= (Always, 0, 0xFF)
        stencilOpSeparate Back  $= (OpKeep, OpIncrWrap, OpKeep)
        stencilOpSeparate Front $= (OpKeep, OpDecrWrap, OpKeep)
 
+
+       currentProgram $= (Just $ GLUtil.program prog)
+
+
        mapM_ (renderObjectToStencil projMat viewMat pl prog) os
        checkError "renderShadowVolumeToStencil"
 
+       currentProgram $= Nothing
 
-       GLRaw.glEnable GLRaw.gl_CULL_FACE
+       cullFace $= Just Back
 
 renderObjectToStencil :: TransformationMatrix -> TransformationMatrix -> PointLight -> GLUtil.ShaderProgram -> Object -> IO ()
 renderObjectToStencil projMat viewMat pl prog o =
@@ -49,7 +52,7 @@ renderObjectToStencil projMat viewMat pl prog o =
 
 renderEntityToStencil :: TransformationMatrix -> TransformationMatrix -> TransformationMatrix -> PointLight -> GLUtil.ShaderProgram -> Entity -> IO ()
 renderEntityToStencil projMat viewMat objMat pl prog e =
-    do currentProgram $= (Just $ GLUtil.program prog)
+    do
 
        bindVertexArrayObject $= Just vao
 
@@ -73,7 +76,6 @@ renderEntityToStencil projMat viewMat objMat pl prog e =
        vertexAttribArray vPosition $= Disabled
 
        bindBuffer ElementArrayBuffer $= Nothing
-       currentProgram                $= Nothing
        bindVertexArrayObject         $= Nothing
     where
       entMat = mkTransMat e
@@ -90,7 +92,7 @@ renderEntityToStencil projMat viewMat objMat pl prog e =
 
       verts = gVertices geometry
       elems = gTriAdjElems geometry -- important
-      nofTris = div (gNOFTris geometry) 2
+      nofTris = gNOFAdjs geometry
       vao = gVAO geometry
 
       vPosition = GLUtil.getAttrib prog "v_position"

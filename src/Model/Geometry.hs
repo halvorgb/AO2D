@@ -10,5 +10,6 @@ data Geometry =
       gTriElems    :: BufferObject,
       gTriAdjElems :: BufferObject,
       gNOFTris     :: GLint,
+      gNOFAdjs     :: GLint,
       gVAO         :: VertexArrayObject
     }

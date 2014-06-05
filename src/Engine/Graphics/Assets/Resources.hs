@@ -156,14 +156,16 @@ loadGeometry gr = do
   triAdjElems <- GLUtil.fromSource ElementArrayBuffer triAdjElements
   bindVertexArrayObject $= Nothing
 
-  let nofTris = length triAdjElements
+  let nofTris = length triElements
+      nofAdjs = length triAdjElements
       geometry = Geometry {
                     gVertices    = verts,
                     gUVCoords    = uvCds,
                     gNormals     = norms,
                     gTriElems    = triElems,
                     gTriAdjElems = triAdjElems,
-                    gNOFTris     = div (fromIntegral nofTris) 2,
+                    gNOFTris     = fromIntegral nofTris,
+                    gNOFAdjs     = fromIntegral nofAdjs,
                     gVAO         = vao }
 
   return (un, geometry)
