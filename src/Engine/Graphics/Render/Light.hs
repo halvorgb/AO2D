@@ -23,16 +23,22 @@ import Model.Material
 
 renderShadowedObjects :: TransformationMatrix -> TransformationMatrix -> PointLight -> GLUtil.ShaderProgram -> [Object] -> IO ()
 renderShadowedObjects projMat viewMat pl prog os =
-    do stencilOpSeparate Back $= (OpKeep, OpKeep,OpKeep)
-       stencilFunc $= (Equal, 0, 0xFF)
+    do drawBuffer $= BackBuffers
+       cullFace $= Nothing
+       stencilFunc $= (Equal, 0, 0xff)
+       stencilOpSeparate Back $= (OpKeep, OpKeep, OpKeep)
 
 
-       let ambianceIntensity = 0
-           diffuseIntensity  = 1
+       let ambIntensity = 0.0
+           difIntensity  = 1.0
+
        currentProgram $= (Just $ GLUtil.program prog)
-       mapM_ (renderLightedObject projMat viewMat ambianceIntensity diffuseIntensity pl prog) os
-       currentProgram $= Nothing
+
+       mapM_ (renderLightedObject projMat viewMat ambIntensity difIntensity pl prog) os
+
        checkError "renderShadowedObjects"
+       currentProgram $= Nothing
+
 
 
 
@@ -41,20 +47,25 @@ renderShadowedObjects projMat viewMat pl prog os =
 
 renderAmbientObjects :: TransformationMatrix -> TransformationMatrix -> PointLight -> GLUtil.ShaderProgram -> GLfloat -> [Object] -> IO ()
 renderAmbientObjects projMat viewMat pl prog ambianceIntensity os =
-    do --       GLRaw.glDepthMask $ fromIntegral GLRaw.gl_TRUE
-       blend $= Enabled
-       --       GLRaw.glEnable GLRaw.gl_BLEND
-       blendEquation $= FuncAdd
-       --       GLRaw.glBlendEquation GLRaw.gl_FUNC_ADD
-       blendFunc $= (One, One)
-       --       GLRaw.glBlendFunc GLRaw.gl_ONE GLRaw.gl_ONE
+    do depthMask $= Enabled
+       drawBuffer $= BackBuffers
 
-       let diffuseIntensity  = 0
+       --       GLRaw.glDepthMask $ fromIntegral GLRaw.gl_TRUE
+       --       blend $= Enabled
+       GLRaw.glEnable GLRaw.gl_BLEND
+--       blendEquation $= FuncAdd
+       GLRaw.glBlendEquation GLRaw.gl_FUNC_ADD
+--       blendFunc $= (One, One)
+       GLRaw.glBlendFunc GLRaw.gl_ONE GLRaw.gl_ONE
+
+       let diffuseIntensity  = 0.0
+           ambInt = 0.2
+
        currentProgram $= (Just $ GLUtil.program prog)
-       mapM_ (renderLightedObject projMat viewMat ambianceIntensity diffuseIntensity pl prog) os
+       mapM_ (renderLightedObject projMat viewMat ambInt diffuseIntensity pl prog) os
 
-       --       GLRaw.glDisable GLRaw.gl_BLEND
-       blend $= Disabled
+       GLRaw.glDisable GLRaw.gl_BLEND
+--       blend $= Disabled
        currentProgram $= Nothing
        checkError "renderAmbientObjects"
 

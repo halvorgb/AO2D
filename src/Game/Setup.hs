@@ -127,14 +127,14 @@ unloadedObjects = [
    ouScale = L.V3 0.25 0.25 0.25,
 
    ouEntityNames = ["lykt"]
- }]
- -- Object'Unloaded {
- --   ouPosition = lightPos,
- --   ouRotation = L.V3 0 0 0,
- --   ouScale = L.V3 0.005 0.005 0.005,
+ },
+ Object'Unloaded {
+   ouPosition = L.V3 0 (-1) 0,
+   ouRotation = L.V3 0 0 0,
+   ouScale = L.V3 3 0.05 3,
 
- --   ouEntityNames = ["light_box"]
- -- }
+   ouEntityNames = ["box2"]
+ }]
 
 
 unloadedEntities :: UnloadedEntities

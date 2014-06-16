@@ -21,7 +21,8 @@ import Model.Classes
 
 renderSceneToDepth :: TransformationMatrix -> TransformationMatrix  -> GLUtil.ShaderProgram -> [Object] -> IO ()
 renderSceneToDepth projMat viewMat prog os =
-    do cullFace $= Just Back
+    do depthMask $= Enabled
+       drawBuffer $= NoBuffers
 
        currentProgram $= (Just $ GLUtil.program prog)
 
@@ -51,11 +52,13 @@ renderEntityToDepth projMat viewMat objMat prog e =
 
        bindBuffer ElementArrayBuffer $= Just elems
 
-       GLRaw.glDrawElements
-            GLRaw.gl_TRIANGLES
-            nofTris
-            GLRaw.gl_UNSIGNED_INT
-            nullPtr
+
+       GLUtil.drawIndexedTris nofTris
+       -- GLRaw.glDrawElements
+       --      GLRaw.gl_TRIANGLES
+       --      nofTris
+       --      GLRaw.gl_UNSIGNED_INT
+       --      nullPtr
 
        vertexAttribArray vPosition $= Disabled
 

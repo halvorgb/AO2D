@@ -1,7 +1,7 @@
 module Engine.Graphics.InitGraphics(initGraphics) where
 
 import qualified Graphics.UI.GLFW as GLFW
-import qualified Graphics.Rendering.OpenGL.Raw as GLRaw
+import Graphics.Rendering.OpenGL
 import System.Exit
 
 
@@ -51,13 +51,12 @@ initGraphics w h winTitle initialState@((_, inputState), _, _, _, _)  = do
                   window $ Just mouseButtonCallback
 
 
-
-              GLRaw.glCullFace GLRaw.gl_BACK
-              GLRaw.glEnable GLRaw.gl_CULL_FACE
-              GLRaw.glEnable GLRaw.gl_DEPTH_TEST
-              GLRaw.glDepthFunc GLRaw.gl_LEQUAL
-              GLRaw.glEnable GLRaw.gl_DEPTH_CLAMP
-
+              frontFace $= CW
+              cullFace $= Just Back
+              depthClamp $= Enabled
+              depthMask $= Enabled
+              depthFunc $= Just Lequal
+              depthClamp $= Enabled
 
 
               dumpInfo

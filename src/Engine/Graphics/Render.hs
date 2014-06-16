@@ -25,6 +25,8 @@ render (gs, _) w =
 
        let cam = gsCamera gs
            [l] = gsLights gs -- TODO multiple lights..
+
+
            (projMat, viewMat) = mkProjViewMat width height cam
            ambiance = gsAmbiance gs
 
@@ -33,24 +35,15 @@ render (gs, _) w =
            lightShader     = spLight sp
            shadowVolShader = spShadowVol sp
 
+
            objects = gsObjects gs
 
 
        clear [ColorBuffer, DepthBuffer, StencilBuffer]
-       depthMask $= Enabled
-       drawBuffer $= NoBuffers
        renderSceneToDepth projMat viewMat depthShader objects
-
-       depthMask $= Disabled
        stencilTest $= Enabled
        renderShadowVolumeToStencil projMat viewMat l shadowVolShader objects
-
-
-
-       drawBuffer $= BackBuffers
-       depthMask  $= Enabled
        renderShadowedObjects projMat viewMat l lightShader objects
-
        stencilTest $= Disabled
        renderAmbientObjects projMat viewMat l lightShader ambiance objects
 

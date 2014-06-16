@@ -27,9 +27,13 @@ renderShadowVolumeToStencil :: TransformationMatrix ->
                                IO ()
 renderShadowVolumeToStencil projMat viewMat pl prog os =
     do drawBuffer $= NoBuffers
+       depthMask  $= Disabled
+
        cullFace   $= Nothing
 
-       stencilFunc $= (Always, 0, 0xFF)
+
+
+       stencilFunc $= (Always, 0, 0xff)
        stencilOpSeparate Back  $= (OpKeep, OpIncrWrap, OpKeep)
        stencilOpSeparate Front $= (OpKeep, OpDecrWrap, OpKeep)
 
