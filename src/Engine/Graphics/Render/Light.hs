@@ -24,9 +24,9 @@ import Model.Material
 renderShadowedObjects :: TransformationMatrix -> TransformationMatrix -> PointLight -> GLUtil.ShaderProgram -> [Object] -> IO ()
 renderShadowedObjects projMat viewMat pl prog os =
     do drawBuffer $= BackBuffers
-       cullFace $= Nothing
-       stencilFunc $= (Equal, 0, 0xff)
        stencilOpSeparate Back $= (OpKeep, OpKeep, OpKeep)
+       stencilFunc $= (Equal, 0, 0xff)
+
 
 
        let ambIntensity = 0.0
@@ -51,12 +51,12 @@ renderAmbientObjects projMat viewMat pl prog ambianceIntensity os =
        drawBuffer $= BackBuffers
 
        --       GLRaw.glDepthMask $ fromIntegral GLRaw.gl_TRUE
-       --       blend $= Enabled
-       GLRaw.glEnable GLRaw.gl_BLEND
---       blendEquation $= FuncAdd
-       GLRaw.glBlendEquation GLRaw.gl_FUNC_ADD
---       blendFunc $= (One, One)
-       GLRaw.glBlendFunc GLRaw.gl_ONE GLRaw.gl_ONE
+       blend $= Enabled
+--       GLRaw.glEnable GLRaw.gl_BLEND
+       blendEquation $= FuncAdd
+--       GLRaw.glBlendEquation GLRaw.gl_FUNC_ADD
+       blendFunc $= (One, One)
+--       GLRaw.glBlendFunc GLRaw.gl_ONE GLRaw.gl_ONE
 
        let diffuseIntensity  = 0.0
            ambInt = 0.2

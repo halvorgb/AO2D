@@ -10,8 +10,6 @@ import qualified Data.Set as Set
 import qualified Data.Array as Array
 import qualified Data.List as List
 
-import Data.Monoid
-
 import Model.Resources
 
 type VertexIndex        = GLuint
@@ -77,7 +75,7 @@ parseOBJModel' contents = (vData, uvData', normData', triElems, triAdjElems)
           concatedLists = foldl concatQuadruples emptyQuadruple $ reverse $
                           map toQuadrupleList parseRes
               where toQuadrupleList :: LineOutput -> QuadrupleList
-                    toQuadrupleList (Indices is) = ([is], [],    [],    [])
+                    toQuadrupleList (Indices i)  = ([i],  [],    [],    [])
                     toQuadrupleList (VXC vxc)    = ([],   [vxc], [],    [])
                     toQuadrupleList (UVC uvc)    = ([],   [],    [uvc], [])
                     toQuadrupleList (VXN vxn)    = ([],   [],    [],    [vxn])
@@ -400,9 +398,10 @@ makeAdjacencyList'' vertCoords vertIndices = adjacentVertIndices
 
       oppositeEdge :: (VertexIndex, VertexIndex) -> VertexIndex -> VertexIndex
       oppositeEdge e notV
-        | v1 == notV = v2
-        | otherwise  = v1
-        where [v1, v2] = edgeVertexMap Map.!e
+        | v1 == notVUnique = v2
+        | otherwise        = v1
+        where [v1, v2] = edgeVertexMap Map.! e
+              notVUnique = getUniqueIndex notV
 
 
       getUniqueIndex :: VertexIndex -> VertexIndex

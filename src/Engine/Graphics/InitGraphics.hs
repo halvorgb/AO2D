@@ -23,9 +23,7 @@ initGraphics w h winTitle initialState@((_, inputState), _, _, _, _)  = do
             [ GLFW.WindowHint'ContextVersionMajor  3,
               GLFW.WindowHint'ContextVersionMinor  3,
               GLFW.WindowHint'OpenGLProfile GLFW.OpenGLProfile'Core,
-              GLFW.WindowHint'OpenGLDebugContext True,
-              GLFW.WindowHint'DepthBits 24,
-              GLFW.WindowHint'StencilBits 24
+              GLFW.WindowHint'OpenGLDebugContext True
             ]
   checkError "windowHint"
 
@@ -51,7 +49,6 @@ initGraphics w h winTitle initialState@((_, inputState), _, _, _, _)  = do
                   window $ Just mouseButtonCallback
 
 
-              frontFace $= CW
               cullFace $= Just Back
               depthClamp $= Enabled
               depthMask $= Enabled
