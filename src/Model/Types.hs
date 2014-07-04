@@ -1,5 +1,5 @@
 module Model.Types(TransformationMatrix, TransformationVector, Translation,
-                   Rotation, Scale, Color'RGB, posX, posY, posZ, GLfloat, GLint) where
+                   Rotation, Scale, Color'RGB, GLfloat, GLint, GLuint) where
 
 import qualified Linear as L
 import Graphics.Rendering.OpenGL
@@ -11,9 +11,4 @@ type Translation = L.V3 GLfloat
 type Scale       = L.V3 GLfloat
 type Rotation    = L.V3 GLfloat
 
-type Color'RGB = L.V3 GLfloat
-
-posX, posY, posZ :: Translation -> GLfloat
-posX (L.V3 x _ _) = x
-posY (L.V3 _ y _) = y
-posZ (L.V3 _ _ z) = z
+type Color'RGB   = L.V3 GLfloat

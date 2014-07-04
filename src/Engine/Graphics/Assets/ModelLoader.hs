@@ -1,6 +1,8 @@
 module Engine.Graphics.Assets.ModelLoader(loadModel) where
 
-import Graphics.Rendering.OpenGL
+--import Graphics.Rendering.OpenGL
+
+import Model.Types
 
 import qualified Linear as L
 import Text.ParserCombinators.Parsec

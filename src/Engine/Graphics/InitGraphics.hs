@@ -48,7 +48,6 @@ initGraphics w h winTitle initialState@((_, inputState), _, _, _, _)  = do
               GLFW.setMouseButtonCallback
                   window $ Just mouseButtonCallback
 
-
               cullFace $= Just Back
               depthClamp $= Enabled
               depthMask $= Enabled

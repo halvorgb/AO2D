@@ -26,7 +26,7 @@ render (gs, _) w =
        let cam = gsCamera gs
            [l] = gsLights gs -- TODO multiple lights..
 
-
+           camPos = cPosition cam
            (projMat, viewMat) = mkProjViewMat width height cam
            ambiance = gsAmbiance gs
 
@@ -43,9 +43,10 @@ render (gs, _) w =
        renderSceneToDepth projMat viewMat depthShader objects
        stencilTest $= Enabled
        renderShadowVolumeToStencil projMat viewMat l shadowVolShader objects
-       renderShadowedObjects projMat viewMat l lightShader objects
+       renderShadowedObjects projMat viewMat l camPos lightShader objects
        stencilTest $= Disabled
-       renderAmbientObjects projMat viewMat l lightShader ambiance objects
+--       renderAmbientObjects projMat viewMat l camPos lightShader ambiance objects
+
 
 
 
@@ -64,5 +65,5 @@ mkProjViewMat width height camera  = (projMat, viewMat)
       projMat    = GLUtilC.projectionMatrix fov aspect nearClip farClip
       aspect     = fromIntegral width / fromIntegral height
       fov        = cFov camera
-      nearClip   = 0.05
-      farClip    = 20
+      nearClip   = 1
+      farClip    = 100

@@ -1,6 +1,7 @@
 module Model.Camera where
 
-import Graphics.Rendering.OpenGL
+--import Graphics.Rendering.OpenGL
+import Model.Types()
 import qualified Linear as L
 
 import Model.Types

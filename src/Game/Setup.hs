@@ -121,6 +121,30 @@ unloadedObjects = [
 
    ouEntityNames = ["box2"]
  },
+
+ Object'Unloaded {
+   ouPosition = L.V3 0 1 2,
+   ouRotation = L.V3 0 0 0,
+   ouScale = L.V3 0.25 0.25 0.25,
+
+   ouEntityNames = ["box2"]
+ },
+
+ Object'Unloaded {
+   ouPosition = L.V3 0 2 2,
+   ouRotation = L.V3 0 0 0,
+   ouScale = L.V3 0.25 0.25 0.25,
+
+   ouEntityNames = ["box2"]
+ },
+
+ Object'Unloaded {
+   ouPosition = L.V3 0 2 3,
+   ouRotation = L.V3 0 0 0,
+   ouScale = L.V3 0.25 0.25 0.25,
+
+   ouEntityNames = ["box2"]
+ },
   Object'Unloaded {
    ouPosition = L.V3 3 1 0,
    ouRotation = L.V3 0 0 0,

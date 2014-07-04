@@ -26,8 +26,8 @@ renderShadowVolumeToStencil :: TransformationMatrix ->
                                GLUtil.ShaderProgram -> [Object] ->
                                IO ()
 renderShadowVolumeToStencil projMat viewMat pl prog os =
-    do drawBuffer $= NoBuffers
-       depthMask  $= Disabled
+    do depthMask  $= Disabled
+       drawBuffer $= NoBuffers
 
        cullFace   $= Nothing
 

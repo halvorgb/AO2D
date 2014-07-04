@@ -21,8 +21,9 @@ import Model.Classes
 
 renderSceneToDepth :: TransformationMatrix -> TransformationMatrix  -> GLUtil.ShaderProgram -> [Object] -> IO ()
 renderSceneToDepth projMat viewMat prog os =
-    do depthMask $= Enabled
-       drawBuffer $= NoBuffers
+    do drawBuffer $= NoBuffers
+
+       depthMask $= Enabled
 
        currentProgram $= (Just $ GLUtil.program prog)
 
