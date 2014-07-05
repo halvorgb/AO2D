@@ -24,8 +24,10 @@ import Model.Material
 renderShadowedObjects :: TransformationMatrix -> TransformationMatrix -> PointLight -> Translation -> GLUtil.ShaderProgram -> [Object] -> IO ()
 renderShadowedObjects projMat viewMat pl camPos prog os =
     do drawBuffer $= BackBuffers
+--       depthMask $= Enabled not in example.
+
        stencilOpSeparate Back $= (OpKeep, OpKeep, OpKeep)
-       stencilFunc $= (Equal, 0, 0xff)
+       stencilFunc $= (Equal, 0, 0XFF)
 
        let ambIntensity = 0.0
            difIntensity  = 1.0
@@ -35,27 +37,17 @@ renderShadowedObjects projMat viewMat pl camPos prog os =
        mapM_ (renderLightedObject projMat viewMat ambIntensity difIntensity pl camPos prog) os
 
        checkError "renderShadowedObjects"
-       currentProgram $= Nothing
-
-
-
-
-
 
 
 
 renderAmbientObjects :: TransformationMatrix -> TransformationMatrix -> PointLight -> Translation -> GLUtil.ShaderProgram -> GLfloat -> [Object] -> IO ()
 renderAmbientObjects projMat viewMat pl camPos prog ambianceIntensity os =
-    do depthMask $= Enabled
-       drawBuffer $= BackBuffers
+    do drawBuffer $= BackBuffers
+       depthMask $= Enabled
 
-       --       GLRaw.glDepthMask $ fromIntegral GLRaw.gl_TRUE
        blend $= Enabled
---       GLRaw.glEnable GLRaw.gl_BLEND
        blendEquation $= FuncAdd
---       GLRaw.glBlendEquation GLRaw.gl_FUNC_ADD
        blendFunc $= (One, One)
---       GLRaw.glBlendFunc GLRaw.gl_ONE GLRaw.gl_ONE
 
        let diffuseIntensity  = 0.0
            ambInt = 0.2
@@ -63,9 +55,7 @@ renderAmbientObjects projMat viewMat pl camPos prog ambianceIntensity os =
        currentProgram $= (Just $ GLUtil.program prog)
        mapM_ (renderLightedObject projMat viewMat ambInt diffuseIntensity pl camPos prog) os
 
-       GLRaw.glDisable GLRaw.gl_BLEND
---       blend $= Disabled
-       currentProgram $= Nothing
+       blend $= Disabled
        checkError "renderAmbientObjects"
 
 

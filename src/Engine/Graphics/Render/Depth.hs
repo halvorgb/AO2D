@@ -22,16 +22,12 @@ import Model.Classes
 renderSceneToDepth :: TransformationMatrix -> TransformationMatrix  -> GLUtil.ShaderProgram -> [Object] -> IO ()
 renderSceneToDepth projMat viewMat prog os =
     do drawBuffer $= NoBuffers
-
        depthMask $= Enabled
 
        currentProgram $= (Just $ GLUtil.program prog)
 
        mapM_ (renderObjectToDepth projMat viewMat prog) os
        checkError "renderObjectToDepth"
-
-       currentProgram $= Nothing
-
 
 renderObjectToDepth :: TransformationMatrix -> TransformationMatrix ->
                        GLUtil.ShaderProgram -> Object -> IO ()
@@ -55,11 +51,6 @@ renderEntityToDepth projMat viewMat objMat prog e =
 
 
        GLUtil.drawIndexedTris nofTris
-       -- GLRaw.glDrawElements
-       --      GLRaw.gl_TRIANGLES
-       --      nofTris
-       --      GLRaw.gl_UNSIGNED_INT
-       --      nullPtr
 
        vertexAttribArray vPosition $= Disabled
 

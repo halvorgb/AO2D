@@ -45,7 +45,7 @@ render (gs, _) w =
        renderShadowVolumeToStencil projMat viewMat l shadowVolShader objects
        renderShadowedObjects projMat viewMat l camPos lightShader objects
        stencilTest $= Disabled
---       renderAmbientObjects projMat viewMat l camPos lightShader ambiance objects
+       renderAmbientObjects projMat viewMat l camPos lightShader ambiance objects
 
 
 

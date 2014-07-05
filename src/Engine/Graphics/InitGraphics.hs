@@ -52,8 +52,6 @@ initGraphics w h winTitle initialState@((_, inputState), _, _, _, _)  = do
               depthClamp $= Enabled
               depthMask $= Enabled
               depthFunc $= Just Lequal
-              depthClamp $= Enabled
-
 
               dumpInfo
 

@@ -26,12 +26,9 @@ renderShadowVolumeToStencil :: TransformationMatrix ->
                                GLUtil.ShaderProgram -> [Object] ->
                                IO ()
 renderShadowVolumeToStencil projMat viewMat pl prog os =
-    do depthMask  $= Disabled
-       drawBuffer $= NoBuffers
-
+    do drawBuffer $= NoBuffers
+       depthMask  $= Disabled
        cullFace   $= Nothing
-
-
 
        stencilFunc $= (Always, 0, 0xff)
        stencilOpSeparate Back  $= (OpKeep, OpIncrWrap, OpKeep)
@@ -40,11 +37,9 @@ renderShadowVolumeToStencil projMat viewMat pl prog os =
 
        currentProgram $= (Just $ GLUtil.program prog)
 
-
        mapM_ (renderObjectToStencil projMat viewMat pl prog) os
-       checkError "renderShadowVolumeToStencil"
 
-       currentProgram $= Nothing
+       checkError "renderShadowVolumeToStencil"
 
        cullFace $= Just Back
 
@@ -77,7 +72,7 @@ renderEntityToStencil projMat viewMat objMat pl prog e =
             nofTris
             GLRaw.gl_UNSIGNED_INT nullPtr
 
-       vertexAttribArray vPosition $= Disabled
+       vertexAttribArray vPosition   $= Disabled
 
        bindBuffer ElementArrayBuffer $= Nothing
        bindVertexArrayObject         $= Nothing
