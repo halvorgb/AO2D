@@ -1,6 +1,5 @@
 #version 330 core
-out vec4 color;
+out vec4 clr;
 void main() {
-  color = vec4(0.2, 0.3, 0.3, 0.5);
-
+  clr = vec4(1, 0, 1, 0.1);
 }

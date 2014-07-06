@@ -21,43 +21,30 @@ import Model.Classes
 
 
 renderShadowVolumeToStencil :: TransformationMatrix ->
-                               TransformationMatrix ->
                                PointLight ->
                                GLUtil.ShaderProgram -> [Object] ->
                                IO ()
-renderShadowVolumeToStencil projMat viewMat pl prog os =
-    do drawBuffer $= NoBuffers
-       depthMask  $= Disabled
-       cullFace   $= Nothing
+renderShadowVolumeToStencil viewProjMat pl prog os =
+    do currentProgram $= (Just $ GLUtil.program prog)
 
-       stencilFunc $= (Always, 0, 0xff)
-       stencilOpSeparate Back  $= (OpKeep, OpIncrWrap, OpKeep)
-       stencilOpSeparate Front $= (OpKeep, OpDecrWrap, OpKeep)
-
-
-       currentProgram $= (Just $ GLUtil.program prog)
-
-       mapM_ (renderObjectToStencil projMat viewMat pl prog) os
+       mapM_ (renderObjectToStencil viewProjMat pl prog) os
 
        checkError "renderShadowVolumeToStencil"
 
-       cullFace $= Just Back
-
-renderObjectToStencil :: TransformationMatrix -> TransformationMatrix -> PointLight -> GLUtil.ShaderProgram -> Object -> IO ()
-renderObjectToStencil projMat viewMat pl prog o =
-  mapM_ (renderEntityToStencil projMat viewMat objMat pl prog) $ oEntities o
+renderObjectToStencil :: TransformationMatrix -> PointLight -> GLUtil.ShaderProgram -> Object -> IO ()
+renderObjectToStencil viewProjMat pl prog o =
+  mapM_ (renderEntityToStencil viewProjMat objMat pl prog) $ oEntities o
       where
         objMat = mkTransMat o
 
-renderEntityToStencil :: TransformationMatrix -> TransformationMatrix -> TransformationMatrix -> PointLight -> GLUtil.ShaderProgram -> Entity -> IO ()
-renderEntityToStencil projMat viewMat objMat pl prog e =
+renderEntityToStencil ::  TransformationMatrix -> TransformationMatrix -> PointLight -> GLUtil.ShaderProgram -> Entity -> IO ()
+renderEntityToStencil viewProjMat objMat pl prog e =
     do
-
        bindVertexArrayObject $= Just vao
 
        GLUtil.asUniform mvp           $ GLUtil.getUniform prog "MVP"
        GLUtil.asUniform modelMat      $ GLUtil.getUniform prog "M"
-       GLUtil.asUniform vp            $ GLUtil.getUniform prog "VP"
+       GLUtil.asUniform viewProjMat   $ GLUtil.getUniform prog "VP"
 
        GLUtil.asUniform lightPosition $ GLUtil.getUniform prog "lightPosition"
 
@@ -79,10 +66,7 @@ renderEntityToStencil projMat viewMat objMat pl prog e =
     where
       entMat = mkTransMat e
       modelMat = objMat L.!*! entMat
-      mvp = projMat L.!*! viewMat L.!*! modelMat
-
-
-      vp = projMat L.!*! viewMat
+      mvp = viewProjMat L.!*! modelMat
 
       lightPosition = plPosition pl
 

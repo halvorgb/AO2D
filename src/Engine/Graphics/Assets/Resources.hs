@@ -53,7 +53,6 @@ addShaderProgs :: M.Map String GLUtil.ShaderProgram ->
                   ShaderPrograms
 addShaderProgs shaderMap spsU =
     ShaderPrograms {
-  spDepth = shaderMap M.! spDepthName spsU,
   spShadowVol = shaderMap M.! spShadowVolName spsU,
   spLight = shaderMap M.! spLightName spsU
 }

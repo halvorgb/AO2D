@@ -1,6 +1,6 @@
 all: src/Main.hs
 	cd src; \
-	 ghc Main.hs -o ../bin/AO2D -O3 -Wall -fwarn-unused-imports
+	 ghc Main.hs -o ../bin/AO2D -O1 -Wall -fwarn-unused-imports
 
 .PHONY: clean
 

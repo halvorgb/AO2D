@@ -8,7 +8,7 @@ in vec3 pos_worldspace[];
 uniform vec3 lightPosition;
 uniform mat4 VP;
 
-float EPSILON = 0.01;
+float EPSILON = 0.001;
 
 void EmitQuad(int StartIndex, vec3 StartVertex, int EndIndex, vec3 EndVertex)
 {
@@ -64,7 +64,7 @@ void main()
         }
 
         Normal = cross(e2,e6);
-        LightDir = lightPosition - pos_worldspace[0];
+        LightDir = lightPosition - pos_worldspace[4];
 
         if (dot(Normal, LightDir) <= 0) {
             vec3 StartVertex = pos_worldspace[4];

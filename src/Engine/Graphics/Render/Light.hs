@@ -21,52 +21,38 @@ import Model.Material
 
 
 
-renderShadowedObjects :: TransformationMatrix -> TransformationMatrix -> PointLight -> Translation -> GLUtil.ShaderProgram -> [Object] -> IO ()
-renderShadowedObjects projMat viewMat pl camPos prog os =
-    do drawBuffer $= BackBuffers
---       depthMask $= Enabled not in example.
-
-       stencilOpSeparate Back $= (OpKeep, OpKeep, OpKeep)
-       stencilFunc $= (Equal, 0, 0XFF)
-
-       let ambIntensity = 0.0
+renderShadowedObjects :: TransformationMatrix -> PointLight -> Translation -> GLUtil.ShaderProgram -> [Object] -> IO ()
+renderShadowedObjects viewProjMat pl camPos prog os =
+    do let ambIntensity = 0.0
            difIntensity  = 1.0
 
        currentProgram $= (Just $ GLUtil.program prog)
 
-       mapM_ (renderLightedObject projMat viewMat ambIntensity difIntensity pl camPos prog) os
+       mapM_ (renderLightedObject viewProjMat ambIntensity difIntensity pl camPos prog) os
 
        checkError "renderShadowedObjects"
 
 
 
-renderAmbientObjects :: TransformationMatrix -> TransformationMatrix -> PointLight -> Translation -> GLUtil.ShaderProgram -> GLfloat -> [Object] -> IO ()
-renderAmbientObjects projMat viewMat pl camPos prog ambianceIntensity os =
-    do drawBuffer $= BackBuffers
-       depthMask $= Enabled
-
-       blend $= Enabled
-       blendEquation $= FuncAdd
-       blendFunc $= (One, One)
-
-       let diffuseIntensity  = 0.0
+renderAmbientObjects :: TransformationMatrix -> PointLight -> Translation -> GLUtil.ShaderProgram -> GLfloat -> [Object] -> IO ()
+renderAmbientObjects viewProjMat pl camPos prog ambianceIntensity os =
+    do let diffuseIntensity  = 0.0
            ambInt = 0.2
 
        currentProgram $= (Just $ GLUtil.program prog)
-       mapM_ (renderLightedObject projMat viewMat ambInt diffuseIntensity pl camPos prog) os
+       mapM_ (renderLightedObject viewProjMat ambInt diffuseIntensity pl camPos prog) os
 
-       blend $= Disabled
        checkError "renderAmbientObjects"
 
 
-renderLightedObject :: TransformationMatrix -> TransformationMatrix -> GLfloat -> GLfloat -> PointLight -> Translation -> GLUtil.ShaderProgram -> Object -> IO ()
-renderLightedObject projMat viewMat ambianceIntensity diffuseIntensity pl camPos prog o =
-  mapM_ (renderLightedEntity projMat viewMat objMat ambianceIntensity diffuseIntensity pl camPos prog) $ oEntities o
+renderLightedObject :: TransformationMatrix -> GLfloat -> GLfloat -> PointLight -> Translation -> GLUtil.ShaderProgram -> Object -> IO ()
+renderLightedObject viewProjMat ambianceIntensity diffuseIntensity pl camPos prog o =
+  mapM_ (renderLightedEntity viewProjMat objMat ambianceIntensity diffuseIntensity pl camPos prog) $ oEntities o
       where
         objMat = mkTransMat o
 
-renderLightedEntity :: TransformationMatrix -> TransformationMatrix -> TransformationMatrix -> GLfloat -> GLfloat -> PointLight -> Translation -> GLUtil.ShaderProgram -> Entity -> IO ()
-renderLightedEntity projMat viewMat objMat ambianceIntensity diffuseIntensity pl camPos prog e =
+renderLightedEntity :: TransformationMatrix -> TransformationMatrix -> GLfloat -> GLfloat -> PointLight -> Translation -> GLUtil.ShaderProgram -> Entity -> IO ()
+renderLightedEntity viewProjMat objMat ambianceIntensity diffuseIntensity pl camPos prog e =
     do textureBinding Texture2D $= Just diff_map
        bindVertexArrayObject $= Just vao
 
@@ -115,7 +101,7 @@ renderLightedEntity projMat viewMat objMat ambianceIntensity diffuseIntensity pl
 
       entMat = mkTransMat e
       modelMat = objMat L.!*! entMat
-      mvp = projMat L.!*! viewMat L.!*! modelMat
+      mvp = viewProjMat L.!*! modelMat
 
       lightPosition = plPosition pl
       lightColor    = plColor pl

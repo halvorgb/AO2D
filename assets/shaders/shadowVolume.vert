@@ -10,6 +10,6 @@ uniform mat4 M;
 
 void main() {
   vec4 v4_position = vec4(v_position, 1);
-  gl_Position =  MVP * v4_position;
+  gl_Position      = MVP * v4_position;
   pos_worldspace   = (M * v4_position).xyz;
 }

@@ -155,7 +155,7 @@ unloadedObjects = [
  Object'Unloaded {
    ouPosition = L.V3 0 (-1) 0,
    ouRotation = L.V3 0 0 0,
-   ouScale = L.V3 3 0.05 3,
+   ouScale = L.V3 6 0.05 6,
 
    ouEntityNames = ["box2"]
  }]
@@ -200,7 +200,6 @@ unloadedEntities = [
 unloadedShaderPrograms :: ShaderPrograms'Unloaded
 unloadedShaderPrograms =
     ShaderPrograms'Unloaded {
-  spDepthName =  "depth",
   spShadowVolName  =  "shadowVol",
   spLightName = "light"
 }
