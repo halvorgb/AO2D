@@ -13,8 +13,9 @@ uniform mat4 MVP;
 uniform mat4 M;
 
 void main(){
-  gl_Position    =  MVP * vec4(v_position, 1.0);
-  f_UV = v_UV;
+  gl_Position = MVP * vec4(v_position, 1.0);
+
+  f_UV   = v_UV;
   f_norm = (M * vec4(v_norm, 0)).xyz;
   f_pos  = (M * vec4(v_position, 1)).xyz;
 

@@ -26,9 +26,7 @@ renderShadowVolumeToStencil :: TransformationMatrix ->
                                IO ()
 renderShadowVolumeToStencil viewProjMat pl prog os =
     do currentProgram $= (Just $ GLUtil.program prog)
-
        mapM_ (renderObjectToStencil viewProjMat pl prog) os
-
        checkError "renderShadowVolumeToStencil"
 
 renderObjectToStencil :: TransformationMatrix -> PointLight -> GLUtil.ShaderProgram -> Object -> IO ()
@@ -39,13 +37,11 @@ renderObjectToStencil viewProjMat pl prog o =
 
 renderEntityToStencil ::  TransformationMatrix -> TransformationMatrix -> PointLight -> GLUtil.ShaderProgram -> Entity -> IO ()
 renderEntityToStencil viewProjMat objMat pl prog e =
-    do
-       bindVertexArrayObject $= Just vao
+    do bindVertexArrayObject $= Just vao
 
        GLUtil.asUniform mvp           $ GLUtil.getUniform prog "MVP"
        GLUtil.asUniform modelMat      $ GLUtil.getUniform prog "M"
        GLUtil.asUniform viewProjMat   $ GLUtil.getUniform prog "VP"
-
        GLUtil.asUniform lightPosition $ GLUtil.getUniform prog "lightPosition"
 
        vertexAttribArray vPosition   $= Enabled

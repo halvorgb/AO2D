@@ -88,7 +88,7 @@ void main(){
 
   vec4 totalLight = vec4(0, 0, 0, 1);
 
-  Attenuation defaultAtten = Attenuation(1.0, 0.0, 0.0);
+  Attenuation defaultAtten = Attenuation(0, 0.2, 0);
 
   //  for (int i = 0; i < nofPointLights; ++i) {
 
