@@ -71,7 +71,7 @@ void main()
             vec3 EndVertex = pos_worldspace[0];
             EmitQuad(4, StartVertex, 0, EndVertex);
         }
-
+	// reeder front cap:
         vec3 LightDir = (normalize(pos_worldspace[0] - lightPosition)) * EPSILON;
         gl_Position = VP * vec4((pos_worldspace[0] + LightDir), 1.0);
         EmitVertex();
@@ -84,5 +84,18 @@ void main()
         gl_Position = VP * vec4((pos_worldspace[4] + LightDir), 1.0);
         EmitVertex();
         EndPrimitive();
+
+	// render the back cap
+        LightDir = pos_worldspace[0] - lightPosition;
+        gl_Position = VP * vec4(LightDir, 0.0);
+        EmitVertex();
+
+        LightDir = pos_worldspace[4] - lightPosition;
+        gl_Position = VP * vec4(LightDir, 0.0);
+        EmitVertex();
+
+        LightDir = pos_worldspace[2] - lightPosition;
+        gl_Position = VP * vec4(LightDir, 0.0);
+        EmitVertex();
     }
 }
