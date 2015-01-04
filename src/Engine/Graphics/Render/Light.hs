@@ -1,4 +1,4 @@
-module Engine.Graphics.Render.Light(renderShadowedObjects, renderAmbientObjects) where
+module Engine.Graphics.Render.Light(renderLightedObjects, renderAmbientObjects) where
 
 import qualified Graphics.Rendering.OpenGL.Raw.Core31 as GLRaw
 import qualified Graphics.GLUtil as GLUtil
@@ -21,8 +21,8 @@ import Model.Material
 
 
 
-renderShadowedObjects :: TransformationMatrix -> PointLight -> Translation -> GLUtil.ShaderProgram -> [Object] -> IO ()
-renderShadowedObjects viewProjMat pl camPos prog os =
+renderLightedObjects :: TransformationMatrix -> PointLight -> Translation -> GLUtil.ShaderProgram -> [Object] -> IO ()
+renderLightedObjects viewProjMat pl camPos prog os =
     do let ambIntensity = 0.0
            difIntensity  = 1.0
 

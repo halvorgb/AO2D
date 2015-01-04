@@ -38,26 +38,13 @@ render (gs, _) w =
 
            objects = gsObjects gs
 
-       drawBuffer $= BackBuffers
        -- Render ambiance everywhere. Write to depth-buffer.
        depthMask $= Enabled
-       colorMask $= (Color4 Enabled Enabled Enabled Enabled)
-       cullFace $= Just Back
        clear [ColorBuffer, DepthBuffer, StencilBuffer]
        renderAmbientObjects viewProjMat l camPos lightShader ambiance objects
 
 
-
-       {-
-         Wikipedia algorithm (Depth Fail):
-         Disable writes to the depth and color buffers.
-         Use front-face culling.
-         Set the stencil operation to increment on depth fail (only count shadows behind the object).
-         Render the shadow volumes.
-         Use back-face culling.
-         Set the stencil operation to decrement on depth fail.
-         Render the shadow volumes.
-        -}
+       -- Depth fail, mark shadow volumes in the stencil buffer.
        depthMask $= Disabled
        colorMask $= (Color4 Disabled Disabled Disabled Disabled)
        cullFace $= Nothing
@@ -70,18 +57,16 @@ render (gs, _) w =
        renderShadowVolumeToStencil viewProjMat l shadowVolShader objects
 
 
-       -- -- using given stencil info.
-       -- -- draw the scene as if it was completely lit in the areas not marked by the stencil buffer.
-
-       depthMask $= Disabled
-       colorMask $= (Color4 Enabled Enabled Enabled Enabled)
+       -- using given stencil info.
+       -- Draw the scene with lights.
+       colorMask $= (Color4 Enabled Enabled Enabled Disabled)
        stencilFunc $= (Equal, 0, 0xff)
        stencilOpSeparate Front $= (OpKeep, OpKeep, OpKeep)
        cullFace $= Just Back
        blend $= Enabled
        blendEquation $= FuncAdd
        blendFunc $= (One, One)
-       renderShadowedObjects viewProjMat l camPos lightShader objects
+       renderLightedObjects viewProjMat l camPos lightShader objects
        blend $= Disabled
 
        stencilTest $= Disabled

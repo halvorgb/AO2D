@@ -8,17 +8,16 @@ TODO:
 ** GUI
    Test Console
    Text Renderer
-
 ** Lighting
-   Implement Shadow Maps
+   Implement Shadows using Shadow Volumes
+   Allow some entities to ignore all lighting. (Use ambiance override? I think so)
    Implement Ambient Occlusion
 ** Meterials
    Normal Maps
    Specular Maps
 ** Asset Loading
 *** Textures
-	NormalMaps
-	Specular maps
+    NormalMaps
+    Specular maps
 *** Models
-
     (COLLADA files)
