@@ -1,23 +1,20 @@
 module Engine.Graphics.Render.Light(renderLightedObjects, renderAmbientObjects) where
 
+import qualified Data.Maybe                           as Maybe
+import           Foreign.Ptr                          (nullPtr)
+import qualified Graphics.GLUtil                      as GLUtil
+import           Graphics.Rendering.OpenGL
 import qualified Graphics.Rendering.OpenGL.Raw.Core31 as GLRaw
-import qualified Graphics.GLUtil as GLUtil
-import Graphics.Rendering.OpenGL
+import qualified Linear                               as L
 
-import qualified Data.Maybe as Maybe
-import qualified Linear as L
-import Foreign.Ptr(nullPtr)
-
-import Engine.Graphics.Common
-
-
-import Model.Light
-import Model.Geometry
-import Model.Types
-import Model.Entity
-import Model.Object
-import Model.Classes
-import Model.Material
+import           Engine.Graphics.Common
+import           Model.Classes
+import           Model.Entity
+import           Model.Geometry
+import           Model.Light
+import           Model.Material
+import           Model.Object
+import           Model.Types
 
 
 
@@ -64,7 +61,6 @@ renderLightedEntity viewProjMat objMat ambianceIntensity diffuseIntensity pl cam
        GLUtil.asUniform lightPosition      $ GLUtil.getUniform prog "plPositions"
        GLUtil.asUniform lightColor         $ GLUtil.getUniform prog "plColors"
 
-
        vertexAttribArray vPosition   $= Enabled
        bindBuffer ArrayBuffer        $= Just verts
        vertexAttribPointer vPosition $= (ToFloat, VertexArrayDescriptor 3 Float 0 GLUtil.offset0)
@@ -95,9 +91,7 @@ renderLightedEntity viewProjMat objMat ambianceIntensity diffuseIntensity pl cam
        textureBinding Texture2D      $= Nothing
        bindVertexArrayObject         $= Nothing
     where
-      ambianceIntensity'
-          | ambianceIntensity == 0 = 0
-          | otherwise =  Maybe.fromMaybe ambianceIntensity $ eAmbOverride e
+      ambianceIntensity' = Maybe.fromMaybe ambianceIntensity $ eAmbOverride e
 
       entMat = mkTransMat e
       modelMat = objMat L.!*! entMat

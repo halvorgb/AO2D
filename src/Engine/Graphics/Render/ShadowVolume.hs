@@ -1,22 +1,19 @@
 module Engine.Graphics.Render.ShadowVolume(renderShadowVolumeToStencil) where
 
-import qualified Graphics.Rendering.OpenGL.Raw.Core31 as GLRaw
+import           Control.Monad
+import           Engine.Graphics.Common
+import           Foreign.Ptr                                       (nullPtr)
+import qualified Graphics.GLUtil                                   as GLUtil
+import           Graphics.Rendering.OpenGL
 import qualified Graphics.Rendering.OpenGL.Raw.ARB.GeometryShader4 as GLRaw
-import qualified Graphics.GLUtil as GLUtil
-import Graphics.Rendering.OpenGL
-
-import qualified Linear as L
-import Foreign.Ptr(nullPtr)
-
-import Engine.Graphics.Common
-
-
-import Model.Light
-import Model.Geometry
-import Model.Types
-import Model.Entity
-import Model.Object
-import Model.Classes
+import qualified Graphics.Rendering.OpenGL.Raw.Core31              as GLRaw
+import qualified Linear                                            as L
+import           Model.Classes
+import           Model.Entity
+import           Model.Geometry
+import           Model.Light
+import           Model.Object
+import           Model.Types
 
 
 
@@ -37,41 +34,42 @@ renderObjectToStencil viewProjMat pl prog o =
 
 renderEntityToStencil ::  TransformationMatrix -> TransformationMatrix -> PointLight -> GLUtil.ShaderProgram -> Entity -> IO ()
 renderEntityToStencil viewProjMat objMat pl prog e =
-    do bindVertexArrayObject $= Just vao
+    do unless (eAmbOverride e == Just (1.0))
+       $ do bindVertexArrayObject $= Just vao
 
-       GLUtil.asUniform mvp           $ GLUtil.getUniform prog "MVP"
-       GLUtil.asUniform modelMat      $ GLUtil.getUniform prog "M"
-       GLUtil.asUniform viewProjMat   $ GLUtil.getUniform prog "VP"
-       GLUtil.asUniform lightPosition $ GLUtil.getUniform prog "lightPosition"
-
-       vertexAttribArray vPosition   $= Enabled
-       bindBuffer ArrayBuffer        $= Just verts
-       vertexAttribPointer vPosition $= (ToFloat, VertexArrayDescriptor 3 Float 0 GLUtil.offset0)
-
-       bindBuffer ElementArrayBuffer $= Just elems
-
-       GLRaw.glDrawElements
-            GLRaw.gl_TRIANGLES_ADJACENCY
-            nofTris
-            GLRaw.gl_UNSIGNED_INT nullPtr
-
-       vertexAttribArray vPosition   $= Disabled
-
-       bindBuffer ElementArrayBuffer $= Nothing
-       bindVertexArrayObject         $= Nothing
-    where
-      entMat = mkTransMat e
-      modelMat = objMat L.!*! entMat
-      mvp = viewProjMat L.!*! modelMat
-
-      lightPosition = plPosition pl
-
-      geometry = eGeometry e
+            GLUtil.asUniform mvp           $ GLUtil.getUniform prog "MVP"
+            GLUtil.asUniform modelMat      $ GLUtil.getUniform prog "M"
+            GLUtil.asUniform viewProjMat   $ GLUtil.getUniform prog "VP"
+            GLUtil.asUniform lightPosition $ GLUtil.getUniform prog "lightPosition"
 
 
-      verts = gVertices geometry
-      elems = gTriAdjElems geometry -- important
-      nofTris = gNOFAdjs geometry
-      vao = gVAO geometry
+            vertexAttribArray vPosition   $= Enabled
+            bindBuffer ArrayBuffer        $= Just verts
+            vertexAttribPointer vPosition $= (ToFloat, VertexArrayDescriptor 3 Float 0 GLUtil.offset0)
 
-      vPosition = GLUtil.getAttrib prog "v_position"
+            bindBuffer ElementArrayBuffer $= Just elems
+
+            GLRaw.glDrawElements
+              GLRaw.gl_TRIANGLES_ADJACENCY
+              nofTris
+              GLRaw.gl_UNSIGNED_INT nullPtr
+
+            vertexAttribArray vPosition   $= Disabled
+
+            bindBuffer ElementArrayBuffer $= Nothing
+            bindVertexArrayObject         $= Nothing
+  where entMat = mkTransMat e
+        modelMat = objMat L.!*! entMat
+        mvp = viewProjMat L.!*! modelMat
+
+        lightPosition = plPosition pl
+
+        geometry = eGeometry e
+
+
+        verts = gVertices geometry
+        elems = gTriAdjElems geometry -- important
+        nofTris = gNOFAdjs geometry
+        vao = gVAO geometry
+
+        vPosition = GLUtil.getAttrib prog "v_position"

@@ -1,23 +1,19 @@
 module Game.Setup(setupGame) where
 
 
-import System.FilePath
-import Data.IORef
-
-import Model.GameState
-import Model.InputState
-import Model.Resources
-
-import Model.Object
-import Model.ClearColor
-
-import Model.Entity
-import Model.Camera
-import Model.Light
-import Model.World
-import Model.ShaderPrograms
-
-import qualified Linear as L
+import           Data.IORef
+import qualified Linear               as L
+import           Model.Camera
+import           Model.ClearColor
+import           Model.Entity
+import           Model.GameState
+import           Model.InputState
+import           Model.Light
+import           Model.Object
+import           Model.Resources
+import           Model.ShaderPrograms
+import           Model.World
+import           System.FilePath
 
 
 
@@ -50,7 +46,8 @@ gameState = GameState {
       camera = Camera (L.V3 0 0 0) 0 0 (pi/2)
 
 
-      lights = [PointLight lightPos 4 (L.V3 1 1 1) Nothing]
+      lights = [ PointLight lightPos    4 (L.V3 1 1 1) Nothing
+               , PointLight lightPosAdj 2 (L.V3 1 1 1) Nothing ]
 
       clearColor = defaultClearColor
 
@@ -142,7 +139,7 @@ unloadedObjects = [
  Object'Unloaded {
    ouPosition = L.V3 0 (-1) 0,
    ouRotation = L.V3 0 0 0,
-   ouScale = L.V3 6 0.05 6,
+   ouScale = L.V3 12 0.05 12,
 
    ouEntityNames = ["box2"]
  },
@@ -174,7 +171,7 @@ unloadedEntities = [
    euRelativeRot = L.V3 0 0 0,
    euScale       = L.V3 1 1 1,
 
-   euAmbOverride = Nothing,
+   euAmbOverride = Just 1,
 
    euGeometryName = "lykt",
    euMaterialName = "placeholder"
@@ -198,7 +195,5 @@ unloadedShaderPrograms =
   spLightName     = "light"
 }
 
-
-
-
 lightPos = L.V3 1 2 3
+lightPosAdj = L.V3 1.2 2.2 4

@@ -11,22 +11,21 @@ uniform float ambientIntensity;
 uniform float diffuseIntensity;
 
 uniform vec3 eyepos_worldspace;
-//uniform int nofPointLights;
-uniform vec3 plPositions; // arrays of point light structs eventually.
-uniform vec3 plColors;    // arrays
+uniform vec3 plPositions;
+uniform vec3 plColors;
 
 struct VSOutput
 {
-    vec2 TexCoord;
-    vec3 Normal;
-    vec3 WorldPos;
+  vec2 TexCoord;
+  vec3 Normal;
+  vec3 WorldPos;
 };
 
 struct Attenuation
 {
-    float Constant;
-    float Linear;
-    float Exp;
+  float Constant;
+  float Linear;
+  float Exp;
 };
 
 struct PointLight
@@ -47,7 +46,7 @@ vec4 calcLightInternal(PointLight pl, vec3 LightDirection, VSOutput In)
   vec4 DiffuseColor  = vec4(0, 0, 0, 0);
   vec4 SpecularColor = vec4(0, 0, 0, 0);
 
-  if (DiffuseFactor > 0.0) {
+  if (DiffuseFactor > 0.00001) {
     DiffuseColor = vec4(pl.color, 1.0) * diffuseIntensity * DiffuseFactor;
 
     vec3 VertexToEye = normalize(eyepos_worldspace - In.WorldPos);
@@ -76,31 +75,25 @@ vec4 calcPointLight(PointLight pl, VSOutput In)
     pl.Atten.Exp * Distance * Distance;
 
   return Color / att;
+
 }
 
-
-
-void main(){
+void main() {
   VSOutput In;
   In.TexCoord = f_UV*16;
   In.Normal   = normalize(f_norm);
   In.WorldPos = f_pos;
 
   vec4 totalLight = vec4(0, 0, 0, 1);
-
-  Attenuation defaultAtten = Attenuation(0, 0.2, 0);
-
-  //  for (int i = 0; i < nofPointLights; ++i) {
-
-  PointLight pl = PointLight(plPositions,
-			     plColors,
-			     defaultAtten);
-
-  totalLight += calcPointLight(pl, In);
-
-  //  }
-
-
+  if (ambientIntensity == 1) {
+    totalLight = vec4(1,1,1,1);
+  } else {
+    Attenuation defaultAtten = Attenuation(0, 0.2, 0);
+    PointLight pl = PointLight(plPositions,
+                               plColors,
+                               defaultAtten);
+    totalLight += calcPointLight(pl, In);
+  }
 
   color = texture(diffuse, In.TexCoord.xy) * totalLight;
 
