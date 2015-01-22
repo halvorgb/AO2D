@@ -1,18 +1,14 @@
 module Engine.Graphics.Assets.ModelLoader(loadModel) where
 
---import Graphics.Rendering.OpenGL
-
-import Model.Types
-
-import qualified Linear as L
-import Text.ParserCombinators.Parsec
-import qualified Data.Map as Map
-import qualified Data.Maybe as Maybe
-import qualified Data.Set as Set
-import qualified Data.Array as Array
-import qualified Data.List as List
-
-import Model.Resources
+import qualified Data.Array                    as Array
+import qualified Data.List                     as List
+import qualified Data.Map                      as Map
+import qualified Data.Maybe                    as Maybe
+import qualified Data.Set                      as Set
+import qualified Linear                        as L
+import           Model.Resources
+import           Model.Types
+import           Text.ParserCombinators.Parsec
 
 type VertexIndex        = GLuint
 type UVIndex            = GLuint
@@ -22,11 +18,11 @@ type VertexCoordinate   = L.V3 GLfloat
 type VertexUVCoordinate = L.V2 GLfloat
 type VertexNormal       = L.V3 GLfloat
 
-type ModelOutput = ( [VertexCoordinate]
-                   , [VertexUVCoordinate]
-                   , [VertexNormal]
-                   , [VertexIndex]
-                   , [VertexIndex])
+type ModelOutput        = ( [VertexCoordinate]
+                          , [VertexUVCoordinate]
+                          , [VertexNormal]
+                          , [VertexIndex]
+                          , [VertexIndex])
 
 loadModel :: GeometryResource -> IO ModelOutput
 loadModel gR@(GeometryResource _ format fp)
