@@ -41,8 +41,8 @@ loadResources ((gs, is), rs, ulObjs, ulEnts, ulSPs) = do
       objects     = map (loadObject entityMap) ulObjs
       shaderProgs = addShaderProgs shaderMap ulSPs
 
-  return (gs {gsObjects = objects,
-              gsShaderPrograms = shaderProgs},
+  return (gs { gsObjects = objects
+             , gsShaderPrograms = shaderProgs},
           is)
 
 -------------------------------------
@@ -52,9 +52,9 @@ addShaderProgs :: M.Map String GLUtil.ShaderProgram ->
                   ShaderPrograms'Unloaded ->
                   ShaderPrograms
 addShaderProgs shaderMap spsU =
-    ShaderPrograms {
-  spShadowVol = shaderMap M.! spShadowVolName spsU,
-  spLight = shaderMap M.! spLightName spsU
+    ShaderPrograms { spShadowVol = shaderMap M.! spShadowVolName spsU
+                   , spLight     = shaderMap M.! spLightName spsU
+                   , spDepth     = shaderMap M.! spDepthName spsU
 }
 
 --------------------------------------

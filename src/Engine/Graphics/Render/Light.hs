@@ -1,13 +1,12 @@
 module Engine.Graphics.Render.Light(renderLightedObjects, renderAmbientObjects) where
 
 import qualified Data.Maybe                           as Maybe
+import           Engine.Graphics.Common
 import           Foreign.Ptr                          (nullPtr)
 import qualified Graphics.GLUtil                      as GLUtil
 import           Graphics.Rendering.OpenGL
 import qualified Graphics.Rendering.OpenGL.Raw.Core31 as GLRaw
 import qualified Linear                               as L
-
-import           Engine.Graphics.Common
 import           Model.Classes
 import           Model.Entity
 import           Model.Geometry
@@ -34,10 +33,9 @@ renderLightedObjects viewProjMat pl camPos prog os =
 renderAmbientObjects :: TransformationMatrix -> PointLight -> Translation -> GLUtil.ShaderProgram -> GLfloat -> [Object] -> IO ()
 renderAmbientObjects viewProjMat pl camPos prog ambianceIntensity os =
     do let diffuseIntensity  = 0.0
-           ambInt = 0.2
 
        currentProgram $= (Just $ GLUtil.program prog)
-       mapM_ (renderLightedObject viewProjMat ambInt diffuseIntensity pl camPos prog) os
+       mapM_ (renderLightedObject viewProjMat ambianceIntensity diffuseIntensity pl camPos prog) os
 
        checkError "renderAmbientObjects"
 
@@ -64,8 +62,6 @@ renderLightedEntity viewProjMat objMat ambianceIntensity diffuseIntensity pl cam
        vertexAttribArray vPosition   $= Enabled
        bindBuffer ArrayBuffer        $= Just verts
        vertexAttribPointer vPosition $= (ToFloat, VertexArrayDescriptor 3 Float 0 GLUtil.offset0)
-
-
        vertexAttribArray vUV   $= Enabled
        bindBuffer ArrayBuffer  $= Just uvs
        vertexAttribPointer vUV $= (ToFloat, VertexArrayDescriptor 2 Float 0 GLUtil.offset0)
@@ -73,8 +69,6 @@ renderLightedEntity viewProjMat objMat ambianceIntensity diffuseIntensity pl cam
        vertexAttribArray vNorm   $= Enabled
        bindBuffer ArrayBuffer    $= Just norms
        vertexAttribPointer vNorm $= (ToFloat, VertexArrayDescriptor 3 Float 0 GLUtil.offset0)
-
-
 
        bindBuffer ElementArrayBuffer $= Just elems
 

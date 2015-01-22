@@ -1,6 +1,5 @@
 module Game.Setup(setupGame) where
 
-
 import           Data.IORef
 import qualified Linear               as L
 import           Model.Camera
@@ -14,8 +13,6 @@ import           Model.Resources
 import           Model.ShaderPrograms
 import           Model.World
 import           System.FilePath
-
-
 
 setupGame :: IO InitialState
 setupGame = do
@@ -71,18 +68,25 @@ resources = Resources {
        }]
 
       shaderResources = [
-       ShaderResource {
-         srUniqueName   = "shadowVol",
-         srVertShaderFP = "assets" </> "shaders" </> "shadowVolume.vert",
-         srGeomShaderFP = Just $ "assets" </> "shaders" </> "shadowVolume.geom",
-         srFragShaderFP = Just $ "assets" </> "shaders" </> "shadowVolume.frag"
-       },
-       ShaderResource {
-         srUniqueName   = "light",
-         srVertShaderFP = "assets" </> "shaders" </> "lighting.vert",
-         srGeomShaderFP = Nothing,
-         srFragShaderFP = Just $ "assets" </> "shaders" </> "lighting.frag"
-       }]
+        ShaderResource {
+           srUniqueName   = "depth",
+           srVertShaderFP = "assets" </> "shaders" </> "depth.vert",
+           srGeomShaderFP = Nothing,
+           srFragShaderFP = Just $ "assets" </> "shaders" </> "depth.frag"
+           }
+        , ShaderResource {
+           srUniqueName   = "shadowVol",
+           srVertShaderFP = "assets" </> "shaders" </> "shadowVolume.vert",
+           srGeomShaderFP = Just $ "assets" </> "shaders" </> "shadowVolume.geom",
+           srFragShaderFP = Just $ "assets" </> "shaders" </> "shadowVolume.frag"
+           }
+        , ShaderResource {
+           srUniqueName   = "light",
+           srVertShaderFP = "assets" </> "shaders" </> "lighting.vert",
+           srGeomShaderFP = Nothing,
+           srFragShaderFP = Just $ "assets" </> "shaders" </> "lighting.frag"
+           }
+        ]
       materialResources = [
        MaterialResource {
          mrUniqueName =  "placeholder",
@@ -190,10 +194,10 @@ unloadedEntities = [
 
 unloadedShaderPrograms :: ShaderPrograms'Unloaded
 unloadedShaderPrograms =
-    ShaderPrograms'Unloaded {
-  spShadowVolName = "shadowVol",
-  spLightName     = "light"
-}
+    ShaderPrograms'Unloaded { spShadowVolName = "shadowVol"
+                            , spLightName     = "light"
+                            , spDepthName     = "depth"
+                            }
 
-lightPos = L.V3 1 2 3
-lightPosAdj = L.V3 1.2 2.2 4
+lightPos    = L.V3 1 2 3
+lightPosAdj = L.V3 2 4 4

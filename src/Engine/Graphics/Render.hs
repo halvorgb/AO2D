@@ -1,5 +1,6 @@
 module Engine.Graphics.Render(render) where
 
+import           Engine.Graphics.Render.Depth
 import           Engine.Graphics.Render.Light
 import           Engine.Graphics.Render.ShadowVolume
 import qualified Graphics.GLUtil.Camera3D            as GLUtilC
@@ -31,24 +32,27 @@ render (gs, _) w =
            sp = gsShaderPrograms gs
            lightShader     = spLight sp
            shadowVolShader = spShadowVol sp
-
+           depthShader     = spDepth sp
 
            objects = gsObjects gs
+
+
+       -- write to depth buffer
 
        -- Render ambiance everywhere. Write to depth-buffer.
        depthMask $= Enabled
        clear [ColorBuffer, DepthBuffer, StencilBuffer]
-       renderAmbientObjects viewProjMat (head lights) camPos lightShader ambiance objects
-
-
+       colorMask $= (Color4 Disabled Disabled Disabled Disabled)
+       cullFace $= Just Back
+       renderDepth viewProjMat depthShader objects
        -- foreach light:
        mapM_
          (\l ->
            do -- Depth fail, mark shadow volumes in the stencil buffer.
               depthMask $= Disabled
-              colorMask $= (Color4 Disabled Disabled Disabled Disabled)
+              clear [StencilBuffer]
               cullFace $= Nothing
-
+              colorMask $= (Color4 Disabled Disabled Disabled Disabled)
               stencilTest $= Enabled
               stencilFunc $= (Always, 0, 0xFF)
               stencilOpSeparate Back  $= (OpKeep, OpIncrWrap, OpKeep)
@@ -56,22 +60,32 @@ render (gs, _) w =
 
               renderShadowVolumeToStencil viewProjMat l shadowVolShader objects
 
-
               -- using given stencil info.
               -- Draw the scene with lights.
+              depthMask $= Enabled
               colorMask $= (Color4 Enabled Enabled Enabled Disabled)
               stencilFunc $= (Equal, 0, 0xff)
               stencilOpSeparate Front $= (OpKeep, OpKeep, OpKeep)
               cullFace $= Just Back
               blend $= Enabled
-              blendEquation $= FuncAdd
-              blendColor $= Color4 0 0 0 0.9
-              blendFunc $= (ConstantAlpha, ConstantAlpha)
+
+              -- Max looks good on the 1 test I did, maybe not overall?
+              -- BlendEquation $= FuncAdd
+              blendEquation $= Max
+              blendFunc $= (One, One)
               renderLightedObjects viewProjMat l camPos lightShader objects
               blend $= Disabled
 
               stencilTest $= Disabled
          ) lights
+       colorMask $= (Color4 Enabled Enabled Enabled Disabled)
+       cullFace $= Just Back
+       blend $= Enabled
+       blendEquation $= FuncAdd
+       blendFunc $= (One, One)
+       renderAmbientObjects viewProjMat (head lights) camPos lightShader ambiance objects
+       blend $= Disabled
+
 
 mkViewProjMat :: Int -> Int -> Camera -> TransformationMatrix
 mkViewProjMat width height camera  = projMat L.!*! viewMat

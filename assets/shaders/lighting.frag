@@ -88,7 +88,7 @@ void main() {
   if (ambientIntensity == 1) {
     totalLight = vec4(1,1,1,1);
   } else {
-    Attenuation defaultAtten = Attenuation(0, 0.2, 0);
+    Attenuation defaultAtten = Attenuation(0, 0.25, 0);
     PointLight pl = PointLight(plPositions,
                                plColors,
                                defaultAtten);
