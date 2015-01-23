@@ -45,10 +45,10 @@ addShaderProgs :: M.Map String GLUtil.ShaderProgram ->
                   ShaderPrograms'Unloaded ->
                   ShaderPrograms
 addShaderProgs shaderMap spsU =
-    ShaderPrograms { spShadowVol = shaderMap M.! spShadowVolName spsU
-                   , spLight     = shaderMap M.! spLightName spsU
-                   , spDepth     = shaderMap M.! spDepthName spsU
-}
+  ShaderPrograms { spShadowVol = shaderMap M.! spShadowVolName spsU
+                 , spLight     = shaderMap M.! spLightName spsU
+                 , spDepth     = shaderMap M.! spDepthName spsU
+                 }
 
 --------------------------------------
 -- Load Objects using loaded entities:
@@ -57,15 +57,14 @@ loadObject :: M.Map String Entity ->
               Object'Unloaded ->
               Object
 loadObject entityMap ou = obj
-    where
-      ents = map (entityMap M.!) $ ouEntityNames ou
+  where ents = map (entityMap M.!) $ ouEntityNames ou
 
-      obj = Object { oPosition = ouPosition ou
-                   , oRotation = ouRotation ou
-                   , oScale    = ouScale ou
-                   , oBBT      = undefined
-                   , oEntities = ents
-                   }
+        obj = Object { oPosition = ouPosition ou
+                     , oRotation = ouRotation ou
+                     , oScale    = ouScale ou
+                     , oBBT      = undefined
+                     , oEntities = ents
+                     }
 
 
 
@@ -78,24 +77,23 @@ loadEntity :: M.Map String Material ->
               Entity'Unloaded ->
               M.Map String Entity
 loadEntity materialMap geometryMap entMap eu =
-    M.insert un ent entMap
-    where
-      un = euUniqueName eu
+  M.insert un ent entMap
+  where un = euUniqueName eu
 
-      mn = euMaterialName eu
-      gn = euGeometryName eu
+        mn = euMaterialName eu
+        gn = euGeometryName eu
 
-      m = materialMap M.! mn
-      g = geometryMap M.! gn
+        m = materialMap M.! mn
+        g = geometryMap M.! gn
 
 
-      ent = Entity { eRelativePos = euRelativePos eu
-                   , eRelativeRot = euRelativeRot eu
-                   , eScale       = euScale eu
-                   , eAmbOverride = euAmbOverride eu
-                   , eGeometry    = g
-                   , eMaterial    = m
-                   }
+        ent = Entity { eRelativePos = euRelativePos eu
+                     , eRelativeRot = euRelativeRot eu
+                     , eScale       = euScale eu
+                     , eAmbOverride = euAmbOverride eu
+                     , eGeometry    = g
+                     , eMaterial    = m
+                     }
 
 -------------------
 -- Load raw assets:
@@ -103,11 +101,11 @@ loadEntity materialMap geometryMap entMap eu =
 buildIOMap :: (r -> IO (String, l)) -> [r] -> IO (M.Map String l)
 buildIOMap loadFunc = L.foldl' loadFunc' (return M.empty)
 
-    where --loadFunc' :: IO (M.Map String l) -> r -> IO (M.Map String l)
-          loadFunc' loadedMap r
-              = do m <- loadedMap
-                   (k, l) <- loadFunc r
-                   return $ M.insert k l m
+  where --loadFunc' :: IO (M.Map String l) -> r -> IO (M.Map String l)
+        loadFunc' loadedMap r
+          = do m <- loadedMap
+               (k, l) <- loadFunc r
+               return $ M.insert k l m
 
 
 
@@ -118,8 +116,7 @@ loadShader sr = do
 
   return (un, sp)
 
-      where
-        v = (VertexShader, vert)
+  where v = (VertexShader, vert)
         g = maybe [] (\geomFP -> [(GeometryShader, geomFP)]) geom
         f = maybe [] (\fragFP -> [(FragmentShader, fragFP)]) frag
 
@@ -155,7 +152,7 @@ loadGeometry gr = do
                           }
 
   return (un, geometry)
-    where un = grUniqueName gr
+  where un = grUniqueName gr
 
 
 loadMaterial :: MaterialResource -> IO (String, Material)
@@ -183,5 +180,5 @@ loadMaterial mr = do
           Material { mDiffuseMap = diff_texObject
                    }
   return (un, material)
-    where un = mrUniqueName mr
-          diffuseFilePath = mrDiffuseFP mr
+  where un = mrUniqueName mr
+        diffuseFilePath = mrDiffuseFP mr

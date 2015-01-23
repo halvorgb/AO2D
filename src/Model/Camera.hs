@@ -21,19 +21,18 @@ instance Show Camera where
 rotateCamera :: GLfloat -> GLfloat -> Camera -> Camera
 rotateCamera add_tilt add_pan cam = cam { cTilt = tilt'
                                         , cPan = pan'}
-    where
-      tilt = cTilt cam
-      pan = cPan cam
-      pi2 = 2*pi
+  where tilt = cTilt cam
+        pan = cPan cam
+        pi2 = 2*pi
 
-      tilt'
+        tilt'
           | add_tilt == 0  = tilt
           | t > maxTilt    = maxTilt
           | t < (-maxTilt) = -maxTilt
           | otherwise = t -- change
           where t = tilt + add_tilt
                 maxTilt = pi/2
-      pan' -- avoid pan' growing over 360 degrees or 2pi
+        pan' -- avoid pan' growing over 360 degrees or 2pi
           | add_pan == 0 = pan
           | p > pi2      = p - pi2
           | p < (-pi2)   = p + pi2
@@ -46,40 +45,39 @@ rotateCamera add_tilt add_pan cam = cam { cTilt = tilt'
 moveCamera :: Translation -> Camera -> Camera
 moveCamera (L.V3 0 0 0) cam = cam
 moveCamera moveBy cam = cam {cPosition = pos'}
-    where
-      pos = cPosition cam
-      pan = cPan cam
-      tilt = cTilt cam
+  where pos = cPosition cam
+        pan = cPan cam
+        tilt = cTilt cam
 
-      panRotationMatrix :: L.M33 GLfloat
-      panRotationMatrix =  L.V3
-                           (L.V3 (cos pan) 0 (sin pan))
-                           (L.V3 0 1 0)
-                           (L.V3 (-sin pan) 0 (cos pan))
-
-
-      tiltRotationMatrix :: L.M33 GLfloat
-      tiltRotationMatrix = L.V3
-                           (L.V3 1 0 0)
-                           (L.V3 0 (cos tilt) (-sin tilt))
-                           (L.V3 0 (sin tilt) (cos tilt))
+        panRotationMatrix :: L.M33 GLfloat
+        panRotationMatrix =  L.V3
+                             (L.V3 (cos pan) 0 (sin pan))
+                             (L.V3 0 1 0)
+                             (L.V3 (-sin pan) 0 (cos pan))
 
 
-      rotationMatrix :: TransformationMatrix
-      rotationMatrix = L.mkTransformationMat (panRotationMatrix L.!*! tiltRotationMatrix) (L.V3 0 0 0)
+        tiltRotationMatrix :: L.M33 GLfloat
+        tiltRotationMatrix = L.V3
+                             (L.V3 1 0 0)
+                             (L.V3 0 (cos tilt) (-sin tilt))
+                             (L.V3 0 (sin tilt) (cos tilt))
 
 
-      -- moveBy rotated to fit the camera angles.
-      trans :: L.V4 GLfloat
-      trans = rotationMatrix L.!* increaseDim moveBy
+        rotationMatrix :: TransformationMatrix
+        rotationMatrix = L.mkTransformationMat (panRotationMatrix L.!*! tiltRotationMatrix) (L.V3 0 0 0)
 
 
-
-      -- finally translate position by moveBy'
-      pos' = pos L.^+^ reduceDim trans
+        -- moveBy rotated to fit the camera angles.
+        trans :: L.V4 GLfloat
+        trans = rotationMatrix L.!* increaseDim moveBy
 
 
 
+        -- finally translate position by moveBy'
+        pos' = pos L.^+^ reduceDim trans
 
-      reduceDim (L.V4 x y z _) = L.V3 x y z
-      increaseDim (L.V3 x y z) = L.V4 x y z 0
+
+
+
+        reduceDim (L.V4 x y z _) = L.V3 x y z
+        increaseDim (L.V3 x y z) = L.V4 x y z 0

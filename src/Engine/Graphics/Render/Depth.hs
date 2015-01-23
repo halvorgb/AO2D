@@ -21,8 +21,7 @@ renderDepth viewProjMat prog objects =
 renderObjectToDepth :: TransformationMatrix -> GLUtil.ShaderProgram -> Object -> IO ()
 renderObjectToDepth viewProjMat prog o =
   mapM_ (renderEntityToDepth viewProjMat objMat prog) $ oEntities o
-      where
-        objMat = mkTransMat o
+  where objMat = mkTransMat o
 
 renderEntityToDepth :: TransformationMatrix -> TransformationMatrix -> GLUtil.ShaderProgram -> Entity -> IO ()
 renderEntityToDepth viewProjMat objMat prog e =

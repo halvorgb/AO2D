@@ -88,17 +88,16 @@ render (gs, _) w =
 
 mkViewProjMat :: Int -> Int -> Camera -> TransformationMatrix
 mkViewProjMat width height camera  = projMat L.!*! viewMat
-    where
-      viewMat    = GLUtilC.camMatrix cam
-      cam        = GLUtilC.panRad pan . GLUtilC.tiltRad tilt . GLUtilC.dolly pos $ GLUtilC.fpsCamera
+  where viewMat    = GLUtilC.camMatrix cam
+        cam        = GLUtilC.panRad pan . GLUtilC.tiltRad tilt . GLUtilC.dolly pos $ GLUtilC.fpsCamera
 
 
-      tilt       = cTilt camera
-      pan        = cPan camera
-      pos        = cPosition camera
+        tilt       = cTilt camera
+        pan        = cPan camera
+        pos        = cPosition camera
 
-      projMat    = GLUtilC.projectionMatrix fov aspect nearClip farClip
-      aspect     = fromIntegral width / fromIntegral height
-      fov        = cFov camera
-      nearClip   = 0.01
-      farClip    = 100
+        projMat    = GLUtilC.projectionMatrix fov aspect nearClip farClip
+        aspect     = fromIntegral width / fromIntegral height
+        fov        = cFov camera
+        nearClip   = 0.01
+        farClip    = 100
