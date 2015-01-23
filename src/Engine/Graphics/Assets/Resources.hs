@@ -34,9 +34,9 @@ loadResources ((gs, is), rs, ulObjs, ulEnts, ulSPs) = do
       objects     = map (loadObject entityMap) ulObjs
       shaderProgs = addShaderProgs shaderMap ulSPs
 
-  return (gs { gsObjects = objects
-             , gsShaderPrograms = shaderProgs},
-          is)
+  return ( gs { gsObjects = objects
+              , gsShaderPrograms = shaderProgs}, is
+         )
 
 -------------------------------------
 -- Add loaded shader programs.......
@@ -60,15 +60,12 @@ loadObject entityMap ou = obj
     where
       ents = map (entityMap M.!) $ ouEntityNames ou
 
-      obj = Object {
-              oPosition = ouPosition ou,
-              oRotation = ouRotation ou,
-              oScale    = ouScale ou,
-
-              oBBT      = undefined,
-
-              oEntities = ents
-            }
+      obj = Object { oPosition = ouPosition ou
+                   , oRotation = ouRotation ou
+                   , oScale    = ouScale ou
+                   , oBBT      = undefined
+                   , oEntities = ents
+                   }
 
 
 
@@ -92,16 +89,13 @@ loadEntity materialMap geometryMap entMap eu =
       g = geometryMap M.! gn
 
 
-      ent = Entity {
-              eRelativePos = euRelativePos eu,
-              eRelativeRot = euRelativeRot eu,
-              eScale       = euScale eu,
-
-              eAmbOverride = euAmbOverride eu,
-
-              eGeometry    = g,
-              eMaterial    = m
-            }
+      ent = Entity { eRelativePos = euRelativePos eu
+                   , eRelativeRot = euRelativeRot eu
+                   , eScale       = euScale eu
+                   , eAmbOverride = euAmbOverride eu
+                   , eGeometry    = g
+                   , eMaterial    = m
+                   }
 
 -------------------
 -- Load raw assets:
@@ -150,15 +144,15 @@ loadGeometry gr = do
 
   let nofTris = length triElements
       nofAdjs = length triAdjElements
-      geometry = Geometry {
-                    gVertices    = verts,
-                    gUVCoords    = uvCds,
-                    gNormals     = norms,
-                    gTriElems    = triElems,
-                    gTriAdjElems = triAdjElems,
-                    gNOFTris     = fromIntegral nofTris,
-                    gNOFAdjs     = fromIntegral nofAdjs,
-                    gVAO         = vao }
+      geometry = Geometry { gVertices    = verts
+                          , gUVCoords    = uvCds
+                          , gNormals     = norms
+                          , gTriElems    = triElems
+                          , gTriAdjElems = triAdjElems
+                          , gNOFTris     = fromIntegral nofTris
+                          , gNOFAdjs     = fromIntegral nofAdjs
+                          , gVAO         = vao
+                          }
 
   return (un, geometry)
     where un = grUniqueName gr
@@ -178,18 +172,16 @@ loadMaterial mr = do
 
   diff_texObject <- GLUtil.loadTexture diff_texInfo
 
-  textureBinding Texture2D $= Just diff_texObject
-  textureFilter Texture2D $= ((Linear',Just Linear'), Linear')
+  textureBinding Texture2D    $= Just diff_texObject
+  textureFilter Texture2D     $= ((Linear',Just Linear'), Linear')
   textureWrapMode Texture2D S $= (Repeated, Repeat)
   textureWrapMode Texture2D T $= (Repeated, Repeat)
   generateMipmap' Texture2D
-  textureBinding Texture2D $= Nothing
+  textureBinding Texture2D    $= Nothing
 
   let material =
-          Material {
-        mDiffuseMap = diff_texObject
-      }
+          Material { mDiffuseMap = diff_texObject
+                   }
   return (un, material)
-    where
-      un = mrUniqueName mr
-      diffuseFilePath = mrDiffuseFP mr
+    where un = mrUniqueName mr
+          diffuseFilePath = mrDiffuseFP mr

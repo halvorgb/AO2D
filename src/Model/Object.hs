@@ -8,22 +8,18 @@ import Model.Entity
 type UnloadedObjects = [Object'Unloaded]
 
 data Object'Unloaded =
-    Object'Unloaded {
-      ouPosition :: Translation,
-      ouRotation :: Rotation,
-      ouScale :: Scale,
-
-      ouEntityNames :: [String]
-    }
+    Object'Unloaded { ouPosition :: Translation
+                    , ouRotation :: Rotation
+                    , ouScale :: Scale
+                    , ouEntityNames :: [String]
+                    }
 
 data Object =
-    Object { oPosition  :: Translation,
-             oRotation  :: Rotation,
-             oScale     :: Scale,
-
-             oBBT       :: BoundingBoxTree,
-
-             oEntities  :: [Entity]
+    Object { oPosition  :: Translation
+           , oRotation  :: Rotation
+           , oScale     :: Scale
+           , oBBT       :: BoundingBoxTree
+           , oEntities  :: [Entity]
            }
 
 instance Transformable Object where

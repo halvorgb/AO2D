@@ -5,10 +5,10 @@ import           Model.Types ()
 import           Model.Types
 
 data Camera =
-    Camera { cPosition :: Translation,
-             cPan      :: GLfloat, -- radians
-             cTilt     :: GLfloat, -- radians
-             cFov      :: GLfloat -- radians
+    Camera { cPosition :: Translation
+           , cPan      :: GLfloat -- radians
+           , cTilt     :: GLfloat -- radians
+           , cFov      :: GLfloat -- radians
            }
 
 instance Show Camera where
@@ -19,7 +19,8 @@ instance Show Camera where
 
 
 rotateCamera :: GLfloat -> GLfloat -> Camera -> Camera
-rotateCamera add_tilt add_pan cam = cam {cTilt = tilt', cPan = pan'}
+rotateCamera add_tilt add_pan cam = cam { cTilt = tilt'
+                                        , cPan = pan'}
     where
       tilt = cTilt cam
       pan = cPan cam

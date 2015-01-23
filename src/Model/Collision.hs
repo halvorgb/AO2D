@@ -14,13 +14,13 @@ class Collidable a where
     collidesWith :: Collidable b => a -> b -> Bool
     collidesWith bbta bbtb = False
 data BoundingBox =
-    BoundingBox {
-      bbMaxX :: GLfloat,
-      bbMinX :: GLfloat,
-      bbMaxY :: GLfloat,
-      bbMinY :: GLfloat,
-      bbMaxZ :: GLfloat,
-      bbMinZ :: GLfloat } -- corners instead?
+    BoundingBox { bbMaxX :: GLfloat
+                , bbMinX :: GLfloat
+                , bbMaxY :: GLfloat
+                , bbMinY :: GLfloat
+                , bbMaxZ :: GLfloat
+                , bbMinZ :: GLfloat
+                } -- corners instead?
 
 
 

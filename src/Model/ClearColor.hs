@@ -17,11 +17,10 @@ pinkCC   = L.V3 1 0 1
 -}
 
 data ClearColor =
-    ClearColor {
-      ccColorCycle :: [Color'RGB],
-      ccClearColor :: Color'RGB,
-      ccInterpRate :: GLfloat -- how much time (in seconds) needed to change 1 value of (R,G,B)
-    } deriving(Show)
+    ClearColor { ccColorCycle :: [Color'RGB]
+               , ccClearColor :: Color'RGB
+               , ccInterpRate :: GLfloat -- how much time (in seconds) needed to change 1 value of (R,G,B)
+               } deriving(Show)
 
 toGLColor :: ClearColor -> GL.Color4 GL.GLfloat
 toGLColor cc = GL.Color4 r g b 1.0

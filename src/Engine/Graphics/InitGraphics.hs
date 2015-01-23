@@ -16,11 +16,11 @@ initGraphics w h winTitle initialState@((_, inputState), _, _, _, _)  = do
   successfulInit <- GLFW.init
 
   mapM_ GLFW.windowHint
-            [ GLFW.WindowHint'ContextVersionMajor  3,
-              GLFW.WindowHint'ContextVersionMinor  3,
-              GLFW.WindowHint'OpenGLProfile GLFW.OpenGLProfile'Core,
-              GLFW.WindowHint'OpenGLDebugContext True,
-              GLFW.WindowHint'StencilBits 24
+            [ GLFW.WindowHint'ContextVersionMajor  3
+            , GLFW.WindowHint'ContextVersionMinor  3
+            , GLFW.WindowHint'OpenGLProfile GLFW.OpenGLProfile'Core
+            , GLFW.WindowHint'OpenGLDebugContext True
+            , GLFW.WindowHint'StencilBits 24
             ]
   checkError "windowHint"
 

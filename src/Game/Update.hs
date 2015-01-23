@@ -48,8 +48,9 @@ updateGame (gs, isIO) delta = do
       cc = gsClearColor gs
       cc' = interpolateColor cc delta
 
-      gs' = gs { gsCamera = cam',
-                 gsClearColor = cc'}
+      gs' = gs { gsCamera = cam'
+               , gsClearColor = cc'
+               }
 
   writeIORef isIO is'
   return (gs', isIO)

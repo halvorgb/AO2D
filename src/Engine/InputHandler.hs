@@ -36,8 +36,8 @@ cursorCallback inputStateIO window x y =
                    mx = miX m
                    my = miY m
 
-                   m' = MouseInput { miX = mx + realToFrac delta_x,
-                                     miY = my + realToFrac delta_y
+                   m' = MouseInput { miX = mx + realToFrac delta_x
+                                   , miY = my + realToFrac delta_y
                                    }
                    is' = is {isMouseInput = m'}
                writeIORef inputStateIO is' -- write updated mouse input!

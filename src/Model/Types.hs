@@ -1,5 +1,13 @@
-module Model.Types(TransformationMatrix, TransformationVector, Translation,
-                   Rotation, Scale, Color'RGB, GLfloat, GLint, GLuint) where
+module Model.Types( TransformationMatrix
+                  , TransformationVector
+                  , Translation
+                  , Rotation
+                  , Scale
+                  , Color'RGB
+                  , GLfloat
+                  , GLint
+                  , GLuint
+                  ) where
 
 import           Graphics.Rendering.OpenGL
 import qualified Linear                    as L
