@@ -61,13 +61,14 @@ renderLightedEntity viewProjMat objMat ambianceIntensity diffuseIntensity pl cam
      vertexAttribArray vPosition   $= Enabled
      bindBuffer ArrayBuffer        $= Just verts
      vertexAttribPointer vPosition $= (ToFloat, VertexArrayDescriptor 3 Float 0 GLUtil.offset0)
-     vertexAttribArray vUV   $= Enabled
-     bindBuffer ArrayBuffer  $= Just uvs
-     vertexAttribPointer vUV $= (ToFloat, VertexArrayDescriptor 2 Float 0 GLUtil.offset0)
 
-     vertexAttribArray vNorm   $= Enabled
-     bindBuffer ArrayBuffer    $= Just norms
-     vertexAttribPointer vNorm $= (ToFloat, VertexArrayDescriptor 3 Float 0 GLUtil.offset0)
+     vertexAttribArray vUV         $= Enabled
+     bindBuffer ArrayBuffer        $= Just uvs
+     vertexAttribPointer vUV       $= (ToFloat, VertexArrayDescriptor 2 Float 0 GLUtil.offset0)
+
+     vertexAttribArray vNorm       $= Enabled
+     bindBuffer ArrayBuffer        $= Just norms
+     vertexAttribPointer vNorm     $= (ToFloat, VertexArrayDescriptor 3 Float 0 GLUtil.offset0)
 
      bindBuffer ElementArrayBuffer $= Just elems
 
@@ -76,9 +77,9 @@ renderLightedEntity viewProjMat objMat ambianceIntensity diffuseIntensity pl cam
        nofTris
        GLRaw.gl_UNSIGNED_INT nullPtr
 
-     vertexAttribArray vPosition $= Disabled
-     vertexAttribArray vUV       $= Disabled
-     vertexAttribArray vNorm     $= Disabled
+     vertexAttribArray vPosition   $= Disabled
+     vertexAttribArray vUV         $= Disabled
+     vertexAttribArray vNorm       $= Disabled
 
      bindBuffer ElementArrayBuffer $= Nothing
      textureBinding Texture2D      $= Nothing
