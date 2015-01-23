@@ -33,30 +33,30 @@ renderObjectToStencil viewProjMat pl prog o =
 
 renderEntityToStencil ::  TransformationMatrix -> TransformationMatrix -> PointLight -> GLUtil.ShaderProgram -> Entity -> IO ()
 renderEntityToStencil viewProjMat objMat pl prog e =
-  do unless (eAmbOverride e == Just (1.0))
-     $ do bindVertexArrayObject $= Just vao
+  unless (eAmbOverride e == Just (1.0))
+  $ do bindVertexArrayObject $= Just vao
 
-          GLUtil.asUniform mvp           $ GLUtil.getUniform prog "MVP"
-          GLUtil.asUniform modelMat      $ GLUtil.getUniform prog "M"
-          GLUtil.asUniform viewProjMat   $ GLUtil.getUniform prog "VP"
-          GLUtil.asUniform lightPosition $ GLUtil.getUniform prog "lightPosition"
+       GLUtil.asUniform mvp           $ GLUtil.getUniform prog "MVP"
+       GLUtil.asUniform modelMat      $ GLUtil.getUniform prog "M"
+       GLUtil.asUniform viewProjMat   $ GLUtil.getUniform prog "VP"
+       GLUtil.asUniform lightPosition $ GLUtil.getUniform prog "lightPosition"
 
 
-          vertexAttribArray vPosition   $= Enabled
-          bindBuffer ArrayBuffer        $= Just verts
-          vertexAttribPointer vPosition $= (ToFloat, VertexArrayDescriptor 3 Float 0 GLUtil.offset0)
+       vertexAttribArray vPosition   $= Enabled
+       bindBuffer ArrayBuffer        $= Just verts
+       vertexAttribPointer vPosition $= (ToFloat, VertexArrayDescriptor 3 Float 0 GLUtil.offset0)
 
-          bindBuffer ElementArrayBuffer $= Just elems
+       bindBuffer ElementArrayBuffer $= Just elems
 
-          GLRaw.glDrawElements
-            GLRaw.gl_TRIANGLES_ADJACENCY
-            nofTris
-            GLRaw.gl_UNSIGNED_INT nullPtr
+       GLRaw.glDrawElements
+         GLRaw.gl_TRIANGLES_ADJACENCY
+         nofTris
+         GLRaw.gl_UNSIGNED_INT nullPtr
 
-          vertexAttribArray vPosition   $= Disabled
+       vertexAttribArray vPosition   $= Disabled
 
-          bindBuffer ElementArrayBuffer $= Nothing
-          bindVertexArrayObject         $= Nothing
+       bindBuffer ElementArrayBuffer $= Nothing
+       bindVertexArrayObject         $= Nothing
 
   where entMat = mkTransMat e
         modelMat = objMat L.!*! entMat

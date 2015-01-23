@@ -7,8 +7,8 @@ data ShaderPrograms =
                    , spLight     :: GLUtil.ShaderProgram
                    , spDepth     :: GLUtil.ShaderProgram
     }
-data ShaderPrograms'Unloaded =
-    ShaderPrograms'Unloaded { spShadowVolName :: String
+data ShaderProgramsUnloaded =
+    ShaderProgramsUnloaded { spShadowVolName :: String
                             , spLightName     :: String
                             , spDepthName     :: String
                             }

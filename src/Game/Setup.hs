@@ -53,11 +53,11 @@ resources = Resources { rGeometryRs = geometryResources
                       , rMaterialRs = materialResources
                       }
     where geometryResources = [ GeometryResource { grUniqueName  = "box2"
-                                                 , grModelFormat = ModelFormat'OBJ
+                                                 , grModelFormat = ModelFormatOBJ
                                                  , grModelFP     = "assets" </> "models" </> "box2.obj"
                                                  }
                               , GeometryResource { grUniqueName  = "lykt"
-                                                 , grModelFormat = ModelFormat'OBJ
+                                                 , grModelFormat = ModelFormatOBJ
                                                  , grModelFP     = "assets" </> "models" </> "LYKTSOTLP.obj"
                                                  }
                               ]
@@ -91,37 +91,37 @@ resources = Resources { rGeometryRs = geometryResources
 
 
 unloadedObjects :: UnloadedObjects
-unloadedObjects = [ Object'Unloaded { ouPosition = L.V3(-0.7) (-0.5) 1.8
+unloadedObjects = [ ObjectUnloaded { ouPosition = L.V3(-0.7) (-0.5) 1.8
                                     , ouRotation = L.V3 0 0 0
                                     , ouScale = L.V3 0.25 0.25 0.25
                                     , ouEntityNames = ["box2"]
                                     }
-                  , Object'Unloaded { ouPosition = L.V3 0 0 2
+                  , ObjectUnloaded { ouPosition = L.V3 0 0 2
                                     , ouRotation = L.V3 0 0 0
                                     , ouScale = L.V3 0.25 0.25 0.25
                                     , ouEntityNames = ["box2"]
                                     }
-                  , Object'Unloaded { ouPosition = L.V3 0 1 2
+                  , ObjectUnloaded { ouPosition = L.V3 0 1 2
                                     , ouRotation = L.V3 0 0 0
                                     , ouScale = L.V3 0.25 0.25 0.25
                                     , ouEntityNames = ["box2"]
                                     }
-                  , Object'Unloaded { ouPosition = L.V3 0 2 2
+                  , ObjectUnloaded { ouPosition = L.V3 0 2 2
                                     , ouRotation = L.V3 0 0 0
                                     , ouScale = L.V3 0.25 0.25 0.25
                                     , ouEntityNames = ["box2"]
                                     }
-                  , Object'Unloaded { ouPosition = L.V3 0 2 3
+                  , ObjectUnloaded { ouPosition = L.V3 0 2 3
                                     , ouRotation = L.V3 0 0 0
                                     , ouScale = L.V3 0.25 0.25 0.25
                                     , ouEntityNames = ["box2"]
                                     }
-                  , Object'Unloaded { ouPosition = L.V3 0 (-1) 0
+                  , ObjectUnloaded { ouPosition = L.V3 0 (-1) 0
                                     , ouRotation = L.V3 0 0 0
                                     , ouScale = L.V3 12 0.05 12
                                     , ouEntityNames = ["box2"]
                                     }
-                  , Object'Unloaded { ouPosition = L.V3 3 1 0
+                  , ObjectUnloaded { ouPosition = L.V3 3 1 0
                                     , ouRotation = L.V3 0 0 0
                                     , ouScale = L.V3 0.25 0.25 0.25
                                     , ouEntityNames = ["lykt"]
@@ -130,7 +130,7 @@ unloadedObjects = [ Object'Unloaded { ouPosition = L.V3(-0.7) (-0.5) 1.8
 
 
 unloadedEntities :: UnloadedEntities
-unloadedEntities = [ Entity'Unloaded { euUniqueName  = "box2"
+unloadedEntities = [ EntityUnloaded { euUniqueName  = "box2"
                                      , euRelativePos = L.V3 0 0 0
                                      , euRelativeRot = L.V3 0 0 0
                                      , euScale       = L.V3 1 1 1
@@ -138,7 +138,7 @@ unloadedEntities = [ Entity'Unloaded { euUniqueName  = "box2"
                                      , euGeometryName = "box2"
                                      , euMaterialName = "placeholder"
                                      }
-                   , Entity'Unloaded { euUniqueName  = "lykt"
+                   , EntityUnloaded { euUniqueName  = "lykt"
                                      , euRelativePos = L.V3 0 0 0
                                      , euRelativeRot = L.V3 0 0 0
                                      , euScale       = L.V3 1 1 1
@@ -146,7 +146,7 @@ unloadedEntities = [ Entity'Unloaded { euUniqueName  = "box2"
                                      , euGeometryName = "lykt"
                                      , euMaterialName = "placeholder"
                                      }
-                   , Entity'Unloaded { euUniqueName  = "light_box"
+                   , EntityUnloaded { euUniqueName  = "light_box"
                                      , euRelativePos = L.V3 0 0 0
                                      , euRelativeRot = L.V3 0 0 0
                                      , euScale       = L.V3 1 1 1
@@ -157,9 +157,9 @@ unloadedEntities = [ Entity'Unloaded { euUniqueName  = "box2"
                                      }
                    ]
 
-unloadedShaderPrograms :: ShaderPrograms'Unloaded
+unloadedShaderPrograms :: ShaderProgramsUnloaded
 unloadedShaderPrograms =
-    ShaderPrograms'Unloaded { spShadowVolName = "shadowVol"
+    ShaderProgramsUnloaded { spShadowVolName = "shadowVol"
                             , spLightName     = "light"
                             , spDepthName     = "depth"
                             }

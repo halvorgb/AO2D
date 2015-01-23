@@ -5,10 +5,10 @@ import           Model.Geometry
 import           Model.Material
 import           Model.Types
 
-type UnloadedEntities = [Entity'Unloaded]
+type UnloadedEntities = [EntityUnloaded]
 
-data Entity'Unloaded =
-    Entity'Unloaded { euUniqueName   :: String
+data EntityUnloaded =
+    EntityUnloaded { euUniqueName   :: String
                     , euRelativePos  :: Translation
                     , euRelativeRot  :: Rotation
                     , euScale        :: Scale

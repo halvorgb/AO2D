@@ -42,7 +42,7 @@ loadResources ((gs, is), rs, ulObjs, ulEnts, ulSPs) = do
 -- Add loaded shader programs.......
 -------------------------------------
 addShaderProgs :: M.Map String GLUtil.ShaderProgram ->
-                  ShaderPrograms'Unloaded ->
+                  ShaderProgramsUnloaded ->
                   ShaderPrograms
 addShaderProgs shaderMap spsU =
   ShaderPrograms { spShadowVol = shaderMap M.! spShadowVolName spsU
@@ -54,7 +54,7 @@ addShaderProgs shaderMap spsU =
 -- Load Objects using loaded entities:
 --------------------------------------
 loadObject :: M.Map String Entity ->
-              Object'Unloaded ->
+              ObjectUnloaded ->
               Object
 loadObject entityMap ou = obj
   where ents = map (entityMap M.!) $ ouEntityNames ou
@@ -74,7 +74,7 @@ loadObject entityMap ou = obj
 loadEntity :: M.Map String Material ->
               M.Map String Geometry ->
               M.Map String Entity ->
-              Entity'Unloaded ->
+              EntityUnloaded ->
               M.Map String Entity
 loadEntity materialMap geometryMap entMap eu =
   M.insert un ent entMap

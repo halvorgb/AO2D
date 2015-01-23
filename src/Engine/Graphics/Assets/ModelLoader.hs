@@ -26,7 +26,7 @@ type ModelOutput        = ( [VertexCoordinate]
 
 loadModel :: GeometryResource -> IO ModelOutput
 loadModel gR@(GeometryResource _ format fp)
-  | format == ModelFormat'OBJ = loadOBJModel fp
+  | format == ModelFormatOBJ = loadOBJModel fp
   | otherwise = error $ "unsupported format: " ++ show gR
 
 loadOBJModel :: FilePath -> IO ModelOutput

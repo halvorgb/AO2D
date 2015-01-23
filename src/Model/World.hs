@@ -10,4 +10,4 @@ import           Model.ShaderPrograms
 
 type World = (GameState, IORef InputState)
 
-type InitialState = (World, Resources, UnloadedObjects, UnloadedEntities, ShaderPrograms'Unloaded)
+type InitialState = (World, Resources, UnloadedObjects, UnloadedEntities, ShaderProgramsUnloaded)

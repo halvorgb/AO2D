@@ -41,7 +41,7 @@ render (gs, _) w =
        -- Render ambiance everywhere. Write to depth-buffer.
        depthMask $= Enabled
        clear [ColorBuffer, DepthBuffer, StencilBuffer]
-       colorMask $= (Color4 Disabled Disabled Disabled Disabled)
+       colorMask $= Color4 Disabled Disabled Disabled Disabled
        cullFace $= Just Back
        renderDepth viewProjMat depthShader objects
        -- foreach light:
@@ -51,7 +51,7 @@ render (gs, _) w =
               depthMask $= Disabled
               clear [StencilBuffer]
               cullFace $= Nothing
-              colorMask $= (Color4 Disabled Disabled Disabled Disabled)
+              colorMask $= Color4 Disabled Disabled Disabled Disabled
               stencilTest $= Enabled
               stencilFunc $= (Always, 0, 0xFF)
               stencilOpSeparate Back  $= (OpKeep, OpIncrWrap, OpKeep)
@@ -62,7 +62,7 @@ render (gs, _) w =
               -- using given stencil info.
               -- Draw the scene with lights.
               depthMask $= Enabled
-              colorMask $= (Color4 Enabled Enabled Enabled Disabled)
+              colorMask $= Color4 Enabled Enabled Enabled Enabled
               stencilFunc $= (Equal, 0, 0xff)
               stencilOpSeparate Front $= (OpKeep, OpKeep, OpKeep)
               cullFace $= Just Back
@@ -77,7 +77,7 @@ render (gs, _) w =
 
               stencilTest $= Disabled
          ) lights
-       colorMask $= (Color4 Enabled Enabled Enabled Disabled)
+       colorMask $= (Color4 Enabled Enabled Enabled Enabled)
        cullFace $= Just Back
        blend $= Enabled
        blendEquation $= FuncAdd

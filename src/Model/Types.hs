@@ -3,7 +3,7 @@ module Model.Types( TransformationMatrix
                   , Translation
                   , Rotation
                   , Scale
-                  , Color'RGB
+                  , ColorGGB
                   , GLfloat
                   , GLint
                   , GLuint
@@ -19,4 +19,4 @@ type Translation = L.V3 GLfloat
 type Scale       = L.V3 GLfloat
 type Rotation    = L.V3 GLfloat
 
-type Color'RGB   = L.V3 GLfloat
+type ColorGGB   = L.V3 GLfloat

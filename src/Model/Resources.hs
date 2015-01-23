@@ -14,7 +14,7 @@ data ShaderResource =
                    }
 
 
-data ModelFormat = ModelFormat'OBJ
+data ModelFormat = ModelFormatOBJ
                    deriving(Eq, Show)
 
 data GeometryResource =

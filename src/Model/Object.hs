@@ -5,10 +5,10 @@ import Model.Types
 import Model.Collision
 import Model.Entity
 
-type UnloadedObjects = [Object'Unloaded]
+type UnloadedObjects = [ObjectUnloaded]
 
-data Object'Unloaded =
-    Object'Unloaded { ouPosition :: Translation
+data ObjectUnloaded =
+    ObjectUnloaded { ouPosition :: Translation
                     , ouRotation :: Rotation
                     , ouScale :: Scale
                     , ouEntityNames :: [String]
