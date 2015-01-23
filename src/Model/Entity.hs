@@ -1,21 +1,21 @@
 module Model.Entity where
 
-import Model.Material
-import Model.Geometry
-import Model.Types
-import Model.Classes
+import           Model.Classes
+import           Model.Geometry
+import           Model.Material
+import           Model.Types
 
 type UnloadedEntities = [Entity'Unloaded]
 
 data Entity'Unloaded =
     Entity'Unloaded {
-      euUniqueName :: String,
+      euUniqueName   :: String,
 
-      euRelativePos :: Translation,
-      euRelativeRot :: Rotation,
-      euScale       :: Scale,
+      euRelativePos  :: Translation,
+      euRelativeRot  :: Rotation,
+      euScale        :: Scale,
 
-      euAmbOverride :: Maybe GLfloat,
+      euAmbOverride  :: Maybe GLfloat,
 
       euGeometryName :: String,
       euMaterialName :: String -- TODO, add more for specular/normal

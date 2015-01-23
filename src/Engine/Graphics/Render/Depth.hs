@@ -1,6 +1,5 @@
 module Engine.Graphics.Render.Depth(renderDepth) where
 
-
 import           Engine.Graphics.Common
 import           Foreign.Ptr                          (nullPtr)
 import qualified Graphics.GLUtil                      as GLUtil
@@ -10,8 +9,6 @@ import qualified Linear                               as L
 import           Model.Classes
 import           Model.Entity
 import           Model.Geometry
-
-
 import           Model.Object
 import           Model.Types
 

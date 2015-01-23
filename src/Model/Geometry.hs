@@ -1,6 +1,6 @@
 module Model.Geometry where
 
-import Graphics.Rendering.OpenGL
+import           Graphics.Rendering.OpenGL
 
 data Geometry =
     Geometry {

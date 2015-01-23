@@ -1,7 +1,7 @@
 module Model.Light where
 
-import Model.Types
-import Model.Object
+import           Model.Object
+import           Model.Types
 
 data PointLight =
     PointLight {

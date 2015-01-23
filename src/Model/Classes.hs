@@ -1,8 +1,7 @@
 module Model.Classes where
 
-import Model.Types
-
-import qualified Linear as L
+import qualified Linear      as L
+import           Model.Types
 
 class Transformable a where
     translationVector :: a -> TransformationVector

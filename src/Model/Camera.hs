@@ -1,16 +1,14 @@
 module Model.Camera where
 
---import Graphics.Rendering.OpenGL
-import Model.Types()
-import qualified Linear as L
-
-import Model.Types
+import qualified Linear      as L
+import           Model.Types ()
+import           Model.Types
 
 data Camera =
     Camera { cPosition :: Translation,
-             cPan :: GLfloat, -- radians
-             cTilt :: GLfloat, -- radians
-             cFov :: GLfloat -- radians
+             cPan      :: GLfloat, -- radians
+             cTilt     :: GLfloat, -- radians
+             cFov      :: GLfloat -- radians
            }
 
 instance Show Camera where

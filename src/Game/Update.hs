@@ -1,17 +1,14 @@
 module Game.Update(updateGame) where
 
-import Data.IORef
-import Prelude hiding(Left, Right)
-
-import Model.Types
-import qualified Linear as L
-
-
-import Model.InputState
-import Model.GameState
-import Model.World
-import Model.Camera
-import Model.ClearColor
+import           Data.IORef
+import qualified Linear           as L
+import           Model.Camera
+import           Model.ClearColor
+import           Model.GameState
+import           Model.InputState
+import           Model.Types
+import           Model.World
+import           Prelude          hiding (Left, Right)
 
 inputToTranslationVector :: KeyboardInput -> L.V3 GLfloat
 inputToTranslationVector Up       = L.V3   0   1   0

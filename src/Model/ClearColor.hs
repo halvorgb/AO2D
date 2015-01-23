@@ -1,9 +1,8 @@
 module Model.ClearColor(ClearColor(..), toGLColor, defaultClearColor, interpolateColor) where
 
 import qualified Graphics.Rendering.OpenGL as GL
-import qualified Linear as L
-
-import Model.Types
+import qualified Linear                    as L
+import           Model.Types
 
 
 

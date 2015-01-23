@@ -1,7 +1,6 @@
 module Model.Collision where
 
-
-import Model.Types
+import           Model.Types
 
 class Collidable a where
     getBBT :: a -> BoundingBoxTree

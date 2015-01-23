@@ -1,12 +1,10 @@
 module Engine.InputHandler(keyCallback, cursorCallback, mouseButtonCallback) where
 
-import Prelude hiding (Left, Right)
-import Control.Monad
+import           Control.Monad
+import           Data.IORef
 import qualified Graphics.UI.GLFW as GLFW
-import Data.IORef
-import Model.InputState
-
-
+import           Model.InputState
+import           Prelude          hiding (Left, Right)
 
 mouseButtonCallback :: GLFW.MouseButtonCallback
 mouseButtonCallback window button action _

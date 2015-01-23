@@ -1,28 +1,21 @@
 module Engine.Graphics.Assets.Resources(loadResources) where
 
-import qualified Graphics.GLUtil as GLUtil
-import Graphics.Rendering.OpenGL
-
-import qualified Data.Map as M
-import qualified Data.List as L
-import qualified Codec.Picture as PNG
-
-import Engine.Graphics.Common
-import Engine.Graphics.Assets.ImageLoader
-import Engine.Graphics.Assets.ModelLoader
-
-import Model.Resources
-import Model.Object
-import Model.Entity
-import Model.ShaderPrograms
-
-import Model.Geometry
-import Model.Material
-
-import Model.World
-
-import Model.GameState
-
+import qualified Codec.Picture                      as PNG
+import qualified Data.List                          as L
+import qualified Data.Map                           as M
+import           Engine.Graphics.Assets.ImageLoader
+import           Engine.Graphics.Assets.ModelLoader
+import           Engine.Graphics.Common
+import qualified Graphics.GLUtil                    as GLUtil
+import           Graphics.Rendering.OpenGL
+import           Model.Entity
+import           Model.GameState
+import           Model.Geometry
+import           Model.Material
+import           Model.Object
+import           Model.Resources
+import           Model.ShaderPrograms
+import           Model.World
 
 loadResources :: InitialState -> IO World
 loadResources ((gs, is), rs, ulObjs, ulEnts, ulSPs) = do

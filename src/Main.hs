@@ -1,7 +1,7 @@
 module Main(main) where
 
-import Engine.InitEngine
-import Game.Setup
+import           Engine.InitEngine
+import           Game.Setup
 
 main :: IO ()
 main = do

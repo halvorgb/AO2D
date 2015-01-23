@@ -1,8 +1,8 @@
 module Engine.Graphics.Common(errorCallback, checkError, resizeCallback, dumpInfo) where
 
-import Graphics.Rendering.OpenGL
-import qualified Graphics.UI.GLFW as GLFW
-import System.IO
+import           Graphics.Rendering.OpenGL
+import qualified Graphics.UI.GLFW          as GLFW
+import           System.IO
 
 checkError :: String -> IO ()
 checkError functionName = get errors >>= mapM_ reportError

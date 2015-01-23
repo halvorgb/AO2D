@@ -1,14 +1,12 @@
 module Model.World where
 
-import Model.InputState
-import Model.GameState
-
-import Model.Resources
-import Model.Object
-import Model.Entity
-import Model.ShaderPrograms
-
-import Data.IORef
+import           Data.IORef
+import           Model.Entity
+import           Model.GameState
+import           Model.InputState
+import           Model.Object
+import           Model.Resources
+import           Model.ShaderPrograms
 
 type World = (GameState, IORef InputState)
 

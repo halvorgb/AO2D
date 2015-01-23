@@ -1,17 +1,13 @@
 module Engine.Graphics.InitGraphics(initGraphics) where
 
-import qualified Graphics.UI.GLFW as GLFW
-import Graphics.Rendering.OpenGL
-import System.Exit
-
-
-import Engine.InputHandler
-import Engine.MainLoop
-import Engine.Graphics.Common
-import Engine.Graphics.Assets.Resources
-
-
-import Model.World
+import           Engine.Graphics.Assets.Resources
+import           Engine.Graphics.Common
+import           Engine.InputHandler
+import           Engine.MainLoop
+import           Graphics.Rendering.OpenGL
+import qualified Graphics.UI.GLFW                 as GLFW
+import           Model.World
+import           System.Exit
 
 initGraphics :: Int -> Int -> String -> InitialState -> IO ()
 initGraphics w h winTitle initialState@((_, inputState), _, _, _, _)  = do

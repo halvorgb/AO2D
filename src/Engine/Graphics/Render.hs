@@ -14,7 +14,6 @@ import           Model.ShaderPrograms
 import           Model.Types
 import           Model.World
 
-
 render :: World -> GLFW.Window -> IO ()
 render (gs, _) w =
     do clearColor $= toGLColor (gsClearColor gs)

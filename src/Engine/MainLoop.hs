@@ -1,13 +1,10 @@
 module Engine.MainLoop(mainLoop) where
 
-import qualified Graphics.UI.GLFW as GLFW
-import Control.Monad
-
-import Model.World
-
-import Game.Update
-
-import Engine.Graphics.Render
+import           Control.Monad
+import           Engine.Graphics.Render
+import           Game.Update
+import qualified Graphics.UI.GLFW       as GLFW
+import           Model.World
 
 mainLoop :: World -> GLFW.Window  -> IO ()
 mainLoop world win = do

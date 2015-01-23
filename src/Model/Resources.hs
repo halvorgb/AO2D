@@ -3,13 +3,13 @@ module Model.Resources where
 data Resources =
     Resources {
       rGeometryRs :: [GeometryResource],
-      rShaderRs :: [ShaderResource],
+      rShaderRs   :: [ShaderResource],
       rMaterialRs :: [MaterialResource]
     }
 
 data ShaderResource =
     ShaderResource {
-      srUniqueName :: String,
+      srUniqueName   :: String,
       srVertShaderFP :: FilePath,
       srGeomShaderFP :: Maybe FilePath,
       srFragShaderFP :: Maybe FilePath
@@ -21,9 +21,9 @@ data ModelFormat = ModelFormat'OBJ
 
 data GeometryResource =
     GeometryResource {
-      grUniqueName :: String,
+      grUniqueName  :: String,
       grModelFormat :: ModelFormat,
-      grModelFP :: FilePath
+      grModelFP     :: FilePath
     } deriving (Show)
 
 
