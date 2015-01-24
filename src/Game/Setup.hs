@@ -11,6 +11,7 @@ import           Model.Light
 import           Model.Object
 import           Model.Resources
 import           Model.ShaderPrograms
+import           Model.Types
 import           Model.World
 import           System.FilePath
 
@@ -41,11 +42,7 @@ gameState =
             }
   where camera = Camera (L.V3 0 0 0) 0 0 (pi/2)
 
-
-        lights = [ PointLight lightPos    4 (L.V3 1 1 1) Nothing
-                 , PointLight lightPosAdj 2 (L.V3 1 1 1) Nothing
-                 ]
-
+        lights = map snd lamps
 
         clearColor = defaultClearColor
 
@@ -101,6 +98,7 @@ resources =
 
 unloadedObjects :: UnloadedObjects
 unloadedObjects =
+  map fst lamps ++
   [ ObjectUnloaded { ouPosition    = L.V3(-0.7) (-0.5) 1.8
                    , ouRotation    = L.V3 0 0 0
                    , ouScale       = L.V3 0.25 0.25 0.25
@@ -173,5 +171,15 @@ unloadedShaderPrograms =
                          , spLightName     = "light"
                          , spDepthName     = "depth"
                          }
-lightPos    = L.V3 1 2 3
-lightPosAdj = L.V3 2 4 4
+
+lamps :: [(ObjectUnloaded, PointLight)]
+lamps = [ createLamp (L.V3 (-1) 3 (-1)) (L.V3 0 0 0) (L.V3 0.01 0.01 0.01) "light_box" (L.V3 0.8 0.8 0.8)
+--        , createLamp (L.V3 2    4   4)  (L.V3 0 0 0) (L.V3 0.01 0.01 0.01) "light_box" (L.V3 0.8 0.8 0.8)
+        ]
+
+
+createLamp :: Translation -> Rotation -> Scale -> String -> ColorRGB -> (ObjectUnloaded, PointLight)
+createLamp pos rot scale entName clr =
+  ( ObjectUnloaded pos rot scale [entName],
+    PointLight pos 0 clr Nothing
+  )
