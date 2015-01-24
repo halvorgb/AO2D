@@ -6,7 +6,7 @@ import           Model.Types
 
 
 
-redCC, greenCC, blueCC :: ColorGGB
+redCC, greenCC, blueCC :: ColorRGB
 redCC    = L.V3 0.30 0.15 0.15
 greenCC  = L.V3 0.25 0.45 0.1
 blueCC   = L.V3 0.1 0.15 0.35
@@ -17,8 +17,8 @@ pinkCC   = L.V3 1 0 1
 -}
 
 data ClearColor =
-    ClearColor { ccColorCycle :: [ColorGGB]
-               , ccClearColor :: ColorGGB
+    ClearColor { ccColorCycle :: [ColorRGB]
+               , ccClearColor :: ColorRGB
                , ccInterpRate :: GLfloat -- how much time (in seconds) needed to change 1 value of (R,G,B)
                } deriving(Show)
 
@@ -42,7 +42,7 @@ interpolateColor cc delta
           interpRate = ccInterpRate cc
 
 
-withinMarginOfError :: ColorGGB -> ColorGGB -> Bool
+withinMarginOfError :: ColorRGB -> ColorRGB -> Bool
 withinMarginOfError (L.V3 r1 g1 b1) (L.V3 r2 g2 b2) =
     all within $ zip [r1,g1,b1] [r2, g2, b2]
 
@@ -50,7 +50,7 @@ withinMarginOfError (L.V3 r1 g1 b1) (L.V3 r2 g2 b2) =
           within (c1, c2) = abs (c1 - c2) < 0.05
 
 
-interpolateColors :: ColorGGB -> ColorGGB -> GLfloat -> GLfloat -> ColorGGB
+interpolateColors :: ColorRGB -> ColorRGB -> GLfloat -> GLfloat -> ColorRGB
 interpolateColors (L.V3 r1 g1 b1) (L.V3 r2 g2 b2) delta interpRate =
     L.V3 r' g' b'
     where r' = interp r1 r2

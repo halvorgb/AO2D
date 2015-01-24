@@ -6,6 +6,6 @@ import           Model.Types
 data PointLight =
     PointLight { plPosition   :: Translation
                , plStrength   :: GLfloat
-               , plColor      :: ColorGGB
+               , plColor      :: ColorRGB
                , plrelativeTo :: Maybe Object
                }

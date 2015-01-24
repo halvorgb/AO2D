@@ -8,11 +8,11 @@ import Model.Entity
 type UnloadedObjects = [ObjectUnloaded]
 
 data ObjectUnloaded =
-    ObjectUnloaded { ouPosition :: Translation
-                    , ouRotation :: Rotation
-                    , ouScale :: Scale
-                    , ouEntityNames :: [String]
-                    }
+    ObjectUnloaded { ouPosition    :: Translation
+                   , ouRotation    :: Rotation
+                   , ouScale       :: Scale
+                   , ouEntityNames :: [String]
+                   }
 
 data Object =
     Object { oPosition  :: Translation
