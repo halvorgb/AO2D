@@ -94,7 +94,7 @@ void main() {
                                defaultAtten);
     totalLight += calcPointLight(pl, In);
   }
-
+  totalLight = min(vec4(0.9, 0.9, 0.9, 1), totalLight);
   color = texture(diffuse, In.TexCoord.xy) * totalLight;
 
 }
