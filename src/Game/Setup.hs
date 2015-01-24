@@ -25,144 +25,153 @@ world = do
   return (gameState, isIO)
 
 inputState :: InputState
-inputState = InputState { isKeyboardInput = []
-                        , isMouseInput = MouseInput 0 0
-                        }
+inputState =
+  InputState { isKeyboardInput = []
+             , isMouseInput = MouseInput 0 0
+             }
 
 gameState :: GameState
-gameState = GameState { gsCamera = camera
-                      , gsObjects = [] -- to be loaded
-                      , gsLights = lights
-                      , gsClearColor = clearColor
-                      , gsAmbiance = 0.1
-                      , gsShaderPrograms = undefined -- overwritten later...
-                      }
-    where camera = Camera (L.V3 0 0 0) 0 0 (pi/2)
+gameState =
+  GameState { gsCamera = camera
+            , gsObjects = [] -- to be loaded
+            , gsLights = lights
+            , gsClearColor = clearColor
+            , gsAmbiance = 0.1
+            , gsShaderPrograms = undefined -- overwritten later...
+            }
+  where camera = Camera (L.V3 0 0 0) 0 0 (pi/2)
 
 
-          lights = [ PointLight lightPos    4 (L.V3 1 1 1) Nothing
-                   , PointLight lightPosAdj 2 (L.V3 1 1 1) Nothing
-                   ]
+        lights = [ PointLight lightPos    4 (L.V3 1 1 1) Nothing
+                 , PointLight lightPosAdj 2 (L.V3 1 1 1) Nothing
+                 ]
 
 
-          clearColor = defaultClearColor
+        clearColor = defaultClearColor
 
 resources :: Resources
-resources = Resources { rGeometryRs = geometryResources
-                      , rShaderRs   = shaderResources
-                      , rMaterialRs = materialResources
-                      }
-    where geometryResources = [ GeometryResource { grUniqueName  = "box2"
-                                                 , grModelFormat = ModelFormatOBJ
-                                                 , grModelFP     = "assets" </> "models" </> "box2.obj"
-                                                 }
-                              , GeometryResource { grUniqueName  = "lykt"
-                                                 , grModelFormat = ModelFormatOBJ
-                                                 , grModelFP     = "assets" </> "models" </> "LYKTSOTLP.obj"
-                                                 }
-                              ]
+resources =
+  Resources { rGeometryRs = geometryResources
+            , rShaderRs   = shaderResources
+            , rMaterialRs = materialResources
+            }
 
-          shaderResources = [ ShaderResource { srUniqueName   = "depth"
-                                             , srVertShaderFP = "assets" </> "shaders" </> "depth.vert"
-                                             , srGeomShaderFP = Nothing
-                                             , srFragShaderFP = Just $ "assets" </> "shaders" </> "depth.frag"
-                                             }
-                            , ShaderResource { srUniqueName   = "shadowVol"
-                                             , srVertShaderFP = "assets" </> "shaders" </> "shadowVolume.vert"
-                                             , srGeomShaderFP = Just $ "assets" </> "shaders" </> "shadowVolume.geom"
-                                             , srFragShaderFP = Just $ "assets" </> "shaders" </> "shadowVolume.frag"
-                                             }
-                            , ShaderResource { srUniqueName   = "light"
-                                             , srVertShaderFP = "assets" </> "shaders" </> "lighting.vert"
-                                             , srGeomShaderFP = Nothing
-                                             , srFragShaderFP = Just $ "assets" </> "shaders" </> "lighting.frag"
-                                             }
-                            ]
-          materialResources = [ MaterialResource { mrUniqueName =  "placeholder"
-                                                 , mrDiffuseFP  = "assets" </> "materials" </> "placeholder" </> "diffuse.png"
-                                                 , mrSpecularFP = undefined
-                                                 , mrNormalFP = undefined}
-                              , MaterialResource { mrUniqueName =  "white"
-                                                 , mrDiffuseFP  = "assets" </> "materials" </> "white" </> "diffuse.png"
-                                                 , mrSpecularFP = undefined
-                                                 , mrNormalFP = undefined
-                                                 }
-                              ]
+    where geometryResources =
+            [ GeometryResource { grUniqueName  = "box2"
+                               , grModelFormat = ModelFormatOBJ
+                               , grModelFP     = "assets" </> "models" </> "box2.obj"
+                               }
+            , GeometryResource { grUniqueName  = "lykt"
+                               , grModelFormat = ModelFormatOBJ
+                               , grModelFP     = "assets" </> "models" </> "LYKTSOTLP.obj"
+                               }
+            ]
+
+          shaderResources =
+            [ ShaderResource { srUniqueName   = "depth"
+                             , srVertShaderFP = "assets" </> "shaders" </> "depth.vert"
+                             , srGeomShaderFP = Nothing
+                             , srFragShaderFP = Just $ "assets" </> "shaders" </> "depth.frag"
+                             }
+            , ShaderResource { srUniqueName   = "shadowVol"
+                             , srVertShaderFP = "assets" </> "shaders" </> "shadowVolume.vert"
+                             , srGeomShaderFP = Just $ "assets" </> "shaders" </> "shadowVolume.geom"
+                             , srFragShaderFP = Just $ "assets" </> "shaders" </> "shadowVolume.frag"
+                             }
+            , ShaderResource { srUniqueName   = "light"
+                             , srVertShaderFP = "assets" </> "shaders" </> "lighting.vert"
+                             , srGeomShaderFP = Nothing
+                             , srFragShaderFP = Just $ "assets" </> "shaders" </> "lighting.frag"
+                             }
+            ]
+
+          materialResources =
+            [ MaterialResource { mrUniqueName =  "placeholder"
+                               , mrDiffuseFP  = "assets" </> "materials" </> "placeholder" </> "diffuse.png"
+                               , mrSpecularFP = undefined
+                               , mrNormalFP   = undefined
+                               }
+            , MaterialResource { mrUniqueName =  "white"
+                               , mrDiffuseFP  = "assets" </> "materials" </> "white" </> "diffuse.png"
+                               , mrSpecularFP = undefined
+                               , mrNormalFP   = undefined
+                               }
+            ]
 
 
 unloadedObjects :: UnloadedObjects
-unloadedObjects = [ ObjectUnloaded { ouPosition = L.V3(-0.7) (-0.5) 1.8
-                                    , ouRotation = L.V3 0 0 0
-                                    , ouScale = L.V3 0.25 0.25 0.25
-                                    , ouEntityNames = ["box2"]
-                                    }
-                  , ObjectUnloaded { ouPosition = L.V3 0 0 2
-                                    , ouRotation = L.V3 0 0 0
-                                    , ouScale = L.V3 0.25 0.25 0.25
-                                    , ouEntityNames = ["box2"]
-                                    }
-                  , ObjectUnloaded { ouPosition = L.V3 0 1 2
-                                    , ouRotation = L.V3 0 0 0
-                                    , ouScale = L.V3 0.25 0.25 0.25
-                                    , ouEntityNames = ["box2"]
-                                    }
-                  , ObjectUnloaded { ouPosition = L.V3 0 2 2
-                                    , ouRotation = L.V3 0 0 0
-                                    , ouScale = L.V3 0.25 0.25 0.25
-                                    , ouEntityNames = ["box2"]
-                                    }
-                  , ObjectUnloaded { ouPosition = L.V3 0 2 3
-                                    , ouRotation = L.V3 0 0 0
-                                    , ouScale = L.V3 0.25 0.25 0.25
-                                    , ouEntityNames = ["box2"]
-                                    }
-                  , ObjectUnloaded { ouPosition = L.V3 0 (-1) 0
-                                    , ouRotation = L.V3 0 0 0
-                                    , ouScale = L.V3 12 0.05 12
-                                    , ouEntityNames = ["box2"]
-                                    }
-                  , ObjectUnloaded { ouPosition = L.V3 3 1 0
-                                    , ouRotation = L.V3 0 0 0
-                                    , ouScale = L.V3 0.25 0.25 0.25
-                                    , ouEntityNames = ["lykt"]
-                                    }
-                  ]
+unloadedObjects =
+  [ ObjectUnloaded { ouPosition    = L.V3(-0.7) (-0.5) 1.8
+                   , ouRotation    = L.V3 0 0 0
+                   , ouScale       = L.V3 0.25 0.25 0.25
+                   , ouEntityNames = ["box2"]
+                   }
+  , ObjectUnloaded { ouPosition    = L.V3 0 0 2
+                   , ouRotation    = L.V3 0 0 0
+                   , ouScale       = L.V3 0.25 0.25 0.25
+                   , ouEntityNames = ["box2"]
+                   }
+  , ObjectUnloaded { ouPosition    = L.V3 0 1 2
+                   , ouRotation    = L.V3 0 0 0
+                   , ouScale       = L.V3 0.25 0.25 0.25
+                   , ouEntityNames = ["box2"]
+                   }
+  , ObjectUnloaded { ouPosition    = L.V3 0 2 2
+                   , ouRotation    = L.V3 0 0 0
+                   , ouScale       = L.V3 0.25 0.25 0.25
+                   , ouEntityNames = ["box2"]
+                   }
+  , ObjectUnloaded { ouPosition    = L.V3 0 2 3
+                   , ouRotation    = L.V3 0 0 0
+                   , ouScale       = L.V3 0.25 0.25 0.25
+                   , ouEntityNames = ["box2"]
+                   }
+  , ObjectUnloaded { ouPosition    = L.V3 0 (-1) 0
+                   , ouRotation    = L.V3 0 0 0
+                   , ouScale       = L.V3 12 0.05 12
+                   , ouEntityNames = ["box2"]
+                   }
+  , ObjectUnloaded {  ouPosition    = L.V3 3 1 0
+                   , ouRotation    = L.V3 0 0 0
+                   , ouScale       = L.V3 0.25 0.25 0.25
+                   , ouEntityNames = ["lykt"]
+                   }
+  ]
 
 
 unloadedEntities :: UnloadedEntities
-unloadedEntities = [ EntityUnloaded { euUniqueName  = "box2"
-                                     , euRelativePos = L.V3 0 0 0
-                                     , euRelativeRot = L.V3 0 0 0
-                                     , euScale       = L.V3 1 1 1
-                                     , euAmbOverride = Nothing
-                                     , euGeometryName = "box2"
-                                     , euMaterialName = "placeholder"
-                                     }
-                   , EntityUnloaded { euUniqueName  = "lykt"
-                                     , euRelativePos = L.V3 0 0 0
-                                     , euRelativeRot = L.V3 0 0 0
-                                     , euScale       = L.V3 1 1 1
-                                     , euAmbOverride = Just 1
-                                     , euGeometryName = "lykt"
-                                     , euMaterialName = "placeholder"
-                                     }
-                   , EntityUnloaded { euUniqueName  = "light_box"
-                                     , euRelativePos = L.V3 0 0 0
-                                     , euRelativeRot = L.V3 0 0 0
-                                     , euScale       = L.V3 1 1 1
-                                     , euAmbOverride = Just 1 -- fullbright
-
-                                     , euGeometryName = "box2"
-                                     , euMaterialName = "white"
-                                     }
-                   ]
+unloadedEntities =
+  [ EntityUnloaded { euUniqueName  = "box2"
+                   , euRelativePos = L.V3 0 0 0
+                   , euRelativeRot = L.V3 0 0 0
+                   , euScale       = L.V3 1 1 1
+                   , euAmbOverride = Nothing
+                   , euGeometryName = "box2"
+                   , euMaterialName = "placeholder"
+                   }
+  , EntityUnloaded { euUniqueName  = "lykt"
+                   , euRelativePos = L.V3 0 0 0
+                   , euRelativeRot = L.V3 0 0 0
+                   , euScale       = L.V3 1 1 1
+                   , euAmbOverride = Just 1
+                   , euGeometryName = "lykt"
+                   , euMaterialName = "placeholder"
+                   }
+  , EntityUnloaded { euUniqueName  = "light_box"
+                   , euRelativePos = L.V3 0 0 0
+                   , euRelativeRot = L.V3 0 0 0
+                   , euScale       = L.V3 1 1 1
+                   , euAmbOverride = Just 1 -- fullbright
+                   , euGeometryName = "box2"
+                   , euMaterialName = "white"
+                   }
+  ]
 
 unloadedShaderPrograms :: ShaderProgramsUnloaded
 unloadedShaderPrograms =
-    ShaderProgramsUnloaded { spShadowVolName = "shadowVol"
-                            , spLightName     = "light"
-                            , spDepthName     = "depth"
-                            }
-
+  ShaderProgramsUnloaded { spShadowVolName = "shadowVol"
+                         , spLightName     = "light"
+                         , spDepthName     = "depth"
+                         }
 lightPos    = L.V3 1 2 3
 lightPosAdj = L.V3 2 4 4
