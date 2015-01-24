@@ -6,25 +6,23 @@ import           System.IO
 
 checkError :: String -> IO ()
 checkError functionName = get errors >>= mapM_ reportError
-   where reportError e =
-            hPutStrLn stderr (showError e ++ " detected in " ++ functionName)
-         showError (Error category message) =
-            "GL error " ++ show category ++ " (" ++ message ++ ")"
+  where reportError e =
+          hPutStrLn stderr (showError e ++ " detected in " ++ functionName)
+        showError (Error category message) =
+          "GL error " ++ show category ++ " (" ++ message ++ ")"
 
-
--- type ErrorCallback = Error -> String -> IO ()
 errorCallback :: GLFW.ErrorCallback
 errorCallback _ = hPutStrLn stderr
 
 resizeCallback :: GLFW.WindowSizeCallback
-resizeCallback _ width height = viewport $= (Position 0 0, Size (fromIntegral width) (fromIntegral height))
-
+resizeCallback _ width height =
+  viewport $= (Position 0 0, Size (fromIntegral width) (fromIntegral height))
 
 dumpInfo :: IO ()
 dumpInfo = do
-   let dump message var = putStrLn . ((message ++ ": ") ++) =<< get var
-   dump "Vendor" vendor
-   dump "Renderer" renderer
-   dump "Version" glVersion
-   dump "GLSL" shadingLanguageVersion
-   checkError "dumpInfo"
+  let dump message var = putStrLn . ((message ++ ": ") ++) =<< get var
+  dump "Vendor  " vendor
+  dump "Renderer" renderer
+  dump "Version " glVersion
+  dump "GLSL    " shadingLanguageVersion
+  checkError "dumpInfo"
