@@ -99,37 +99,8 @@ resources =
 unloadedObjects :: UnloadedObjects
 unloadedObjects =
   map fst lamps ++
-  [ ObjectUnloaded { ouPosition    = L.V3(-0.7) (-0.5) 1.8
-                   , ouRotation    = L.V3 0 0 0
-                   , ouScale       = L.V3 0.25 0.25 0.25
-                   , ouEntityNames = ["box2"]
-                   }
-  , ObjectUnloaded { ouPosition    = L.V3 0 0 2
-                   , ouRotation    = L.V3 0 0 0
-                   , ouScale       = L.V3 0.25 0.25 0.25
-                   , ouEntityNames = ["box2"]
-                   }
-  , ObjectUnloaded { ouPosition    = L.V3 0 1 2
-                   , ouRotation    = L.V3 0 0 0
-                   , ouScale       = L.V3 0.25 0.25 0.25
-                   , ouEntityNames = ["box2"]
-                   }
-  , ObjectUnloaded { ouPosition    = L.V3 0 2 2
-                   , ouRotation    = L.V3 0 0 0
-                   , ouScale       = L.V3 0.25 0.25 0.25
-                   , ouEntityNames = ["box2"]
-                   }
-  , ObjectUnloaded { ouPosition    = L.V3 0 2 3
-                   , ouRotation    = L.V3 0 0 0
-                   , ouScale       = L.V3 0.25 0.25 0.25
-                   , ouEntityNames = ["box2"]
-                   }
-  , ObjectUnloaded { ouPosition    = L.V3 0 (-1) 0
-                   , ouRotation    = L.V3 0 0 0
-                   , ouScale       = L.V3 12 0.05 12
-                   , ouEntityNames = ["box2"]
-                   }
-  , ObjectUnloaded {  ouPosition    = L.V3 3 1 0
+  boxes ++
+  [ ObjectUnloaded {  ouPosition    = L.V3 3 1 0
                    , ouRotation    = L.V3 0 0 0
                    , ouScale       = L.V3 0.25 0.25 0.25
                    , ouEntityNames = ["lykt"]
@@ -176,10 +147,23 @@ lamps :: [(ObjectUnloaded, PointLight)]
 lamps = [ createLamp (L.V3 (-1) 3 (-1)) (L.V3 0 0 0) (L.V3 0.01 0.01 0.01) "light_box" (L.V3 0.8 0.8 0.8)
 --        , createLamp (L.V3 2    4   4)  (L.V3 0 0 0) (L.V3 0.01 0.01 0.01) "light_box" (L.V3 0.8 0.8 0.8)
         ]
-
-
 createLamp :: Translation -> Rotation -> Scale -> String -> ColorRGB -> (ObjectUnloaded, PointLight)
 createLamp pos rot scale entName clr =
   ( ObjectUnloaded pos rot scale [entName],
     PointLight pos 0 clr Nothing
   )
+
+
+boxes :: [ObjectUnloaded]
+boxes = [ createBox (L.V3(-0.7) (-0.5) 1.8) zeroRot quarterScale "box2"
+        , createBox (L.V3 0 0 2)            zeroRot quarterScale "box2"
+        , createBox (L.V3 0 1 2)            zeroRot quarterScale "box2"
+        , createBox (L.V3 0 2 2)            zeroRot quarterScale "box2"
+        , createBox (L.V3 0 2 3)            zeroRot quarterScale "box2"
+        , createBox (L.V3 0 (-1) 0)         zeroRot (L.V3 10 0.01 10) "box2"
+        ]
+  where zeroRot      = L.V3 0 0 0
+        quarterScale = L.V3 0.25 0.25 0.25
+createBox :: Translation -> Rotation -> Scale -> String -> ObjectUnloaded
+createBox pos rot scale entName =
+  ObjectUnloaded pos rot scale [entName]
