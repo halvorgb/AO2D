@@ -9,16 +9,14 @@ import           Model.GameState
 import           Model.InputState
 import           Model.Light
 import           Model.Object
-import           Model.Resources
-import           Model.ShaderPrograms
 import           Model.Types
 import           Model.World
-import           System.FilePath
+
 
 setupGame :: IO InitialState
 setupGame = do
   w <- world
-  return (w, resources, unloadedObjects, unloadedEntities, unloadedShaderPrograms)
+  return (w, unloadedObjects, unloadedEntities)
 
 world :: IO World
 world = do
@@ -46,56 +44,6 @@ gameState =
 
         clearColor = defaultClearColor
 
-resources :: Resources
-resources =
-  Resources { rGeometryRs = geometryResources
-            , rShaderRs   = shaderResources
-            , rMaterialRs = materialResources
-            }
-
-    where geometryResources =
-            [ GeometryResource { grUniqueName  = "box2"
-                               , grModelFormat = ModelFormatOBJ
-                               , grModelFP     = "assets" </> "models" </> "box2.obj"
-                               }
-            , GeometryResource { grUniqueName  = "lykt"
-                               , grModelFormat = ModelFormatOBJ
-                               , grModelFP     = "assets" </> "models" </> "LYKTSOTLP.obj"
-                               }
-            ]
-
-          shaderResources =
-            [ ShaderResource { srUniqueName   = "depth"
-                             , srVertShaderFP = "assets" </> "shaders" </> "depth.vert"
-                             , srGeomShaderFP = Nothing
-                             , srFragShaderFP = Just $ "assets" </> "shaders" </> "depth.frag"
-                             }
-            , ShaderResource { srUniqueName   = "shadowVol"
-                             , srVertShaderFP = "assets" </> "shaders" </> "shadowVolume.vert"
-                             , srGeomShaderFP = Just $ "assets" </> "shaders" </> "shadowVolume.geom"
-                             , srFragShaderFP = Just $ "assets" </> "shaders" </> "shadowVolume.frag"
-                             }
-            , ShaderResource { srUniqueName   = "light"
-                             , srVertShaderFP = "assets" </> "shaders" </> "lighting.vert"
-                             , srGeomShaderFP = Nothing
-                             , srFragShaderFP = Just $ "assets" </> "shaders" </> "lighting.frag"
-                             }
-            ]
-
-          materialResources =
-            [ MaterialResource { mrUniqueName =  "placeholder"
-                               , mrDiffuseFP  = "assets" </> "materials" </> "placeholder" </> "diffuse.png"
-                               , mrSpecularFP = undefined
-                               , mrNormalFP   = undefined
-                               }
-            , MaterialResource { mrUniqueName =  "white"
-                               , mrDiffuseFP  = "assets" </> "materials" </> "white" </> "diffuse.png"
-                               , mrSpecularFP = undefined
-                               , mrNormalFP   = undefined
-                               }
-            ]
-
-
 unloadedObjects :: UnloadedObjects
 unloadedObjects =
   map fst lamps ++
@@ -110,38 +58,31 @@ unloadedObjects =
 
 unloadedEntities :: UnloadedEntities
 unloadedEntities =
-  [ EntityUnloaded { euUniqueName  = "box2"
-                   , euRelativePos = L.V3 0 0 0
-                   , euRelativeRot = L.V3 0 0 0
-                   , euScale       = L.V3 1 1 1
-                   , euAmbOverride = Nothing
+  [ EntityUnloaded { euUniqueName   = "box2"
+                   , euRelativePos  = L.V3 0 0 0
+                   , euRelativeRot  = L.V3 0 0 0
+                   , euScale        = L.V3 1 1 1
+                   , euAmbOverride  = Nothing
                    , euGeometryName = "box2"
                    , euMaterialName = "placeholder"
                    }
-  , EntityUnloaded { euUniqueName  = "lykt"
-                   , euRelativePos = L.V3 0 0 0
-                   , euRelativeRot = L.V3 0 0 0
-                   , euScale       = L.V3 1 1 1
-                   , euAmbOverride = Just 1
+  , EntityUnloaded { euUniqueName   = "lykt"
+                   , euRelativePos  = L.V3 0 0 0
+                   , euRelativeRot  = L.V3 0 0 0
+                   , euScale        = L.V3 1 1 1
+                   , euAmbOverride  = Nothing
                    , euGeometryName = "lykt"
                    , euMaterialName = "placeholder"
                    }
-  , EntityUnloaded { euUniqueName  = "light_box"
-                   , euRelativePos = L.V3 0 0 0
-                   , euRelativeRot = L.V3 0 0 0
-                   , euScale       = L.V3 1 1 1
-                   , euAmbOverride = Just 1 -- fullbright
+  , EntityUnloaded { euUniqueName   = "light_box"
+                   , euRelativePos  = L.V3 0 0 0
+                   , euRelativeRot  = L.V3 0 0 0
+                   , euScale        = L.V3 1 1 1
+                   , euAmbOverride  = Just 1 -- fullbright
                    , euGeometryName = "box2"
                    , euMaterialName = "white"
                    }
   ]
-
-unloadedShaderPrograms :: ShaderProgramsUnloaded
-unloadedShaderPrograms =
-  ShaderProgramsUnloaded { spShadowVolName = "shadowVol"
-                         , spLightName     = "light"
-                         , spDepthName     = "depth"
-                         }
 
 lamps :: [(ObjectUnloaded, PointLight)]
 lamps = [ createLamp (L.V3 (-1) 3 (-1)) (L.V3 0 0 0) (L.V3 0.01 0.01 0.01) "light_box" (L.V3 0.8 0.8 0.8)

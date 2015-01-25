@@ -10,7 +10,7 @@ import           Model.World
 import           System.Exit
 
 initGraphics :: Int -> Int -> String -> InitialState -> IO ()
-initGraphics w h winTitle initialState@((_, inputState), _, _, _, _)  = do
+initGraphics w h winTitle initialState@((_, inputState), _, _)  = do
   GLFW.setErrorCallback (Just errorCallback)
 
   successfulInit <- GLFW.init

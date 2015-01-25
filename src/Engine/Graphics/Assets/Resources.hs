@@ -3,52 +3,51 @@ module Engine.Graphics.Assets.Resources(loadResources) where
 import qualified Codec.Picture                      as PNG
 import qualified Data.List                          as L
 import qualified Data.Map                           as M
+import qualified Data.Yaml                          as Yaml
 import           Engine.Graphics.Assets.ImageLoader
 import           Engine.Graphics.Assets.ModelLoader
 import           Engine.Graphics.Common
 import qualified Graphics.GLUtil                    as GLUtil
 import           Graphics.Rendering.OpenGL
+import           Model.Configuration
+import qualified Model.Configuration.Material       as MatR
+import qualified Model.Configuration.Model          as ModR
+import qualified Model.Configuration.Shader         as ShaR
 import           Model.Entity
 import           Model.GameState
 import           Model.Geometry
 import           Model.Material
 import           Model.Object
-import           Model.Resources
-import           Model.ShaderPrograms
 import           Model.World
 
 loadResources :: InitialState -> IO World
-loadResources ((gs, is), rs, ulObjs, ulEnts, ulSPs) = do
-  shaderMap   <- buildIOMap loadShader   $ rShaderRs rs
-  checkError "loadShader"
+loadResources ((gs, is), ulObjs, ulEnts) =
+  do cfg <- readCfg
+     shaderMap   <- buildIOMap loadShader   $ shaders cfg
+     checkError "loadShader"
 
-  materialMap <- buildIOMap loadMaterial $ rMaterialRs rs
-  checkError "loadMaterial"
+     materialMap <- buildIOMap loadMaterial $ materials cfg
+     checkError "loadMaterial"
 
-  geometryMap <- buildIOMap loadGeometry $ rGeometryRs rs
-  checkError "loadGeometry"
+     geometryMap <- buildIOMap loadGeometry $ models cfg
+     checkError "loadGeometry"
 
 
 
-  let entityMap   = L.foldl' (loadEntity materialMap geometryMap) M.empty ulEnts
-      objects     = map (loadObject entityMap) ulObjs
-      shaderProgs = addShaderProgs shaderMap ulSPs
+     let entityMap   = L.foldl' (loadEntity materialMap geometryMap) M.empty ulEnts
+         objects     = map (loadObject entityMap) ulObjs
 
-  return ( gs { gsObjects = objects
-              , gsShaderPrograms = shaderProgs}, is
-         )
+     return ( gs { gsObjects = objects
+                 , gsShaderPrograms = shaderMap}, is
+            )
 
--------------------------------------
--- Add loaded shader programs.......
--------------------------------------
-addShaderProgs :: M.Map String GLUtil.ShaderProgram ->
-                  ShaderProgramsUnloaded ->
-                  ShaderPrograms
-addShaderProgs shaderMap spsU =
-  ShaderPrograms { spShadowVol = shaderMap M.! spShadowVolName spsU
-                 , spLight     = shaderMap M.! spLightName spsU
-                 , spDepth     = shaderMap M.! spDepthName spsU
-                 }
+
+readCfg :: IO ResourceConfig
+readCfg =
+  do cfg_res <- Yaml.decodeFileEither resource_config_file
+     case cfg_res of
+       Left err -> error $ show err
+       Right cfg -> return cfg
 
 --------------------------------------
 -- Load Objects using loaded entities:
@@ -109,26 +108,27 @@ buildIOMap loadFunc = L.foldl' loadFunc' (return M.empty)
 
 
 
-loadShader :: ShaderResource -> IO (String, GLUtil.ShaderProgram)
+loadShader :: ShaR.ShaderResource -> IO (String, GLUtil.ShaderProgram)
 loadShader sr = do
-  sp <- GLUtil.loadShaderProgram $ (v:g)++f
-
+  sp <- GLUtil.loadShaderProgram $ map (\(st, fp) -> (st, shader_file_path fp)) $ [v,f] ++ g
 
   return (un, sp)
 
   where v = (VertexShader, vert)
+        f = (FragmentShader, frag)
         g = maybe [] (\geomFP -> [(GeometryShader, geomFP)]) geom
-        f = maybe [] (\fragFP -> [(FragmentShader, fragFP)]) frag
 
-        un   = srUniqueName sr
-        vert = srVertShaderFP sr
-        geom = srGeomShaderFP sr
-        frag = srFragShaderFP sr
+        un   = ShaR.name sr
+        vert = ShaR.vert sr
+        frag = ShaR.frag sr
+        geom = ShaR.geom sr
 
 
-loadGeometry :: GeometryResource -> IO (String, Geometry)
-loadGeometry gr = do
-  (vertices, uvs, normals, triElements, triAdjElements) <- loadModel gr
+loadGeometry :: ModR.ModelResource -> IO (String, Geometry)
+loadGeometry mr = do
+  (vertices, uvs, normals, triElements, triAdjElements) <- loadModel
+                                                           mr { ModR.file_name = model_file_path $ ModR.file_name mr
+                                                              }
 
   [vao] <- genObjectNames 1
   bindVertexArrayObject $= Just vao
@@ -152,10 +152,10 @@ loadGeometry gr = do
                           }
 
   return (un, geometry)
-  where un = grUniqueName gr
+  where un = ModR.name mr
 
 
-loadMaterial :: MaterialResource -> IO (String, Material)
+loadMaterial :: MatR.MaterialResource -> IO (String, Material)
 loadMaterial mr = do
   -- load image:
   diff_img <- loadImage diffuseFilePath
@@ -180,5 +180,5 @@ loadMaterial mr = do
           Material { mDiffuseMap = diff_texObject
                    }
   return (un, material)
-  where un = mrUniqueName mr
-        diffuseFilePath = mrDiffuseFP mr
+  where un = MatR.name mr
+        diffuseFilePath = material_file_path $ MatR.diffuse mr

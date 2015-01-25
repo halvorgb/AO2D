@@ -10,7 +10,6 @@ import qualified Linear                              as L
 import           Model.Camera
 import           Model.ClearColor
 import           Model.GameState
-import           Model.ShaderPrograms
 import           Model.Types
 import           Model.World
 
@@ -28,10 +27,9 @@ render (gs, _) w =
            viewProjMat = mkViewProjMat width height cam
            ambiance = gsAmbiance gs
 
-           sp = gsShaderPrograms gs
-           lightShader     = spLight sp
-           shadowVolShader = spShadowVol sp
-           depthShader     = spDepth sp
+           lightShader     = getLightShader gs
+           shadowVolShader = getShadowShader gs
+           depthShader     = getDepthShader gs
 
            objects = gsObjects gs
 

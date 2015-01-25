@@ -6,7 +6,7 @@ import qualified Data.Map                      as Map
 import qualified Data.Maybe                    as Maybe
 import qualified Data.Set                      as Set
 import qualified Linear                        as L
-import           Model.Resources
+import           Model.Configuration.Model
 import           Model.Types
 import           Text.ParserCombinators.Parsec
 
@@ -24,10 +24,10 @@ type ModelOutput        = ( [VertexCoordinate]
                           , [VertexIndex]
                           , [VertexIndex])
 
-loadModel :: GeometryResource -> IO ModelOutput
-loadModel gR@(GeometryResource _ format fp)
-  | format == ModelFormatOBJ = loadOBJModel fp
-  | otherwise = error $ "unsupported format: " ++ show gR
+loadModel :: ModelResource -> IO ModelOutput
+loadModel mR@(ModelResource _ f fp)
+  | f == "obj" = loadOBJModel fp
+  | otherwise = error $ "unsupported format: " ++ show mR
 
 loadOBJModel :: FilePath -> IO ModelOutput
 loadOBJModel fp = do
