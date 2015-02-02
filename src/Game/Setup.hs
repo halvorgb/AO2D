@@ -1,7 +1,11 @@
 module Game.Setup(setupGame) where
 
 import           Data.IORef
-import qualified Linear               as L
+import qualified Data.Map              as M
+import qualified Linear                as L
+import           Mish.Config
+import           Mish.HexagonalGrid
+import           Mish.MissionGenerator
 import           Model.Camera
 import           Model.ClearColor
 import           Model.Entity
@@ -11,12 +15,24 @@ import           Model.Light
 import           Model.Object
 import           Model.Types
 import           Model.World
-
+import           System.Random
 
 setupGame :: IO InitialState
 setupGame = do
   w <- world
-  return (w, unloadedObjects, unloadedEntities)
+
+  mishSeed <- newStdGen
+  let mish = generateMission defaultConfig mishSeed
+  return (w, unloadedObjects mish, unloadedEntities)
+
+missionConfig =
+  Config { radius                = 16
+         , roomAttempts          = 100
+         , minRoomRadius         = 1
+         , maxRoomRadius         = 3
+         , doubleConnectorChance = 0.1
+         }
+
 
 world :: IO World
 world = do
@@ -44,10 +60,12 @@ gameState =
 
         clearColor = defaultClearColor
 
-unloadedObjects :: UnloadedObjects
-unloadedObjects =
+unloadedObjects :: HexagonalMission -> UnloadedObjects
+unloadedObjects hm =
   map fst lamps ++
-  boxes
+  hexes
+  where ascs = M.assocs $ getInternalMap hm
+        hexes = map createHex ascs
 
 
 unloadedEntities :: UnloadedEntities
@@ -96,27 +114,22 @@ createLamp pos rot scale entName clr =
     PointLight pos 0 clr Nothing
   )
 
-
-boxes :: [ObjectUnloaded]
-boxes = [ createBox (L.V3 0 0 0)                             zeroRot spacingScale "hexagon_white"
-        , createBox (L.V3 (1*0.5*hexLength) 0 (1*0.75*hexWidth)) zeroRot spacingScale "hexagon_white"
-        , createBox (L.V3 (-1*0.5*hexLength) 0 (1*0.75*hexWidth)) zeroRot spacingScale "hexagon_white"
-        , createBox (L.V3 (1*0.5*hexLength) 0 (-1*0.75*hexWidth)) zeroRot spacingScale "hexagon_white"
-        , createBox (L.V3 (-1*0.5*hexLength) 0 (-1*0.75*hexWidth)) zeroRot spacingScale "hexagon_white"
-        , createBox (L.V3 (2*0.5*hexLength) 0 (2*0.75*hexWidth)) zeroRot spacingScale "hexagon_white"
-        , createBox (L.V3 (2*0.5*hexLength) 0 (-2*0.75*hexWidth)) zeroRot spacingScaleTall "hexagon_gray"
-        ]
-  where zeroRot  = L.V3 0 0 0
-        oneScale = L.V3 1 1 1
-        spacingScale     = L.V3 (1.0-spacing) 1.0 (1.0-spacing)
-        spacingScaleTall = L.V3 (1.0-spacing) 2.0 (1.0-spacing)
-
-createBox :: Translation -> Rotation -> Scale -> String -> ObjectUnloaded
-createBox pos rot scale entName =
-  ObjectUnloaded pos rot scale [entName]
+createHex :: (AxialCoordinate, Tile) -> ObjectUnloaded
+createHex ((q,r),t) = ObjectUnloaded pos rot scale [entName]
+  where
+    pos = L.V3 (hexSize * (sqrt 3) * fir + fiq/2) 0 (hexSize * 1.5 * fiq)
+    rot = L.V3 0 0 0
+    (entName, scale) = if t == Wall
+                       then ("hexagon_gray", L.V3 (1.0-spacing) 2.0 (1.0-spacing))
+                       else ("hexagon_white", L.V3 (1.0-spacing) 1.0 (1.0-spacing))
 
 
-hexWidth, hexLength, spacing :: GLfloat
-hexLength = 0.87
-hexWidth = 1
+    fiq = fi q
+    fir = fi r
+
+
+hexSize, spacing :: GLfloat
 spacing = 0.1
+hexSize = 0.5
+
+fi = fromIntegral
