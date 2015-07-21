@@ -9,6 +9,8 @@ import           Engine.Graphics.Assets.ModelLoader
 import           Engine.Graphics.Common
 import qualified Graphics.GLUtil                    as GLUtil
 import           Graphics.Rendering.OpenGL
+import qualified Linear                             as L
+import           Model.Collision
 import           Model.Configuration
 import qualified Model.Configuration.Material       as MatR
 import qualified Model.Configuration.Model          as ModR
@@ -58,11 +60,10 @@ loadObject :: M.Map String Entity ->
 loadObject entityMap ou = obj
   where ents = map (entityMap M.!) $ ouEntityNames ou
 
-        obj = Object { oPosition = ouPosition ou
-                     , oRotation = ouRotation ou
-                     , oScale    = ouScale ou
-                     , oBBT      = undefined
-                     , oEntities = ents
+        obj = Object { oPosition    = ouPosition ou
+                     , oRotation    = ouRotation ou
+                     , oScale       = ouScale ou
+                     , oEntities    = ents
                      }
 
 
@@ -88,6 +89,7 @@ loadEntity materialMap geometryMap entMap eu =
 
         ent = Entity { eRelativePos = euRelativePos eu
                      , eRelativeRot = euRelativeRot eu
+                     , eBoundingBox = gBoundingBox g
                      , eScale       = euScale eu
                      , eAmbOverride = euAmbOverride eu
                      , eGeometry    = g
@@ -149,10 +151,14 @@ loadGeometry mr = do
                           , gNOFTris     = fromIntegral nofTris
                           , gNOFAdjs     = fromIntegral nofAdjs
                           , gVAO         = vao
+                          , gBoundingBox = createBoundingBox vertices
                           }
 
   return (un, geometry)
   where un = ModR.name mr
+
+        createBoundingBox :: [L.V3 GLfloat] -> BoundingBox
+        createBoundingBox vs = combineBBs $ map (\v -> BoundingBox v v) vs
 
 
 loadMaterial :: MatR.MaterialResource -> IO (String, Material)

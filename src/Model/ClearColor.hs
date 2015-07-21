@@ -32,31 +32,31 @@ defaultClearColor = ClearColor (cycle [redCC, greenCC, blueCC]) redCC 0.1
 
 interpolateColor :: ClearColor -> GLfloat -> ClearColor
 interpolateColor cc delta
-    | withinMarginOfError currentColor targetColor = cc { ccColorCycle = nextColors }
+  | withinMarginOfError currentColor targetColor = cc { ccColorCycle = nextColors }
 
-    | otherwise = let currentColor' = interpolateColors currentColor targetColor delta interpRate
-                  in cc { ccClearColor = currentColor' }
+  | otherwise = let currentColor' = interpolateColors currentColor targetColor delta interpRate
+                in cc { ccClearColor = currentColor' }
 
-    where currentColor = ccClearColor cc
-          (targetColor:nextColors) = ccColorCycle cc
-          interpRate = ccInterpRate cc
+  where currentColor = ccClearColor cc
+        (targetColor:nextColors) = ccColorCycle cc
+        interpRate = ccInterpRate cc
 
 
 withinMarginOfError :: ColorRGB -> ColorRGB -> Bool
 withinMarginOfError (L.V3 r1 g1 b1) (L.V3 r2 g2 b2) =
-    all within $ zip [r1,g1,b1] [r2, g2, b2]
+  all within $ zip [r1,g1,b1] [r2, g2, b2]
 
-    where within :: (GLfloat, GLfloat) -> Bool
-          within (c1, c2) = abs (c1 - c2) < 0.05
+  where within :: (GLfloat, GLfloat) -> Bool
+        within (c1, c2) = abs (c1 - c2) < 0.05
 
 
 interpolateColors :: ColorRGB -> ColorRGB -> GLfloat -> GLfloat -> ColorRGB
 interpolateColors (L.V3 r1 g1 b1) (L.V3 r2 g2 b2) delta interpRate =
-    L.V3 r' g' b'
-    where r' = interp r1 r2
-          g' = interp g1 g2
-          b' = interp b1 b2
+  L.V3 r' g' b'
+  where r' = interp r1 r2
+        g' = interp g1 g2
+        b' = interp b1 b2
 
-          interp :: GLfloat -> GLfloat -> GLfloat
-          interp c1 c2 = c1 + diff * delta * interpRate
-              where diff = c2 - c1
+        interp :: GLfloat -> GLfloat -> GLfloat
+        interp c1 c2 = c1 + diff * delta * interpRate
+          where diff = c2 - c1

@@ -1,6 +1,7 @@
 module Model.Geometry where
 
 import           Graphics.Rendering.OpenGL
+import           Model.Collision
 
 data Geometry =
     Geometry { gVertices    :: BufferObject
@@ -11,4 +12,5 @@ data Geometry =
              , gNOFTris     :: GLint
              , gNOFAdjs     :: GLint
              , gVAO         :: VertexArrayObject
+             , gBoundingBox :: BoundingBox
              }

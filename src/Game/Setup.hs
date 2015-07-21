@@ -111,7 +111,7 @@ lamps = [ createLamp (L.V3 (-1) 3 (-1)) (L.V3 0 0 0) (L.V3 0.01 0.01 0.01) "ligh
 createLamp :: Translation -> Rotation -> Scale -> String -> ColorRGB -> (ObjectUnloaded, PointLight)
 createLamp pos rot scale entName clr =
   ( ObjectUnloaded pos rot scale [entName],
-    PointLight pos 0 clr Nothing
+    PointLight pos 100 5 clr Nothing
   )
 
 createHex :: (AxialCoordinate, Tile) -> ObjectUnloaded

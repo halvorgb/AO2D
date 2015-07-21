@@ -3,6 +3,7 @@ module Engine.Graphics.Render(render) where
 import           Engine.Graphics.Render.Depth
 import           Engine.Graphics.Render.Light
 import           Engine.Graphics.Render.ShadowVolume
+import           Engine.Graphics.Culling
 import qualified Graphics.GLUtil.Camera3D            as GLUtilC
 import           Graphics.Rendering.OpenGL
 import qualified Graphics.UI.GLFW                    as GLFW
@@ -10,6 +11,7 @@ import qualified Linear                              as L
 import           Model.Camera
 import           Model.ClearColor
 import           Model.GameState
+import           Model.Light
 import           Model.Types
 import           Model.World
 
@@ -34,9 +36,12 @@ render (gs, _) w =
            objects = gsObjects gs
 
 
-       -- write to depth buffer
+           -- frustum culling
 
-       -- Render ambiance everywhere. Write to depth-buffer.
+
+           -- visibleObjects = frustumCull objects viewProjMat nearClip farClip
+
+       -- write to depth buffer
        depthMask $= Enabled
        clear [ColorBuffer, DepthBuffer, StencilBuffer]
        colorMask $= Color4 Disabled Disabled Disabled Disabled
@@ -45,7 +50,11 @@ render (gs, _) w =
        -- foreach light:
        mapM_
          (\l ->
-           do -- Depth fail, mark shadow volumes in the stencil buffer.
+           do let objectsWithinRadius = radiusCull objects (plPosition l) (plRadius l)
+              --print $ plRadius l
+              --print $ length objectsWithinRadius
+              --print $ length objects
+              -- Depth fail, mark shadow volumes in the stencil buffer.
               depthMask $= Disabled
               clear [StencilBuffer]
               cullFace $= Nothing
@@ -55,7 +64,7 @@ render (gs, _) w =
               stencilOpSeparate Back  $= (OpKeep, OpIncrWrap, OpKeep)
               stencilOpSeparate Front $= (OpKeep, OpDecrWrap, OpKeep)
 
-              renderShadowVolumeToStencil viewProjMat l shadowVolShader objects
+              renderShadowVolumeToStencil viewProjMat l shadowVolShader objectsWithinRadius
 
               -- using given stencil info.
               -- Draw the scene with lights.
@@ -70,7 +79,7 @@ render (gs, _) w =
               -- BlendEquation $= FuncAdd
               blendEquation $= Max
               blendFunc $= (One, One)
-              renderLightedObjects viewProjMat l camPos lightShader objects
+              renderLightedObjects viewProjMat l camPos lightShader objectsWithinRadius
               blend $= Disabled
 
               stencilTest $= Disabled
@@ -97,5 +106,8 @@ mkViewProjMat width height camera  = projMat L.!*! viewMat
         projMat    = GLUtilC.projectionMatrix fov aspect nearClip farClip
         aspect     = fromIntegral width / fromIntegral height
         fov        = cFov camera
-        nearClip   = 0.01
-        farClip    = 100
+
+nearClip :: GLfloat
+nearClip = 0.01
+farClip :: GLfloat
+farClip  = 100

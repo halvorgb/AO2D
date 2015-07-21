@@ -49,7 +49,7 @@ renderEntityToStencil viewProjMat objMat pl prog e =
        bindBuffer ElementArrayBuffer $= Just elems
 
        GLRaw.glDrawElements
-         GLRaw.gl_TRIANGLES_ADJACENCY
+         GLRaw.gl_TRIANGLES_ADJACENCY_ARB
          nofTris
          GLRaw.gl_UNSIGNED_INT nullPtr
 

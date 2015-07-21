@@ -6,7 +6,7 @@ import           GHC.Generics
 import           Model.Configuration.Material
 import           Model.Configuration.Model
 import           Model.Configuration.Shader
-import System.FilePath
+import           System.FilePath
 
 data ResourceConfig =
   ResourceConfig { models    :: [ModelResource]

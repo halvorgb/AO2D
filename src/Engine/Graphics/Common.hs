@@ -20,9 +20,10 @@ resizeCallback _ width height =
 
 dumpInfo :: IO ()
 dumpInfo = do
-  let dump message var = putStrLn . ((message ++ ": ") ++) =<< get var
   dump "Vendor  " vendor
   dump "Renderer" renderer
   dump "Version " glVersion
   dump "GLSL    " shadingLanguageVersion
   checkError "dumpInfo"
+  where dump :: String -> GettableStateVar String -> IO ()
+        dump message var = putStrLn . ((message ++ ": ") ++) =<< get var
